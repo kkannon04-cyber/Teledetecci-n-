@@ -1,0 +1,20 @@
+# Copias sueltas de los PDF en la raíz: la versión buena vive en informe/
+/Briefing-Sustentacion.pdf
+/Guia-EFB.pdf
+/Guia-Tramos.pdf
+/Guia-corte-vertical.pdf
+
+# Grabación de la asesoría: es la voz de un tercero. La transcripción, que es
+# lo que el trabajo cita, sí está versionada en informe/asesoria-meteorologo.md
+*.mp4
+*.m4a
+*.ogg
+*.opus
+
+# Paquete de entrega: se regenera con herramientas/empaquetar.mjs
+visor-teledeteccion-*.zip
+
+node_modules/
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -1,0 +1,94 @@
+{
+  "type": "FeatureCollection",
+  "nota": "Polígonos de interpretación del analista, pendientes de redibujar sobre las capturas definitivas de SLIDER. Los puntos de ruta que se citan (VUNRO, EJA, NEDOR, MQU, TOLOD, TOD) sí son los reales del caso, tomados del AIP Colombia.",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "cb-magdalena",
+        "tipo": "convectivo",
+        "nombre": "Complejo convectivo — valle del Magdalena",
+        "severidad": "severo",
+        "desdeZ": "2026-08-31T13:00:00Z",
+        "hastaZ": "2026-08-31T16:00:00Z",
+        "nivelesFt": "FL180 – FL480",
+        "bandaClave": "ir-c13",
+        "bandasApoyo": ["vis-c02", "sandwich"],
+        "evidencia": "Temperatura de brillo de tope de −72 °C en banda 13, con textura de torres en ascenso y yunque desplazado hacia el noreste en el visible de 0.64 µm.",
+        "interpretacion": "Cumulonimbos maduros organizados en línea sobre el valle. El desplazamiento del yunque indica cizalladura en niveles altos, favorable a organización y persistencia.",
+        "impacto": "Turbulencia severa, granizo, engelamiento fuerte y actividad eléctrica. Atraviesa la ruta en el tramo VUNRO — EJA — NEDOR (aerovías V712 y W12), justo sobre el aeródromo SKEJ y la zona peligrosa SKD37.",
+        "recomendacion": "Desvío lateral mínimo de 20 NM por barlovento. No sobrevolar el yunque. Considerar retraso de salida o ascenso a nivel superior."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-75.1, 6.4], [-73.6, 6.5], [-73.4, 8.1], [-74.9, 8.3], [-75.1, 6.4]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "engelamiento-andes",
+        "tipo": "engelamiento",
+        "nombre": "Engelamiento moderado — cordillera Central",
+        "severidad": "moderado",
+        "desdeZ": "2026-08-31T11:00:00Z",
+        "hastaZ": "2026-08-31T17:00:00Z",
+        "nivelesFt": "FL120 – FL200",
+        "bandaClave": "day-cloud-phase",
+        "bandasApoyo": ["ir-c13"],
+        "evidencia": "El producto Day Cloud Phase Distinction marca agua líquida sobreenfriada en tonos verde-azulados sobre la ladera occidental, con topes entre −8 °C y −18 °C en banda 13.",
+        "interpretacion": "Nube estratiforme orográfica forzada por el ascenso sobre la cordillera, dentro de la franja de temperatura crítica de engelamiento.",
+        "impacto": "Acumulación de hielo en ascenso. Afecta la subida desde SKBO por A323 y V712, en el arco MQU — TOLOD — PAL, antes de alcanzar el TOC a 92 NM del origen.",
+        "recomendacion": "Antihielo activado en el cruce de la franja. Minimizar tiempo de permanencia entre FL120 y FL200."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-75.9, 5.0], [-75.0, 5.1], [-74.8, 6.9], [-75.7, 6.8], [-75.9, 5.0]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "tac-caribe",
+        "tipo": "turbulencia",
+        "nombre": "Turbulencia en aire claro — salida al Caribe",
+        "severidad": "moderado",
+        "desdeZ": "2026-08-31T12:00:00Z",
+        "hastaZ": "2026-08-31T18:00:00Z",
+        "nivelesFt": "FL300 – FL400",
+        "bandaClave": "wv-c08",
+        "bandasApoyo": [],
+        "evidencia": "Gradiente marcado de humedad en vapor de agua de 6.2 µm: borde nítido entre zona oscura (aire seco subsidente) y zona clara al norte de 10 °N.",
+        "interpretacion": "Frontera de deformación asociada a la corriente en chorro. Los bordes abruptos en vapor de agua son el indicador clásico de turbulencia en aire claro, invisible en radar meteorológico.",
+        "impacto": "Turbulencia sin nube y sin eco de radar en el último tramo de crucero y en el descenso: el TOD cae a 314 NM del origen, entre ELB y EDVAR, dentro de este polígono.",
+        "recomendacion": "Señal de cinturones anticipada. Reportar PIREP. Evaluar nivel alternativo si hay reportes previos."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-75.5, 9.8], [-73.2, 9.9], [-73.1, 11.6], [-75.6, 11.5], [-75.5, 9.8]]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "stratus-sabana",
+        "tipo": "visibilidad",
+        "nombre": "Estratos bajos y niebla — sabana de Bogotá",
+        "severidad": "leve",
+        "desdeZ": "2026-08-31T10:00:00Z",
+        "hastaZ": "2026-08-31T13:30:00Z",
+        "nivelesFt": "SFC – 2000 AGL",
+        "bandaClave": "nube-baja-niebla",
+        "bandasApoyo": ["geocolor"],
+        "evidencia": "El producto diferencial 10.3 − 3.9 µm resalta una capa uniforme y homogénea sobre la sabana antes del amanecer, que se disipa progresivamente tras las 13:00Z.",
+        "interpretacion": "Estratos de radiación nocturna en cuenca cerrada de altura. La disipación depende del calentamiento diurno.",
+        "impacto": "Condiciona los mínimos de despegue y la posible necesidad de alterno de despegue.",
+        "recomendacion": "Verificar mínimos de despegue vigentes. Confirmar disipación con METAR de la hora antes de salida."
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[[-74.45, 4.4], [-73.85, 4.4], [-73.85, 5.15], [-74.45, 5.15], [-74.45, 4.4]]]
+      }
+    }
+  ]
+}

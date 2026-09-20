@@ -1,0 +1,1495 @@
+/* ============================================================
+   Visor de teledetección aeronáutica — tema oscuro de cabina
+   Pensado para proyector: contraste alto, tipografía grande.
+   ============================================================ */
+
+:root {
+  --fondo: #0d1117;
+  --panel: #151b23;
+  --panel-alto: #1c242e;
+  --borde: #2a333f;
+  --borde-vivo: #3d4a5a;
+  --texto: #e6edf3;
+  --tenue: #8b98a5;
+  --muy-tenue: #5c6773;
+  --acento: #4da3ff;
+  --acento-suave: rgba(77, 163, 255, 0.15);
+
+  /* Categoría de vuelo — misma convención en mapa, tarjetas y tablas */
+  --vfr: #3fb950;
+  --mvfr: #4da3ff;
+  --ifr: #f85149;
+  --lifr: #d2a8ff;
+  --sin-datos: #6e7681;
+
+  /* Severidad de fenómenos */
+  --sev-leve: #d29922;
+  --sev-moderado: #f0883e;
+  --sev-severo: #f85149;
+
+  --mono: 'Cascadia Mono', 'JetBrains Mono', Consolas, 'Courier New', monospace;
+  --sans: 'Segoe UI', system-ui, -apple-system, sans-serif;
+
+  --rail: 210px;
+  --lateral: 340px;
+  --barra: 78px;
+  --cabecera: 52px;
+}
+
+* { box-sizing: border-box; }
+
+/* El atributo hidden tiene que ganar SIEMPRE. Los paneles de este visor llevan
+   display:flex o display:grid puestos por id, y esa regla gana en especificidad
+   al [hidden]{display:none} del navegador: sin esto, un panel marcado como
+   oculto se sigue pintando. Costó encontrarlo porque el síntoma no era un panel
+   visible sino una vista oscurecida por una capa de carga invisible pero presente. */
+[hidden] { display: none !important; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--fondo);
+  color: var(--texto);
+  font-family: var(--sans);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* ---------- Estructura general ---------- */
+
+#app {
+  display: grid;
+  grid-template-columns: 1fr var(--lateral);
+  grid-template-rows: var(--cabecera) 1fr var(--barra);
+  grid-template-areas:
+    'cabecera cabecera'
+    'escenario lateral'
+    'barra    barra';
+  height: 100vh;
+  transition: grid-template-columns 0.22s ease;
+}
+
+/* El panel de herramientas se pliega para dejar la imagen entera a la vista.
+   Es la mitad del ancho de pantalla en un portátil, y durante una sustentación
+   lo que se mira es el satélite, no la lista de capas. */
+body.lateral-oculto #app { grid-template-columns: 1fr 0; }
+body.lateral-oculto #lateral {
+  transition: opacity 0.18s ease;
+  opacity: 0;
+  pointer-events: none;
+  border-left-color: transparent;
+}
+
+
+
+/* ---------- Cabecera ---------- */
+
+#cabecera {
+  grid-area: cabecera;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 0 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--borde);
+}
+
+#cabecera h1 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+#cabecera .sub {
+  font-size: 11px;
+  color: var(--tenue);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.aviso-ejemplo {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 3px 8px;
+  border-radius: 3px;
+  background: rgba(210, 153, 34, 0.15);
+  color: var(--sev-leve);
+  border: 1px solid rgba(210, 153, 34, 0.4);
+  white-space: nowrap;
+}
+
+#reloj-z {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--acento);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+#cabecera .acciones { display: flex; gap: 6px; }
+
+/* ---------- Botones ---------- */
+
+button {
+  font-family: inherit;
+  font-size: 12px;
+  color: var(--texto);
+  background: var(--panel-alto);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 4px;
+  padding: 6px 11px;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+button:hover { background: #273240; border-color: var(--acento); }
+button.activo { background: var(--acento-suave); border-color: var(--acento); color: var(--acento); }
+button:disabled { opacity: 0.4; cursor: default; }
+
+/* ---------- Rail izquierdo: escenas ---------- */
+
+.escena-item {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 9px 14px;
+  cursor: pointer;
+  border-left: 3px solid transparent;
+  font-size: 13px;
+  color: var(--tenue);
+}
+.escena-item:hover { background: var(--panel-alto); color: var(--texto); }
+.escena-item.activa {
+  background: var(--acento-suave);
+  border-left-color: var(--acento);
+  color: var(--texto);
+  font-weight: 500;
+}
+.escena-num { font-family: var(--mono); font-size: 11px; color: var(--muy-tenue); }
+
+/* ---------- Escenario central ---------- */
+
+#escenario {
+  grid-area: escenario;
+  position: relative;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  overflow: hidden;
+}
+
+/* El escenario se parte en dos filas: arriba el mapa y el satélite, abajo el
+   corte vertical cuando está abierto. La división izquierda/derecha pasa a ser
+   cosa del lienzo, para que el corte ocupe todo el ancho. */
+#lienzo-principal {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  overflow: hidden;
+  min-height: 0;
+}
+#escenario.dividido #lienzo-principal { grid-template-columns: 1fr 1fr; }
+
+#mapa { width: 100%; height: 100%; background: #0a0e14; }
+
+#panel-satelite {
+  display: none;
+  position: relative;
+  background: #05070a;
+  border-left: 1px solid var(--borde);
+  overflow: hidden;
+}
+#escenario.dividido #panel-satelite { display: block; }
+
+/* Narración flotante del modo presentación */
+#narracion {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  max-width: 720px;
+  padding: 14px 20px;
+  background: rgba(13, 17, 23, 0.93);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  z-index: 800;
+  display: block;
+}
+#narracion h2 { margin: 0 0 6px; font-size: 17px; }
+#narracion p { margin: 0; color: var(--tenue); font-size: 14px; }
+#narracion .pista {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--muy-tenue);
+  font-family: var(--mono);
+}
+
+/* ---------- Panel lateral derecho ---------- */
+
+#lateral {
+  grid-area: lateral;
+  background: var(--panel);
+  border-left: 1px solid var(--borde);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  transition: opacity 0.2s;
+}
+
+.pestanas {
+  display: flex;
+  border-bottom: 1px solid var(--borde);
+  flex-shrink: 0;
+}
+.pestana {
+  flex: 1;
+  padding: 10px 4px;
+  text-align: center;
+  font-size: 11px;
+  letter-spacing: 0.4px;
+  color: var(--tenue);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  user-select: none;
+}
+.pestana:hover { color: var(--texto); }
+.pestana.activa { color: var(--acento); border-bottom-color: var(--acento); background: var(--acento-suave); }
+
+.contenido-pestana { display: none; overflow-y: auto; padding: 14px; flex: 1; }
+.contenido-pestana.activa { display: block; }
+
+/* ---------- Capas ---------- */
+
+.grupo-capa { margin-bottom: 18px; }
+.grupo-titulo {
+  font-size: 10px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--muy-tenue);
+  margin-bottom: 7px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid var(--borde);
+}
+
+.capa {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 2px;
+}
+.capa label { flex: 1; cursor: pointer; font-size: 13px; user-select: none; }
+.capa input[type='checkbox'] { accent-color: var(--acento); width: 15px; height: 15px; cursor: pointer; }
+.capa input[type='range'] { width: 74px; accent-color: var(--acento); cursor: pointer; }
+.capa.apagada label { color: var(--muy-tenue); }
+.capa.apagada input[type='range'] { opacity: 0.3; pointer-events: none; }
+
+/* ---------- Tarjetas de aeródromo ---------- */
+
+.tarjeta {
+  background: var(--panel-alto);
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 11px 12px;
+  margin-bottom: 10px;
+}
+.tarjeta-cab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.icao { font-family: var(--mono); font-size: 16px; font-weight: 700; letter-spacing: 0.5px; }
+.rol {
+  font-size: 9px;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  color: var(--muy-tenue);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 3px;
+  padding: 2px 5px;
+}
+.cat {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  color: #0d1117;
+}
+.cat-VFR { background: var(--vfr); }
+.cat-MVFR { background: var(--mvfr); }
+.cat-IFR { background: var(--ifr); }
+.cat-LIFR { background: var(--lifr); }
+.cat-ND { background: var(--sin-datos); }
+
+.crudo {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #b6c2cf;
+  background: #0b0f15;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  padding: 8px 9px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin-bottom: 8px;
+}
+.crudo.taf { color: #c9d4a8; }
+
+.campos { display: grid; grid-template-columns: repeat(2, 1fr); gap: 5px 12px; font-size: 12px; }
+.campo-etq { color: var(--muy-tenue); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.5px; }
+.campo-val { font-family: var(--mono); }
+
+.hora-obs { font-size: 10.5px; color: var(--muy-tenue); font-family: var(--mono); margin-bottom: 6px; }
+
+/* Barra de periodos del TAF */
+.barra-taf { display: flex; height: 22px; border-radius: 4px; overflow: hidden; margin: 8px 0 4px; border: 1px solid var(--borde); }
+.periodo-taf {
+  flex-grow: 1;
+  font-size: 9px;
+  font-family: var(--mono);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0d1117;
+  font-weight: 700;
+  overflow: hidden;
+  border-right: 1px solid rgba(0, 0, 0, 0.35);
+  cursor: default;
+}
+.periodo-taf:last-child { border-right: none; }
+.periodo-taf.vigente { outline: 2px solid var(--texto); outline-offset: -2px; }
+
+/* ---------- Fenómenos ---------- */
+
+.fenomeno {
+  border-left: 3px solid var(--borde-vivo);
+  padding: 9px 11px;
+  margin-bottom: 9px;
+  background: var(--panel-alto);
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+}
+.fenomeno:hover { background: #232d38; }
+.fenomeno.sev-leve { border-left-color: var(--sev-leve); }
+.fenomeno.sev-moderado { border-left-color: var(--sev-moderado); }
+.fenomeno.sev-severo { border-left-color: var(--sev-severo); }
+.fenomeno h4 { margin: 0 0 4px; font-size: 13px; }
+.fenomeno .meta { font-size: 10.5px; color: var(--muy-tenue); font-family: var(--mono); }
+.fenomeno .detalle { display: none; margin-top: 9px; font-size: 12px; color: #b6c2cf; }
+.fenomeno.abierto .detalle { display: block; }
+.fenomeno .detalle dt {
+  font-size: 10px;
+  letter-spacing: 0.7px;
+  text-transform: uppercase;
+  color: var(--muy-tenue);
+  margin-top: 8px;
+}
+.fenomeno .detalle dd { margin: 2px 0 0; }
+/* La ficha ya no muestra la evidencia, así que el rótulo carga el aviso de que
+   lo que sigue es lectura del analista y no medida. */
+.fenomeno .detalle .marca-analista {
+  text-transform: none;
+  letter-spacing: 0;
+  font-style: italic;
+  opacity: 0.75;
+}
+/* Bloque SIGMET dentro de la pestaña Fenómenos */
+#bloque-sigmet { margin-bottom: 6px; }
+
+.veredicto-sigmet {
+  font-size: 12px;
+  line-height: 1.55;
+  padding: 9px 11px;
+  border-radius: 5px;
+  border: 1px solid var(--borde);
+  margin-bottom: 4px;
+}
+.veredicto-sigmet.limpio { background: rgba(63, 185, 80, 0.09); border-color: rgba(63, 185, 80, 0.4); }
+/* Ni limpio ni alerta: nada corta el trazado, pero algo lo roza. Ese caso existe
+   —un polígono a décimas de milla del aeródromo de destino— y pintarlo en verde
+   sería tan engañoso como pintarlo en rojo. */
+.veredicto-sigmet.rozando { background: rgba(210, 153, 34, 0.11); border-color: rgba(210, 153, 34, 0.5); }
+.veredicto-sigmet.alerta { background: rgba(248, 81, 73, 0.11); border-color: rgba(248, 81, 73, 0.5); }
+.veredicto-sigmet.limpio b { color: var(--vfr); }
+.veredicto-sigmet.rozando b { color: var(--mvfr, #d29922); }
+.veredicto-sigmet.alerta b { color: var(--ifr); }
+
+.sello-vivo,
+.sello-historico,
+.sello-congelado {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  border-radius: 3px;
+  padding: 1px 5px;
+  margin-right: 4px;
+}
+.fila-alcance { display: flex; align-items: center; gap: 6px; margin-top: 8px; }
+.fila-alcance label { font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase; color: var(--muy-tenue); }
+.fila-alcance select {
+  flex: 1;
+  background: var(--panel-alto);
+  color: var(--texto);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 4px;
+  padding: 3px 5px;
+  font-size: 11.5px;
+  font-family: inherit;
+}
+
+.sello-vivo { background: rgba(63, 185, 80, 0.18); color: var(--vfr); border: 1px solid rgba(63, 185, 80, 0.45); }
+.sello-historico { background: rgba(77, 163, 255, 0.16); color: var(--acento); border: 1px solid rgba(77, 163, 255, 0.45); }
+.sello-congelado { background: rgba(139, 152, 165, 0.15); color: var(--tenue); border: 1px solid var(--borde-vivo); }
+
+.etiqueta-banda {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 10px;
+  background: var(--acento-suave);
+  color: var(--acento);
+  border: 1px solid rgba(77, 163, 255, 0.35);
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin: 2px 4px 0 0;
+}
+
+/* ---------- Bandas satelitales ---------- */
+
+.banda {
+  border: 1px solid var(--borde);
+  border-radius: 6px;
+  padding: 10px 11px;
+  margin-bottom: 9px;
+  background: var(--panel-alto);
+  cursor: pointer;
+}
+.banda:hover { border-color: var(--borde-vivo); }
+.banda.activa { border-color: var(--acento); background: var(--acento-suave); }
+.banda-cab { display: flex; align-items: baseline; gap: 8px; }
+.banda-nombre { font-size: 13px; font-weight: 600; flex: 1; }
+.banda-canal { font-family: var(--mono); font-size: 10.5px; color: var(--acento); }
+.banda-para { font-size: 11.5px; color: var(--tenue); margin-top: 5px; }
+.banda-estado {
+  font-size: 10px;
+  font-family: var(--mono);
+  margin-top: 6px;
+  color: var(--sev-leve);
+}
+.banda-estado.cargado { color: var(--vfr); }
+
+/* ---------- Matriz de decisión ---------- */
+
+table.matriz { width: 100%; border-collapse: collapse; font-size: 12px; }
+table.matriz th, table.matriz td { padding: 6px 5px; text-align: center; border-bottom: 1px solid var(--borde); }
+table.matriz th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: var(--muy-tenue); font-weight: 600; }
+table.matriz td.icao-col { text-align: left; font-family: var(--mono); font-weight: 700; }
+table.matriz td.total { font-family: var(--mono); font-weight: 700; color: var(--acento); }
+table.matriz tr.ganador { background: rgba(63, 185, 80, 0.12); }
+table.matriz tr.ganador td.total { color: var(--vfr); }
+
+.pesos { margin-bottom: 14px; }
+.peso-fila { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 12px; }
+.peso-fila label { flex: 1; color: var(--tenue); }
+.peso-fila input { width: 80px; accent-color: var(--acento); }
+.peso-fila .val { font-family: var(--mono); width: 30px; text-align: right; font-size: 11px; }
+
+/* ---------- Barra de tiempo ---------- */
+
+#barra {
+  grid-area: barra;
+  background: var(--panel);
+  border-top: 1px solid var(--borde);
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.fila-tiempo { display: flex; align-items: center; gap: 12px; }
+#linea-tiempo { flex: 1; accent-color: var(--acento); cursor: pointer; height: 6px; }
+.etq-tiempo { font-family: var(--mono); font-size: 11px; color: var(--muy-tenue); white-space: nowrap; }
+#ctrl-play { width: 40px; font-size: 14px; }
+
+/* Marcas de eventos sobre la línea de tiempo */
+#marcas { position: relative; height: 15px; margin: 0 52px 0 64px; }
+.marca {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 9px;
+  font-family: var(--mono);
+  color: var(--muy-tenue);
+  white-space: nowrap;
+}
+.marca::before {
+  content: '';
+  display: block;
+  width: 1px;
+  height: 5px;
+  background: var(--borde-vivo);
+  margin: 0 auto 1px;
+}
+.marca.destacada { color: var(--acento); }
+.marca.destacada::before { background: var(--acento); }
+
+/* ---------- Elementos sobre el mapa ---------- */
+
+.leaflet-container { background: #0a0e14; font-family: var(--sans); }
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip { background: var(--panel-alto); color: var(--texto); border: 1px solid var(--borde-vivo); }
+.leaflet-popup-content { margin: 10px 12px; font-size: 12px; }
+.leaflet-bar a { background: var(--panel-alto); color: var(--texto); border-color: var(--borde); }
+.leaflet-bar a:hover { background: #273240; }
+
+.marcador-ad {
+  border-radius: 50%;
+  border: 2px solid #0d1117;
+  box-shadow: 0 0 0 1.5px currentColor, 0 2px 6px rgba(0, 0, 0, 0.6);
+}
+.etiqueta-ad {
+  background: rgba(13, 17, 23, 0.85);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 3px;
+  padding: 1px 5px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--texto);
+  white-space: nowrap;
+}
+.etiqueta-wp {
+  background: none;
+  border: none;
+  box-shadow: none;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--tenue);
+  text-shadow: 0 0 4px #000, 0 0 4px #000;
+  white-space: nowrap;
+}
+.leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before { display: none; }
+
+#insignia-aeronave {
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.9));
+}
+
+/* El contenedor del panel no tenía caja propia: era un div estático de altura cero
+   y sus hijos se posicionaban contra #panel-satelite. Funcionaba mientras nadie
+   preguntara por su tamaño, pero el zoom necesita medirlo —y capturar el puntero
+   sobre él—, así que ahora ocupa el panel entero y recorta lo que se sale. */
+#contenido-sat {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* Lienzo del panel satelital: zoom y desplazamiento.
+
+   Se transforma este contenedor y no la imagen, porque dentro van también la
+   cortina comparadora y el calco de la ruta, y los tres tienen que moverse como
+   un bloque para no descuadrarse. transform-origin en la esquina deja la cuenta
+   del zoom en aritmética simple: el punto bajo el cursor se mantiene quieto
+   resolviendo x' = px − (px − x)·k. Los controles van fuera, en #ctrl-sat, para
+   que no se escalen con la imagen. */
+#lienzo-sat {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+  will-change: transform;
+  /* Sin esto, arrastrar sobre la imagen selecciona texto del panel y, sobre todo,
+     el navegador arranca su arrastre nativo de imagen: emite pointercancel y el
+     desplazamiento se corta al primer movimiento. */
+  user-select: none;
+  -webkit-user-drag: none;
+}
+#lienzo-sat.movible { cursor: grab; }
+#contenido-sat.arrastrando #lienzo-sat.movible { cursor: grabbing; }
+
+/* La imagen se amplía con píxeles grandes y nítidos en vez de difuminada: al
+   pasar de la resolución nativa conviene VER el píxel del instrumento, que es el
+   límite real del dato, en lugar de un degradado que aparenta detalle. */
+#lienzo-sat img { image-rendering: pixelated; -webkit-user-drag: none; }
+
+/* Barra inferior del panel satelital: leyenda a la izquierda y controles a la
+   derecha, en la misma fila. Antes los controles flotaban solos en la esquina; al
+   añadir la escala de color habrían quedado uno encima de otro. */
+#barra-sat {
+  position: absolute;
+  left: 10px; right: 10px; bottom: 10px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 7px;
+  background: rgba(13, 17, 23, 0.9);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 6px;
+  backdrop-filter: blur(4px);
+}
+
+#leyenda-sat {
+  flex: 1 1 auto;
+  min-width: 0;
+  position: relative;
+}
+#rampa-sat {
+  height: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+}
+#ticks-sat {
+  position: relative;
+  height: 13px;
+  margin-top: 1px;
+}
+/* Cada rótulo se ancla por su centro a la posición que la barra publicada le da a
+   esa marca; el reparto de cuáles caben lo decide el JS con el ancho del momento. */
+.tick-sat {
+  position: absolute;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 9.5px;
+  line-height: 13px;
+  color: var(--tenue);
+  white-space: nowrap;
+}
+.tick-sat::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -2px;
+  width: 1px;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.45);
+}
+.tick-nota {
+  font-size: 9.5px;
+  line-height: 13px;
+  color: var(--muy-tenue);
+  font-style: italic;
+}
+
+#btn-convenciones {
+  flex: 0 0 auto;
+  width: 22px; height: 22px;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 50%;
+  cursor: pointer;
+}
+#btn-convenciones:hover, #btn-convenciones.activo { border-color: var(--acento); color: var(--acento); }
+
+/* Ficha de convenciones: se abre encima de la barra, no en un diálogo aparte, para
+   poder leerla mirando la imagen a la vez. */
+#convenciones-sat {
+  position: absolute;
+  left: 10px; right: 10px; bottom: 56px;
+  z-index: 21;
+  max-height: 55%;
+  overflow-y: auto;
+  padding: 12px 14px;
+  background: rgba(13, 17, 23, 0.96);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 6px;
+  backdrop-filter: blur(6px);
+  font-size: 12px;
+  line-height: 1.65;
+}
+#convenciones-sat .conv-titulo { font-weight: 700; margin-bottom: 8px; }
+#convenciones-sat .conv-rampa {
+  height: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+  margin-bottom: 10px;
+}
+#convenciones-sat p { margin: 0 0 8px; }
+#convenciones-sat .conv-fuente { color: var(--muy-tenue); font-size: 11px; margin-bottom: 0; }
+
+#ctrl-sat {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+#ctrl-sat button {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  cursor: pointer;
+}
+#ctrl-sat button:hover { border-color: var(--acento); color: var(--acento); }
+#lectura-sat {
+  min-width: 34px;
+  padding: 0 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--tenue);
+  cursor: help;
+}
+#lectura-sat.interpolado { color: var(--sev-moderado); }
+#coord-sat {
+  padding-left: 6px;
+  border-left: 1px solid var(--borde);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--tenue);
+  cursor: help;
+}
+#coord-sat:empty { display: none; }
+
+/* Botón de pantalla completa. Lo montan los dos paneles: dentro de #ctrl-sat en el
+   satelital y dentro de un control de Leaflet en el mapa, de ahí que herede el
+   tamaño de su sitio en vez de fijarlo. */
+.ficha-rampa { margin-top: 7px; }
+.ficha-rampa-barra {
+  height: 9px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+.ficha-rampa-pie {
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  color: var(--muy-tenue);
+}
+
+.btn-pantalla {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+  color: var(--texto);
+  background: transparent;
+  border: 1px solid var(--borde);
+  border-radius: 4px;
+  cursor: pointer;
+}
+.btn-pantalla:hover, .btn-pantalla.activo { border-color: var(--acento); color: var(--acento); }
+
+.ctrl-pantalla-mapa {
+  background: var(--panel-alto);
+  border-radius: 4px;
+}
+.ctrl-pantalla-mapa .btn-pantalla {
+  display: block;
+  width: 30px;
+  height: 30px;
+  font-size: 15px;
+  border: none;
+  border-radius: 4px;
+}
+
+/* En pantalla completa el panel deja de ser una celda de la rejilla y pasa a ser la
+   pantalla entera; hay que decírselo, porque su tamaño lo daba el contenedor. */
+#panel-satelite:fullscreen { display: block; width: 100vw; height: 100vh; border-left: none; }
+#mapa:fullscreen { width: 100vw; height: 100vh; }
+
+/* Comparador de cortina */
+#comparador { position: absolute; inset: 0; overflow: hidden; }
+#comparador img, #comparador video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
+/* .encima debe estar posicionada y ocupar todo el panel: el clip-path se
+   calcula sobre SU caja, no sobre la de la imagen que contiene. */
+#comparador .encima { position: absolute; inset: 0; clip-path: inset(0 0 0 50%); }
+/* --k-inv lo fija el panel en cada zoom: es 1/k. El divisor conserva su POSICIÓN
+   en coordenadas de imagen —por eso vive dentro del lienzo escalado— pero deshace
+   el escalado en su grosor y en su tirador, que si no crecerían con la imagen y a
+   ×12 taparían lo que se quiere comparar. */
+#divisor {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: calc(2px * var(--k-inv, 1));
+  background: var(--acento);
+  cursor: ew-resize;
+  z-index: 10;
+  box-shadow: 0 0 calc(8px * var(--k-inv, 1)) rgba(77, 163, 255, 0.6);
+}
+#divisor::after {
+  content: '⇔';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--acento);
+  color: #0d1117;
+  border-radius: 50%;
+  width: calc(26px * var(--k-inv, 1));
+  height: calc(26px * var(--k-inv, 1));
+  display: flex; align-items: center; justify-content: center;
+  font-size: calc(13px * var(--k-inv, 1));
+}
+
+.etq-huella {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 1px;
+  color: #d2a8ff;
+  background: rgba(13, 17, 23, 0.75);
+  border: 1px solid rgba(210, 168, 255, 0.5);
+  border-radius: 3px;
+  padding: 1px 6px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Calco de la ruta sobre la imagen de satélite.
+   El SVG usa preserveAspectRatio="xMidYMid meet", que produce exactamente el
+   mismo encaje que el object-fit:contain de la imagen: por eso el trazado sigue
+   cuadrando cuando el panel cambia de tamaño. */
+#calco-sat {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: none;
+}
+/* Medidas en unidades del lienzo normalizado de 1000 de ancho: el panel ronda
+   los 500 px, así que se ven aproximadamente a la mitad de estos valores. */
+/* Retícula y ruta son las dos únicas formas del calco que no van dentro de un
+   grupo contraescalado —son polilíneas, no marcas ancladas a un punto—, así que su
+   grosor se corrige aquí, dividiéndolo por el zoom del panel. Sin esto la ruta a
+   ×12 se dibujaba como una banda de 60 px que tapaba justo lo que se quería mirar
+   debajo.
+
+   No sirve `vector-effect: non-scaling-stroke`, aunque sea lo primero que uno
+   prueba: mantiene el trazo constante en el espacio del PROPIO SVG, y lo que
+   escala aquí es un `transform` de CSS aplicado a un ancestro del SVG, que
+   non-scaling-stroke no ve. El trazo salía igual de gordo, solo que partiendo de
+   otro grosor base. */
+#calco-sat .rej {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: calc(2px * var(--k-inv, 1));
+  stroke-dasharray: calc(10px * var(--k-inv, 1)) calc(12px * var(--k-inv, 1));
+}
+#calco-sat .rej-etq {
+  fill: rgba(255, 255, 255, 0.75);
+  font-family: var(--mono);
+  font-size: 20px;
+  paint-order: stroke;
+  stroke: rgba(0, 0, 0, 0.75);
+  stroke-width: 4px;
+}
+/* Límites administrativos sobre la imagen. Van por debajo de la retícula y de la
+   ruta: son referencia de fondo. El grosor se divide por el zoom igual que en las
+   demás polilíneas del calco, para que no engorden al acercarse. */
+#calco-sat .pais-sat {
+  fill: none;
+  stroke: rgba(240, 246, 252, 0.85);
+  stroke-width: calc(2.5px * var(--k-inv, 1));
+  stroke-linejoin: round;
+}
+#calco-sat .depto-sat {
+  fill: none;
+  stroke: rgba(159, 180, 204, 0.55);
+  stroke-width: calc(1.4px * var(--k-inv, 1));
+  stroke-dasharray: calc(6px * var(--k-inv, 1)) calc(6px * var(--k-inv, 1));
+  stroke-linejoin: round;
+}
+#calco-sat .depto-etq-sat {
+  fill: rgba(215, 227, 240, 0.9);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.8px;
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(5, 7, 10, 0.85);
+  stroke-width: 3px;
+}
+
+#calco-sat .ruta-sat {
+  fill: none;
+  stroke: var(--acento);
+  stroke-width: calc(5px * var(--k-inv, 1));
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 4px rgba(0, 0, 0, 0.95));
+}
+#calco-sat .wp-sat { fill: var(--acento); stroke: #0d1117; stroke-width: 2; }
+#calco-sat .ad-sat { fill: var(--vfr); stroke: #0d1117; stroke-width: 3; }
+#calco-sat .ad-etq-sat {
+  fill: #fff;
+  font-family: var(--mono);
+  font-size: 22px;
+  font-weight: 700;
+  paint-order: stroke;
+  stroke: #0d1117;
+  stroke-width: 6px;
+}
+#calco-sat .avion-sat { fill: #f0f6fc; stroke: #0d1117; stroke-width: 3; }
+
+.sat-vacio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--muy-tenue);
+  text-align: center;
+  padding: 30px;
+}
+.sat-vacio .icono { font-size: 34px; opacity: 0.5; }
+.sat-vacio code {
+  font-family: var(--mono);
+  font-size: 11px;
+  background: var(--panel-alto);
+  border: 1px solid var(--borde);
+  border-radius: 3px;
+  padding: 2px 6px;
+  color: var(--tenue);
+}
+
+.etq-sat {
+  position: absolute;
+  top: 10px; left: 10px;
+  z-index: 20;
+  background: rgba(13, 17, 23, 0.9);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 4px;
+  padding: 5px 9px;
+  font-size: 11px;
+}
+.etq-sat b { color: var(--acento); }
+.etq-sat .fuente { color: var(--muy-tenue); font-size: 9.5px; display: block; margin-top: 2px; }
+
+.aviso-geo {
+  position: absolute;
+  bottom: 10px; left: 10px;
+  z-index: 20;
+  background: rgba(210, 153, 34, 0.14);
+  border: 1px solid rgba(210, 153, 34, 0.45);
+  color: var(--sev-leve);
+  border-radius: 4px;
+  padding: 4px 9px;
+  font-size: 10.5px;
+}
+
+/* ---------- Barras de desplazamiento ---------- */
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: var(--fondo); }
+::-webkit-scrollbar-thumb { background: var(--borde-vivo); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: #4d5b6d; }
+
+/* ---------- Impresión (informe y bitácora a PDF) ---------- */
+@media print {
+  @page { margin: 18mm; }
+  body, html { overflow: visible; height: auto; background: #fff; color: #000; }
+  #app { display: block; height: auto; }
+  #lateral, #barra, #cabecera .acciones, #narracion { display: none !important; }
+  #escenario { height: 150mm; page-break-inside: avoid; }
+  .tarjeta, .fenomeno, .banda { border: 1px solid #ccc; background: #fff; break-inside: avoid; }
+  .crudo { background: #f5f5f5; color: #000; border: 1px solid #ddd; }
+}
+
+/* ============================================================
+   Corte vertical, panel de vuelo y análisis por tramos
+   Añadidos del análisis derivado: todo lo que aquí se pinta sale
+   de una medida calculada, y cada bloque lleva su rótulo de
+   procedencia visible, no escondido en un comentario.
+   ============================================================ */
+
+/* ---------- Corte vertical ---------- */
+
+#perfil {
+  border-top: 1px solid var(--borde);
+  background: var(--panel);
+  height: 232px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+#perfil-cab {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 6px 12px 4px;
+  border-bottom: 1px solid var(--borde);
+  flex: 0 0 auto;
+}
+.pf-tit { font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+#perfil-pie { display: flex; gap: 12px; flex-wrap: wrap; align-items: baseline; }
+.pf-dato { font-size: 11px; color: var(--tenue); font-family: var(--mono); }
+.pf-dato b { color: var(--texto); }
+.pf-dato.alerta { color: var(--sev-severo); }
+.pf-dato.aviso { color: var(--sev-leve); }
+.pf-proc { font-size: 10.5px; color: var(--muy-tenue); cursor: help; margin-left: auto; }
+#perfil-cuerpo { flex: 1 1 auto; position: relative; min-height: 0; }
+#pf-svg { width: 100%; height: 100%; display: block; }
+.perfil-vacio { padding: 24px; color: var(--tenue); font-size: 12px; }
+
+.pf-rej { stroke: var(--borde); stroke-width: 1; }
+.pf-eje { fill: var(--muy-tenue); font-size: 9.5px; font-family: var(--mono); }
+.pf-crucero { stroke: var(--acento); stroke-width: 1.6; stroke-dasharray: 7 4; }
+.pf-crucero-etq { fill: var(--acento); font-size: 10.5px; font-family: var(--mono); font-weight: 700; }
+.pf-tope { fill: none; stroke: #e6edf3; stroke-width: 1.2; opacity: 0.55; }
+.pf-senda { fill: none; stroke: #ffffff; stroke-width: 2; opacity: 0.9; }
+.pf-conflicto { fill: #f85149; opacity: 0.12; }
+.pf-wp { stroke: var(--borde-vivo); stroke-width: 1; opacity: 0.55; }
+.pf-wp.calc { stroke-dasharray: 2 3; opacity: 0.35; }
+.pf-wp-etq { fill: var(--muy-tenue); font-size: 9px; font-family: var(--mono); }
+.pf-cruz { stroke: #fff; stroke-width: 1; opacity: 0.4; }
+.pf-punto { fill: #fff; stroke: var(--fondo); stroke-width: 1.5; }
+.pf-avion { fill: #fff; stroke: var(--fondo); stroke-width: 1; }
+.pf-avion.alerta { fill: var(--sev-severo); }
+.pf-avion-guia { stroke: #fff; stroke-width: 1; opacity: 0.35; }
+.pf-avion-guia.alerta { stroke: var(--sev-severo); opacity: 0.8; }
+.pf-celula line { stroke-width: 1.4; stroke-dasharray: 3 3; }
+.pf-celula text { font-size: 9px; font-family: var(--mono); }
+.pf-celula.sev-leve line { stroke: var(--sev-leve); }
+.pf-celula.sev-leve text { fill: var(--sev-leve); }
+.pf-celula.sev-moderado line { stroke: var(--sev-moderado); }
+.pf-celula.sev-moderado text { fill: var(--sev-moderado); }
+.pf-celula.sev-severo line { stroke: var(--sev-severo); }
+.pf-celula.sev-severo text { fill: var(--sev-severo); }
+
+#pf-globo {
+  position: absolute;
+  top: 8px;
+  min-width: 190px;
+  max-width: 230px;
+  padding: 8px 10px;
+  background: rgba(13, 17, 23, 0.96);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 5px;
+  pointer-events: none;
+  z-index: 40;
+}
+.gl-tit { font-size: 11px; font-weight: 700; margin-bottom: 5px; font-family: var(--mono); }
+.gl-fila { display: flex; justify-content: space-between; gap: 10px; font-size: 11px; color: var(--tenue); }
+.gl-fila b { color: var(--texto); font-family: var(--mono); }
+.gl-alerta { margin-top: 5px; font-size: 10.5px; color: var(--sev-severo); font-weight: 600; }
+.gl-aviso { margin-top: 4px; font-size: 10px; color: var(--sev-leve); }
+.gl-proc { margin-top: 5px; font-size: 9.5px; color: var(--muy-tenue); border-top: 1px solid var(--borde); padding-top: 4px; }
+
+/* ---------- Panel de vuelo (EFB) ---------- */
+
+#efb {
+  position: fixed;
+  right: calc(var(--lateral) + 14px);
+  top: calc(var(--cabecera) + 12px);
+  width: 330px;
+  max-height: calc(100vh - var(--cabecera) - var(--barra) - 30px);
+  overflow-y: auto;
+  background: rgba(13, 17, 23, 0.97);
+  border: 1px solid var(--borde-vivo);
+  border-radius: 7px;
+  z-index: 900;
+  padding: 0 0 12px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.55);
+}
+.efb-cab {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  background: var(--panel-alto);
+  border-radius: 7px 7px 0 0;
+}
+.efb-ind { font-family: var(--mono); font-weight: 700; font-size: 13px; color: var(--acento); }
+.efb-ruta { font-size: 11.5px; color: var(--tenue); }
+.efb-reloj { margin-left: auto; font-family: var(--mono); font-size: 12px; }
+#efb-cerrar { width: 24px; height: 24px; padding: 0; font-size: 15px; line-height: 1; }
+.efb-fuera { margin: 8px 12px; padding: 7px 9px; background: rgba(210, 153, 34, 0.12); border-left: 2px solid var(--sev-leve); font-size: 11px; color: var(--sev-leve); }
+
+.efb-rejilla { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--borde); margin: 10px 0 0; }
+.efb-campo { background: var(--panel); padding: 6px 10px; }
+.efb-campo span { display: block; font-size: 9.5px; color: var(--muy-tenue); text-transform: uppercase; letter-spacing: 0.05em; }
+.efb-campo b { font-family: var(--mono); font-size: 13.5px; font-weight: 700; }
+.efb-sub { display: block; font-size: 10px; color: var(--tenue); font-family: var(--sans); font-weight: 400; }
+
+.efb-titulo {
+  margin: 14px 12px 6px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muy-tenue);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.efb-fuente { text-transform: none; letter-spacing: 0; font-family: var(--mono); font-size: 9.5px; }
+.efb-vertical { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--borde); }
+.efb-vertical .efb-aviso { grid-column: 1 / -1; }
+.efb-aviso { background: var(--panel); padding: 7px 10px; font-size: 10.5px; color: var(--sev-leve); }
+
+.efb-alertas { padding: 0 12px; display: flex; flex-direction: column; gap: 5px; }
+.efb-alerta { display: flex; align-items: center; gap: 8px; padding: 6px 9px; border-radius: 4px; font-size: 11.5px; cursor: help; }
+.ea-punto { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+.efb-alerta.g-ok { background: rgba(63, 185, 80, 0.1); color: var(--vfr); }
+.efb-alerta.g-ok .ea-punto { background: var(--vfr); }
+.efb-alerta.g-aviso { background: rgba(210, 153, 34, 0.12); color: var(--sev-leve); }
+.efb-alerta.g-aviso .ea-punto { background: var(--sev-leve); }
+.efb-alerta.g-alerta { background: rgba(248, 81, 73, 0.14); color: var(--sev-severo); font-weight: 600; }
+.efb-alerta.g-alerta .ea-punto { background: var(--sev-severo); }
+
+.efb-celulas { width: calc(100% - 24px); margin: 0 12px; border-collapse: collapse; font-family: var(--mono); font-size: 11px; }
+.efb-celulas td { padding: 4px 6px; border-bottom: 1px solid var(--borde); }
+.efb-celulas tr.sev-severo td:first-child { color: var(--sev-severo); }
+.efb-celulas tr.sev-moderado td:first-child { color: var(--sev-moderado); }
+.efb-celulas tr.sev-leve td:first-child { color: var(--sev-leve); }
+
+.efb-decision {
+  margin: 14px 12px 0;
+  border: 1px solid var(--sev-moderado);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.ed-cab { display: flex; justify-content: space-between; padding: 6px 10px; background: rgba(240, 136, 62, 0.16); }
+.ed-eti { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; color: var(--sev-moderado); }
+.ed-tiempo { font-family: var(--mono); font-size: 10.5px; color: var(--sev-moderado); }
+.ed-texto { padding: 9px 10px; font-size: 11.5px; color: var(--tenue); line-height: 1.55; }
+.ed-texto b { color: var(--texto); }
+.ed-opcion {
+  display: block;
+  width: calc(100% - 20px);
+  margin: 0 10px 7px;
+  padding: 8px 10px;
+  text-align: left;
+  border-left: 3px solid var(--borde-vivo);
+  cursor: pointer;
+}
+.ed-opcion:hover { border-color: var(--acento); }
+.ed-opcion.r-alto { border-left-color: var(--sev-severo); }
+.ed-opcion.r-medio { border-left-color: var(--sev-leve); }
+.ed-opcion.r-bajo { border-left-color: var(--vfr); }
+.eo-tit { display: block; font-size: 12px; font-weight: 600; margin-bottom: 3px; }
+.eo-con { display: block; font-size: 10.5px; color: var(--tenue); line-height: 1.5; }
+.ed-nota { padding: 4px 10px 9px; font-size: 9.5px; color: var(--muy-tenue); }
+.efb-decidido { margin: 12px 12px 0; padding: 9px 10px; background: var(--panel-alto); border-left: 2px solid var(--acento); font-size: 11.5px; }
+.efb-decidido button { margin-top: 7px; font-size: 11px; }
+
+/* ---------- Análisis por tramos ---------- */
+
+.resumen-ruta { padding: 11px 12px; border-radius: 5px; margin-bottom: 14px; border-left: 3px solid var(--borde-vivo); background: var(--panel-alto); }
+.resumen-ruta.v-libre { border-left-color: var(--vfr); }
+.resumen-ruta.v-precaucion { border-left-color: var(--sev-leve); }
+.resumen-ruta.v-evitar { border-left-color: var(--sev-severo); }
+.rr-etq { font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muy-tenue); }
+.rr-val { font-family: var(--mono); font-size: 19px; font-weight: 700; margin: 2px 0 4px; }
+.v-libre .rr-val { color: var(--vfr); }
+.v-precaucion .rr-val { color: var(--sev-leve); }
+.v-evitar .rr-val { color: var(--sev-severo); }
+.rr-motivo { font-size: 11px; color: var(--tenue); line-height: 1.5; }
+
+.fase { margin-bottom: 16px; }
+.fase-cab { display: flex; justify-content: space-between; align-items: baseline; padding-bottom: 5px; border-bottom: 1px solid var(--borde); margin-bottom: 7px; }
+.fase-nombre { font-size: 12px; font-weight: 600; }
+.fase-detalle { font-size: 10px; color: var(--muy-tenue); font-family: var(--mono); }
+
+.tramo { border-left: 3px solid var(--borde-vivo); background: var(--panel-alto); margin-bottom: 5px; cursor: pointer; }
+.tramo.v-libre { border-left-color: var(--vfr); }
+.tramo.v-precaucion { border-left-color: var(--sev-leve); }
+.tramo.v-evitar { border-left-color: var(--sev-severo); }
+.tramo-cab { display: flex; align-items: baseline; gap: 8px; padding: 7px 10px; }
+.tramo-nombre { font-family: var(--mono); font-size: 11.5px; font-weight: 600; flex: 1 1 auto; }
+.tramo-nombre i { color: var(--muy-tenue); font-style: normal; cursor: help; }
+.tramo-nm, .tramo-hora { font-size: 10px; color: var(--muy-tenue); font-family: var(--mono); }
+.tramo-v { font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; }
+.v-libre .tramo-v { color: var(--vfr); }
+.v-precaucion .tramo-v { color: var(--sev-leve); }
+.v-evitar .tramo-v { color: var(--sev-severo); }
+.tramo-barra { height: 3px; background: var(--borde); margin: 0 10px 7px; }
+.tb-relleno { height: 100%; background: var(--sev-severo); }
+.tramo-detalle { display: none; padding: 0 10px 10px; }
+.tramo.abierto .tramo-detalle { display: block; }
+.tramo-detalle dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 0 0 8px; font-size: 11px; }
+.tramo-detalle dt { color: var(--muy-tenue); }
+.tramo-detalle dd { margin: 0; font-family: var(--mono); font-size: 10.5px; }
+.tramo-detalle .tenue { color: var(--muy-tenue); font-family: var(--sans); }
+.tramo-motivo { font-size: 11px; color: var(--tenue); line-height: 1.5; border-top: 1px solid var(--borde); padding-top: 7px; }
+
+.regla { font-size: 11px; color: var(--tenue); line-height: 1.6; }
+.regla > div { margin-bottom: 5px; }
+.regla b { font-family: var(--mono); font-size: 10px; margin-right: 6px; }
+.v-libre-t { color: var(--vfr); }
+.v-precaucion-t { color: var(--sev-leve); }
+.v-evitar-t { color: var(--sev-severo); }
+.regla-nota { margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--borde); color: var(--muy-tenue); font-size: 10.5px; }
+
+/* ---------- Decodificación de partes ---------- */
+
+.decodificado { margin-top: 8px; border-top: 1px solid var(--borde); padding-top: 7px; }
+.dec-grupo { display: flex; gap: 9px; padding: 3px 0; font-size: 11px; align-items: baseline; }
+.dec-crudo { font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--acento); min-width: 76px; flex: 0 0 auto; }
+.dec-texto { color: var(--tenue); line-height: 1.45; }
+.dec-grupo.t-desconocido .dec-crudo { color: var(--muy-tenue); }
+.dec-nota { font-size: 10px; color: var(--sev-leve); margin-left: 85px; margin-bottom: 3px; }
+.dec-boton { font-size: 10.5px; margin-top: 6px; }
+
+
+
+
+/* ---------- Portada de sustentación ----------
+   Pensada para proyector: tipografía grande, mucho aire y nada que haya que leer
+   con esfuerzo desde la última fila. El fondo son los cuadros reales de la banda
+   13 en bucle con la frontera calcada encima; el velo es lo que garantiza que la
+   letra se siga leyendo cuando debajo pasa un yunque blanco. */
+
+#portada {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  overflow: hidden;
+  background: #070b11;
+  animation: portada-entra 0.5s ease-out;
+}
+@keyframes portada-entra { from { opacity: 0; } to { opacity: 1; } }
+
+/* El mapa vive en su propia caja, con la PROPORCIÓN EXACTA del recorte de la
+   banda (989 x 1124). Así la imagen la llena sin bandas y, sobre todo, el
+   degradado que la funde con el fondo se mide en porcentaje de la IMAGEN y no de
+   la pantalla: en un monitor ancho o en uno estrecho el difuminado cae siempre
+   donde empieza el mapa, y no queda el canto vertical que delataba el montaje. */
+#pt-mapa {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  aspect-ratio: 989 / 1124;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 18%, rgba(0, 0, 0, 0.85) 40%, #000 62%);
+  mask-image: linear-gradient(90deg, transparent 0%, rgba(0, 0, 0, 0.35) 18%, rgba(0, 0, 0, 0.85) 40%, #000 62%);
+  animation: portada-deriva 52s ease-in-out infinite alternate;
+}
+
+#pt-fondo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* La banda 13 es casi toda gris oscuro sobre fondo negro: sin este realce, de
+     lejos y en proyector no se distingue nada. */
+  filter: brightness(1.3) contrast(1.14) saturate(1.18);
+}
+
+/* La misma caja para el calco: se mueven juntos y no se separan nunca. */
+@keyframes portada-deriva {
+  from { transform: scale(1) translate3d(0, 0, 0); }
+  to   { transform: scale(1.06) translate3d(-1.2%, -0.8%, 0); }
+}
+
+#pt-limites {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.pt-pais {
+  fill: none;
+  stroke: rgba(176, 218, 255, 0.95);
+  stroke-width: 2.6;
+  vector-effect: non-scaling-stroke;
+}
+.pt-depto {
+  fill: none;
+  stroke: rgba(160, 205, 255, 0.34);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+/* Dos capas: una general que baja el brillo de todo y una direccional que
+   oscurece a fondo el lado de la letra. */
+#pt-velo {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(100deg,
+      rgba(6, 10, 16, 0.92) 0%,
+      rgba(6, 10, 16, 0.86) 34%,
+      rgba(6, 10, 16, 0.6) 60%,
+      rgba(6, 10, 16, 0.38) 100%),
+    linear-gradient(0deg, rgba(6, 10, 16, 0.82) 0%, rgba(6, 10, 16, 0.2) 45%, rgba(6, 10, 16, 0.55) 100%);
+}
+
+#pt-contenido {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 0 clamp(32px, 8vw, 150px);
+}
+
+#pt-sello {
+  position: absolute;
+  top: clamp(20px, 3.5vh, 38px);
+  right: clamp(32px, 8vw, 150px);
+  z-index: 2;
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.95vw, 12.5px);
+  color: rgba(198, 222, 250, 0.75);
+  letter-spacing: 0.1em;
+}
+#pt-reloj {
+  font-size: clamp(14px, 1.5vw, 20px);
+  font-weight: 700;
+  color: #9fd0ff;
+  letter-spacing: 0.04em;
+}
+
+.pt-marca {
+  font-family: var(--mono);
+  font-size: clamp(11px, 1.1vw, 14px);
+  letter-spacing: 0.32em;
+  color: var(--acento);
+  text-transform: uppercase;
+  margin-bottom: clamp(16px, 2.5vh, 30px);
+}
+.pt-titulo {
+  font-size: clamp(34px, 5.4vw, 82px);
+  font-weight: 700;
+  line-height: 1.04;
+  letter-spacing: -0.02em;
+  margin: 0 0 clamp(12px, 2vh, 24px);
+  max-width: 17em;
+  text-shadow: 0 2px 26px rgba(0, 0, 0, 0.75);
+}
+.pt-ruta {
+  font-family: var(--mono);
+  font-size: clamp(20px, 2.8vw, 40px);
+  font-weight: 700;
+  color: #6fb6ff;
+  letter-spacing: 0.04em;
+  margin-bottom: clamp(6px, 1vh, 12px);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.8);
+}
+.pt-sub {
+  font-size: clamp(13px, 1.4vw, 19px);
+  color: #b9c7d6;
+  margin-bottom: clamp(26px, 5vh, 58px);
+  max-width: 44em;
+  line-height: 1.6;
+  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.8);
+}
+.pt-sub b { color: var(--texto); font-weight: 600; }
+
+.pt-linea { height: 1px; background: linear-gradient(90deg, var(--borde-vivo), transparent); margin-bottom: clamp(20px, 3vh, 34px); }
+
+.pt-etq {
+  font-family: var(--mono);
+  font-size: clamp(10px, 0.9vw, 12px);
+  letter-spacing: 0.22em;
+  color: var(--muy-tenue);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.pt-integrantes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(18px, 3.5vw, 60px);
+  margin-bottom: clamp(24px, 4vh, 48px);
+}
+.pt-persona {
+  font-size: clamp(16px, 1.9vw, 27px);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  padding-left: 14px;
+  border-left: 2px solid var(--acento);
+  line-height: 1.25;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.8);
+}
+.pt-pie {
+  display: flex;
+  flex-wrap: wrap;
+  gap: clamp(14px, 2.6vw, 40px);
+  font-family: var(--mono);
+  font-size: clamp(10.5px, 1vw, 13px);
+  color: var(--muy-tenue);
+}
+.pt-pie b { color: var(--tenue); font-weight: 400; }
+
+.pt-entrar {
+  position: absolute;
+  z-index: 2;
+  right: clamp(32px, 8vw, 150px);
+  bottom: clamp(28px, 5vh, 56px);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.pt-entrar button {
+  font-size: clamp(13px, 1.2vw, 16px);
+  padding: 11px 22px;
+  background: var(--acento);
+  color: #06121f;
+  border: none;
+  font-weight: 700;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.pt-entrar button:hover { filter: brightness(1.12); }
+.pt-pista { font-family: var(--mono); font-size: 11px; color: #8fa3b8; }
+
+/* Quien prefiera no ver movimiento, no lo ve. */
+@media (prefers-reduced-motion: reduce) {
+  #pt-mapa { animation: none; }
+}
+
+
+
+/* Ficha de banda compacta: el texto largo vive en el tooltip y en el panel «?» */
+.banda-pie {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-top: 3px;
+}
+.banda-onda { font-family: var(--mono); font-size: 10.5px; color: var(--muy-tenue); }
+.banda-pie .banda-estado { margin: 0; font-size: 10px; }
+
+/* El botón secundario de la portada: misma altura, sin robarle el ojo al principal. */
+.pt-entrar .pt-sec {
+  background: transparent;
+  color: #b9c7d6;
+  border: 1px solid var(--borde-vivo);
+  font-weight: 600;
+}
+.pt-entrar .pt-sec:hover { color: var(--texto); border-color: var(--acento); filter: none; }
+
+/* Botón de cierre de la narración: el cartel puede tapar la ruta justo donde
+   interesa mirar, así que se quita sin perder la escena. */
+#narracion-cerrar {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 15px;
+  line-height: 1;
+  background: transparent;
+  border: 1px solid var(--borde);
+  color: var(--tenue);
+}
+#narracion-cerrar:hover { color: var(--texto); border-color: var(--borde-vivo); }
+#narracion h2 { padding-right: 30px; }

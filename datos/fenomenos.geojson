@@ -1,0 +1,3532 @@
+{
+ "type": "FeatureCollection",
+ "_procedencia": {
+  "queEs": "Núcleos convectivos DERIVADOS automáticamente de las imágenes congeladas de la banda 13, no trazados a mano. La geometría de cada célula es el contorno del umbral en su cuadro más frío; su vigencia es el intervalo en que se la siguió.",
+  "generadoPor": "herramientas/derivar-fenomenos.mjs",
+  "generado": "2026-09-20T03:18:50.662Z",
+  "banda": "band_13 — Infrarrojo ventana limpia, 10,3 µm",
+  "tablaColor": "ircimss2 (CIRA/RAMMB SLIDER), congelada en datos/barras-color.json",
+  "criterios": {
+   "umbralNucleoC": -52,
+   "razonUmbral": "Corte para «convección profunda». A −52 °C el tope está, con el modelo de este caso, muy por encima del nivel de vuelo, y es un valor bajo de sobra para excluir el cirro delgado y la nubosidad media.",
+   "escalones": [
+    {
+     "severidad": "leve",
+     "hasta": -52,
+     "desde": -60
+    },
+    {
+     "severidad": "moderado",
+     "hasta": -60,
+     "desde": -70
+    },
+    {
+     "severidad": "severo",
+     "hasta": -70,
+     "desde": -999
+    }
+   ],
+   "minPixeles": 80,
+   "razonMinPixeles": "A 2 km de resolución, 80 píxeles son unos 320 km². Por debajo de eso la componente es ruido de umbral o una torre aislada que no define un área a evitar.",
+   "corredorNM": 120,
+   "razonCorredor": "Solo se guardan los núcleos que llegan a 120 NM de la ruta. Más lejos no condicionan esta navegación y llenarían el archivo de células del resto del país.",
+   "enlaceMaxNM": 45,
+   "razonEnlace": "Dos núcleos de cuadros consecutivos (10 min) se consideran la misma célula si sus centroides distan menos de 45 NM: a 10 minutos eso son 270 kt de desplazamiento, techo generoso para propagación convectiva.",
+   "maxCelulas": 14
+  },
+  "desambiguacionGris": "La tabla ircimss2 usa gris dos veces: rampa cálida (+40…−30 °C) y cola fría (−80…−90 °C). Se resuelve por conectividad: el gris alcanzable desde el borde de la imagen es suelo; el gris encerrado por color frío es la cima del núcleo.",
+  "clasificacion": "calculado",
+  "limites": [
+   "El umbral es un corte declarado, no una clasificación de fenómeno: un núcleo frío NO es por sí mismo una observación de granizo, turbulencia o engelamiento.",
+   "La imagen es el producto renderizado de SLIDER, con 192 escalones de tabla y compresión JPEG por medio; no son radiancias calibradas del ABI.",
+   "El satélite ve el TOPE. Lo que ocurre bajo el yunque —base de la nube, cizalladura, granizo en superficie— no está en este dato.",
+   "El seguimiento enlaza por proximidad de centroide: en una fusión o una división de células puede continuar la rama equivocada."
+  ]
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-01",
+    "nombre": "Núcleo convectivo 01 · sobre la ruta",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T20:10:00Z",
+    "hastaZ": "2026-09-07T22:00:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -72.6 °C; mínimo absoluto -88.6 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 2150z.jpg (21:50Z) por el umbral declarado de -52 °C. Área en su máximo: 163 NM². Seguida 12 cuadros, de 20:10Z a 22:00Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "La traza de la ruta atraviesa este núcleo (distancia mínima 0 NM) entre 20:10Z y 22:00Z. ENCUENTRO CON EL VUELO: a las 20:30Z la aeronave está en la milla 458 y la célula a 16.3 NM de ella.",
+    "recomendacion": "Margen por debajo de 25 NM en el momento del paso: vigilar evolución y prever desvío.",
+    "minTbC": -88.6,
+    "minTbSaturado": false,
+    "p05TbC": -72.6,
+    "medianaTbC": -60.5,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:30:00Z",
+     "distanciaNM": 16.3,
+     "aeronaveNM": 458,
+     "minTb": -72.6,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 1.9,
+    "cruzaRuta": true,
+    "areaMaxNM2": 163,
+    "horaPicoZ": "2026-09-07T21:50:00Z",
+    "archivoPico": "medios/satelite/band_13/2150z.jpg",
+    "cuadros": 12,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 76,
+      "distanciaRutaNM": 18.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.2787,
+       "lon": -69.9474
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -72.6,
+      "p05": -69.9,
+      "areaNM2": 315,
+      "distanciaRutaNM": 13.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8017,
+       "lon": -70.2115
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -72.6,
+      "p05": -68.5,
+      "areaNM2": 359,
+      "distanciaRutaNM": 11.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.804,
+       "lon": -70.2327
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -68.5,
+      "p05": -67.2,
+      "areaNM2": 425,
+      "distanciaRutaNM": 10.5,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.7812,
+       "lon": -70.2656
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -67.2,
+      "p05": -67.2,
+      "areaNM2": 461,
+      "distanciaRutaNM": 9.6,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.7708,
+       "lon": -70.2859
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -90,
+      "p05": -71.2,
+      "areaNM2": 1169,
+      "distanciaRutaNM": 1.9,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.5483,
+       "lon": -70.5707
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -73.9,
+      "p05": -71.2,
+      "areaNM2": 1327,
+      "distanciaRutaNM": 3.2,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.5487,
+       "lon": -70.5932
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:20:00Z",
+      "minTb": -72.6,
+      "p05": -68.5,
+      "areaNM2": 1763,
+      "distanciaRutaNM": 8.3,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.475,
+       "lon": -70.7101
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:30:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 80,
+      "distanciaRutaNM": 13.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.8199,
+       "lon": -71.0454
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:40:00Z",
+      "minTb": -68.5,
+      "p05": -67.2,
+      "areaNM2": 113,
+      "distanciaRutaNM": 14.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.8196,
+       "lon": -71.0615
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:50:00Z",
+      "minTb": -88.6,
+      "p05": -72.6,
+      "areaNM2": 163,
+      "distanciaRutaNM": 21.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.7911,
+       "lon": -70.4347
+      }
+     },
+     {
+      "horaZ": "2026-09-07T22:00:00Z",
+      "minTb": -77.9,
+      "p05": -69.9,
+      "areaNM2": 216,
+      "distanciaRutaNM": 18.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.7747,
+       "lon": -70.4802
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -70.553,
+       -1.6777
+      ],
+      [
+       -70.4081,
+       -1.6959
+      ],
+      [
+       -70.2083,
+       -1.8957
+      ],
+      [
+       -70.5343,
+       -1.8773
+      ],
+      [
+       -70.5529,
+       -1.6959
+      ],
+      [
+       -70.553,
+       -1.6777
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-02",
+    "nombre": "Núcleo convectivo 02 · sobre la ruta",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T20:20:00Z",
+    "hastaZ": "2026-09-07T22:00:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -71.2 °C; mínimo absoluto -72.6 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 2050z.jpg (20:50Z) por el umbral declarado de -52 °C. Área en su máximo: 243 NM². Seguida 11 cuadros, de 20:20Z a 22:00Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "La traza de la ruta atraviesa este núcleo (distancia mínima 0 NM) entre 20:20Z y 22:00Z. ENCUENTRO CON EL VUELO: a las 20:40Z la aeronave está en la milla 496 y la célula a 15.9 NM de ella.",
+    "recomendacion": "Margen por debajo de 25 NM en el momento del paso: vigilar evolución y prever desvío.",
+    "minTbC": -72.6,
+    "minTbSaturado": false,
+    "p05TbC": -71.2,
+    "medianaTbC": -60.5,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:40:00Z",
+     "distanciaNM": 15.9,
+     "aeronaveNM": 496,
+     "minTb": -72.6,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 7.8,
+    "cruzaRuta": true,
+    "areaMaxNM2": 243,
+    "horaPicoZ": "2026-09-07T20:50:00Z",
+    "archivoPico": "medios/satelite/band_13/2050z.jpg",
+    "cuadros": 11,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -67.2,
+      "p05": -65.9,
+      "areaNM2": 78,
+      "distanciaRutaNM": 17.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.2977,
+       "lon": -69.9553
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -72.6,
+      "p05": -68.5,
+      "areaNM2": 139,
+      "distanciaRutaNM": 16.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3077,
+       "lon": -69.9753
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -72.6,
+      "p05": -69.9,
+      "areaNM2": 184,
+      "distanciaRutaNM": 14.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3197,
+       "lon": -70.0029
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -72.6,
+      "p05": -71.2,
+      "areaNM2": 243,
+      "distanciaRutaNM": 13.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3198,
+       "lon": -70.0229
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -71.2,
+      "p05": -68.5,
+      "areaNM2": 278,
+      "distanciaRutaNM": 12.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3221,
+       "lon": -70.0354
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -71.2,
+      "p05": -69.9,
+      "areaNM2": 314,
+      "distanciaRutaNM": 11.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3271,
+       "lon": -70.0463
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:20:00Z",
+      "minTb": -68.5,
+      "p05": -67.2,
+      "areaNM2": 320,
+      "distanciaRutaNM": 10.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3201,
+       "lon": -70.0635
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:30:00Z",
+      "minTb": -68.5,
+      "p05": -67.2,
+      "areaNM2": 343,
+      "distanciaRutaNM": 10.4,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -3.3217,
+       "lon": -70.0726
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:40:00Z",
+      "minTb": -67.2,
+      "p05": -65.9,
+      "areaNM2": 340,
+      "distanciaRutaNM": 9.9,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -3.3235,
+       "lon": -70.0804
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:50:00Z",
+      "minTb": -73.9,
+      "p05": -65.9,
+      "areaNM2": 327,
+      "distanciaRutaNM": 9.1,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -3.3192,
+       "lon": -70.0968
+      }
+     },
+     {
+      "horaZ": "2026-09-07T22:00:00Z",
+      "minTb": -72.6,
+      "p05": -67.2,
+      "areaNM2": 390,
+      "distanciaRutaNM": 7.8,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -3.3366,
+       "lon": -70.1125
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -69.9667,
+       -3.1855
+      ],
+      [
+       -69.8207,
+       -3.3129
+      ],
+      [
+       -69.9107,
+       -3.4401
+      ],
+      [
+       -70.1284,
+       -3.4581
+      ],
+      [
+       -70.1837,
+       -3.3126
+      ],
+      [
+       -70.0936,
+       -3.2035
+      ],
+      [
+       -69.9847,
+       -3.2036
+      ],
+      [
+       -69.9667,
+       -3.1855
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-03",
+    "nombre": "Núcleo convectivo 03 · sobre la ruta",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T19:00:00Z",
+    "hastaZ": "2026-09-07T21:10:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -73.9 °C; mínimo absoluto -75.2 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 2030z.jpg (20:30Z) por el umbral declarado de -52 °C. Área en su máximo: 186 NM². Seguida 14 cuadros, de 19:00Z a 21:10Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "La traza de la ruta atraviesa este núcleo (distancia mínima 0 NM) entre 19:00Z y 21:10Z. ENCUENTRO CON EL VUELO: a las 20:30Z la aeronave está en la milla 458 y la célula a 19.2 NM de ella, DENTRO del núcleo.",
+    "recomendacion": "Exige desvío lateral o cambio de hora de paso: el nivel de crucero no salva un tope de esta temperatura.",
+    "minTbC": -75.2,
+    "minTbSaturado": false,
+    "p05TbC": -73.9,
+    "medianaTbC": -64.5,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:30:00Z",
+     "distanciaNM": 19.2,
+     "aeronaveNM": 458,
+     "minTb": -75.2,
+     "dentroDelNucleo": true
+    },
+    "distanciaMinRutaNM": 6.7,
+    "cruzaRuta": true,
+    "areaMaxNM2": 186,
+    "horaPicoZ": "2026-09-07T20:30:00Z",
+    "archivoPico": "medios/satelite/band_13/2030z.jpg",
+    "cuadros": 14,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T19:00:00Z",
+      "minTb": -61.8,
+      "p05": -60.5,
+      "areaNM2": 178,
+      "distanciaRutaNM": 28.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9554,
+       "lon": -70.8891
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:10:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 163,
+      "distanciaRutaNM": 27.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9566,
+       "lon": -70.8825
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:20:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 157,
+      "distanciaRutaNM": 28,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9546,
+       "lon": -70.8864
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:30:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 159,
+      "distanciaRutaNM": 27.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9609,
+       "lon": -70.8686
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 150,
+      "distanciaRutaNM": 27.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9666,
+       "lon": -70.8653
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -73.9,
+      "p05": -72.6,
+      "areaNM2": 85,
+      "distanciaRutaNM": 16.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.7825,
+       "lon": -70.1627
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -72.6,
+      "p05": -71.2,
+      "areaNM2": 163,
+      "distanciaRutaNM": 15,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.7998,
+       "lon": -70.1789
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -71.2,
+      "p05": -69.9,
+      "areaNM2": 273,
+      "distanciaRutaNM": 14.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8019,
+       "lon": -70.1946
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -73.9,
+      "p05": -72.6,
+      "areaNM2": 78,
+      "distanciaRutaNM": 6.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.47,
+       "lon": -70.683
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -75.2,
+      "p05": -73.9,
+      "areaNM2": 186,
+      "distanciaRutaNM": 7.7,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.465,
+       "lon": -70.7029
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -90,
+      "p05": -72.6,
+      "areaNM2": 378,
+      "distanciaRutaNM": 8.4,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.4191,
+       "lon": -70.7327
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -73.9,
+      "p05": -72.6,
+      "areaNM2": 550,
+      "distanciaRutaNM": 9.4,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -2.3998,
+       "lon": -70.7566
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -72.6,
+      "p05": -67.2,
+      "areaNM2": 86,
+      "distanciaRutaNM": 28.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0304,
+       "lon": -71.231
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -67.2,
+      "p05": -65.9,
+      "areaNM2": 165,
+      "distanciaRutaNM": 29.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0436,
+       "lon": -71.2452
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -70.7862,
+       -2.331
+      ],
+      [
+       -70.5685,
+       -2.4401
+      ],
+      [
+       -70.5319,
+       -2.5491
+      ],
+      [
+       -70.6222,
+       -2.6035
+      ],
+      [
+       -70.7672,
+       -2.5671
+      ],
+      [
+       -70.84,
+       -2.4581
+      ],
+      [
+       -70.8042,
+       -2.3492
+      ],
+      [
+       -70.7862,
+       -2.331
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-04",
+    "nombre": "Núcleo convectivo 04 · a 41 NM",
+    "tipo": "convectivo",
+    "severidad": "moderado",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T19:20:00Z",
+    "hastaZ": "2026-09-07T20:20:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -61.8 °C; mínimo absoluto -64.5 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 1920z.jpg (19:20Z) por el umbral declarado de -52 °C. Área en su máximo: 60 NM². Seguida 7 cuadros, de 19:20Z a 20:20Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 entre −60 y −70 °C: cumulonimbo maduro, con yunque desarrollado y probable actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 41 NM de la traza. ENCUENTRO CON EL VUELO: a las 19:50Z la aeronave está en la milla 305 y la célula a 43.3 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -64.5,
+    "minTbSaturado": false,
+    "p05TbC": -61.8,
+    "medianaTbC": -56.5,
+    "encuentro": {
+     "horaZ": "2026-09-07T19:50:00Z",
+     "distanciaNM": 43.3,
+     "aeronaveNM": 305,
+     "minTb": -63.2,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 40.8,
+    "cruzaRuta": false,
+    "areaMaxNM2": 60,
+    "horaPicoZ": "2026-09-07T19:20:00Z",
+    "archivoPico": "medios/satelite/band_13/1920z.jpg",
+    "cuadros": 7,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T19:20:00Z",
+      "minTb": -64.5,
+      "p05": -61.8,
+      "areaNM2": 60,
+      "distanciaRutaNM": 43.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2447,
+       "lon": -70.603
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:30:00Z",
+      "minTb": -63.2,
+      "p05": -60.5,
+      "areaNM2": 69,
+      "distanciaRutaNM": 42.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2493,
+       "lon": -70.6105
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -63.2,
+      "p05": -61.8,
+      "areaNM2": 72,
+      "distanciaRutaNM": 42.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2496,
+       "lon": -70.6178
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -63.2,
+      "p05": -61.8,
+      "areaNM2": 101,
+      "distanciaRutaNM": 41.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2472,
+       "lon": -70.6264
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 97,
+      "distanciaRutaNM": 41.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2494,
+       "lon": -70.6303
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 85,
+      "distanciaRutaNM": 41.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2419,
+       "lon": -70.6352
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -57.8,
+      "p05": -57.8,
+      "areaNM2": 78,
+      "distanciaRutaNM": 40.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2396,
+       "lon": -70.6464
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -70.5914,
+       -0.1723
+      ],
+      [
+       -70.501,
+       -0.2085
+      ],
+      [
+       -70.5733,
+       -0.3355
+      ],
+      [
+       -70.6999,
+       -0.2629
+      ],
+      [
+       -70.6095,
+       -0.1904
+      ],
+      [
+       -70.5914,
+       -0.1723
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-05",
+    "nombre": "Núcleo convectivo 05 · sobre la ruta",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T18:40:00Z",
+    "hastaZ": "2026-09-07T22:00:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -88.6 °C; mínimo absoluto ≤ −90 °C (tope de escala de la tabla). Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 1900z.jpg (19:00Z) por el umbral declarado de -52 °C. Área en su máximo: 934 NM². Seguida 21 cuadros, de 18:40Z a 22:00Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo. El mínimo absoluto está además SATURADO: la barra publicada no rotula por debajo de −90 °C, así que es un límite, no una medida.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "La traza de la ruta atraviesa este núcleo (distancia mínima 0 NM) entre 18:40Z y 22:00Z. ENCUENTRO CON EL VUELO: a las 20:30Z la aeronave está en la milla 458 y la célula a 72.2 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -90,
+    "minTbSaturado": true,
+    "p05TbC": -88.6,
+    "medianaTbC": -84.6,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:30:00Z",
+     "distanciaNM": 72.2,
+     "aeronaveNM": 458,
+     "minTb": -72.6,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 34.1,
+    "cruzaRuta": true,
+    "areaMaxNM2": 934,
+    "horaPicoZ": "2026-09-07T19:00:00Z",
+    "archivoPico": "medios/satelite/band_13/1900z.jpg",
+    "cuadros": 21,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T18:40:00Z",
+      "minTb": -73.9,
+      "p05": -64.5,
+      "areaNM2": 125,
+      "distanciaRutaNM": 55.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.7385,
+       "lon": -69.4817
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:50:00Z",
+      "minTb": -68.5,
+      "p05": -65.9,
+      "areaNM2": 169,
+      "distanciaRutaNM": 54.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.7671,
+       "lon": -69.4846
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:00:00Z",
+      "minTb": -90,
+      "p05": -88.6,
+      "areaNM2": 934,
+      "distanciaRutaNM": 50.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9647,
+       "lon": -69.4824
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:10:00Z",
+      "minTb": -67.2,
+      "p05": -65.9,
+      "areaNM2": 312,
+      "distanciaRutaNM": 53.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8098,
+       "lon": -69.4861
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:20:00Z",
+      "minTb": -90,
+      "p05": -88.6,
+      "areaNM2": 1254,
+      "distanciaRutaNM": 34.1,
+      "cruzaRuta": true,
+      "centro": {
+       "lat": -3.0868,
+       "lon": -69.7364
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:30:00Z",
+      "minTb": -64.5,
+      "p05": -61.8,
+      "areaNM2": 406,
+      "distanciaRutaNM": 51.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8141,
+       "lon": -69.5345
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -64.5,
+      "p05": -63.2,
+      "areaNM2": 429,
+      "distanciaRutaNM": 50.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8169,
+       "lon": -69.537
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -64.5,
+      "p05": -63.2,
+      "areaNM2": 412,
+      "distanciaRutaNM": 50.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8225,
+       "lon": -69.5351
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 76,
+      "distanciaRutaNM": 75,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2343,
+       "lon": -69.3187
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -67.2,
+      "p05": -65.9,
+      "areaNM2": 123,
+      "distanciaRutaNM": 74,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2248,
+       "lon": -69.3402
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -75.2,
+      "p05": -72.6,
+      "areaNM2": 197,
+      "distanciaRutaNM": 73.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2231,
+       "lon": -69.3578
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -72.6,
+      "p05": -69.9,
+      "areaNM2": 272,
+      "distanciaRutaNM": 72,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2158,
+       "lon": -69.3786
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -72.6,
+      "p05": -68.5,
+      "areaNM2": 321,
+      "distanciaRutaNM": 71.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2129,
+       "lon": -69.3897
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -69.9,
+      "p05": -67.2,
+      "areaNM2": 414,
+      "distanciaRutaNM": 71.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2043,
+       "lon": -69.3992
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -67.2,
+      "p05": -65.9,
+      "areaNM2": 454,
+      "distanciaRutaNM": 71.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.1913,
+       "lon": -69.3984
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 451,
+      "distanciaRutaNM": 71.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.1906,
+       "lon": -69.3908
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:20:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 431,
+      "distanciaRutaNM": 71.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.1929,
+       "lon": -69.397
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:30:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 397,
+      "distanciaRutaNM": 71.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.1984,
+       "lon": -69.4015
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:40:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 376,
+      "distanciaRutaNM": 70.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2101,
+       "lon": -69.4056
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:50:00Z",
+      "minTb": -64.5,
+      "p05": -63.2,
+      "areaNM2": 368,
+      "distanciaRutaNM": 70.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2213,
+       "lon": -69.4117
+      }
+     },
+     {
+      "horaZ": "2026-09-07T22:00:00Z",
+      "minTb": -61.8,
+      "p05": -60.5,
+      "areaNM2": 387,
+      "distanciaRutaNM": 70.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.2498,
+       "lon": -69.4007
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -69.3708,
+       -2.6044
+      ],
+      [
+       -69.1341,
+       -2.6954
+      ],
+      [
+       -69.1336,
+       -2.7863
+      ],
+      [
+       -69.0428,
+       -2.7682
+      ],
+      [
+       -69.314,
+       -3.0043
+      ],
+      [
+       -69.2954,
+       -3.077
+      ],
+      [
+       -69.2043,
+       -3.0953
+      ],
+      [
+       -69.276,
+       -3.2589
+      ],
+      [
+       -69.3311,
+       -3.1679
+      ],
+      [
+       -69.6392,
+       -3.2949
+      ],
+      [
+       -69.4947,
+       -3.1677
+      ],
+      [
+       -69.5861,
+       -3.0767
+      ],
+      [
+       -69.7301,
+       -3.2766
+      ],
+      [
+       -69.8206,
+       -3.3311
+      ],
+      [
+       -69.9298,
+       -3.2764
+      ],
+      [
+       -70.0561,
+       -3.4036
+      ],
+      [
+       -69.8397,
+       -3.1674
+      ],
+      [
+       -69.6582,
+       -3.1676
+      ],
+      [
+       -69.6226,
+       -3.0403
+      ],
+      [
+       -69.7497,
+       -3.0402
+      ],
+      [
+       -69.6052,
+       -2.9131
+      ],
+      [
+       -69.6064,
+       -2.6951
+      ],
+      [
+       -69.3889,
+       -2.6226
+      ],
+      [
+       -69.3708,
+       -2.6044
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-06",
+    "nombre": "Núcleo convectivo 06 · a 48 NM",
+    "tipo": "convectivo",
+    "severidad": "moderado",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T20:00:00Z",
+    "hastaZ": "2026-09-07T21:00:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -61.8 °C; mínimo absoluto -63.2 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 2000z.jpg (20:00Z) por el umbral declarado de -52 °C. Área en su máximo: 418 NM². Seguida 7 cuadros, de 20:00Z a 21:00Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 entre −60 y −70 °C: cumulonimbo maduro, con yunque desarrollado y probable actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 48 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:40Z la aeronave está en la milla 496 y la célula a 49.7 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -63.2,
+    "minTbSaturado": false,
+    "p05TbC": -61.8,
+    "medianaTbC": -57.8,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:40:00Z",
+     "distanciaNM": 49.7,
+     "aeronaveNM": 496,
+     "minTb": -57.8,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 47.7,
+    "cruzaRuta": false,
+    "areaMaxNM2": 418,
+    "horaPicoZ": "2026-09-07T20:00:00Z",
+    "archivoPico": "medios/satelite/band_13/2000z.jpg",
+    "cuadros": 7,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -63.2,
+      "p05": -61.8,
+      "areaNM2": 418,
+      "distanciaRutaNM": 50.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8364,
+       "lon": -69.5342
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 378,
+      "distanciaRutaNM": 49.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8464,
+       "lon": -69.5456
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 352,
+      "distanciaRutaNM": 49.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8551,
+       "lon": -69.5526
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -57.8,
+      "p05": -57.8,
+      "areaNM2": 344,
+      "distanciaRutaNM": 49.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8577,
+       "lon": -69.5533
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -57.8,
+      "p05": -56.5,
+      "areaNM2": 296,
+      "distanciaRutaNM": 48.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8647,
+       "lon": -69.559
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -56.5,
+      "p05": -56.5,
+      "areaNM2": 191,
+      "distanciaRutaNM": 47.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8679,
+       "lon": -69.5748
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -55.2,
+      "p05": -55.2,
+      "areaNM2": 163,
+      "distanciaRutaNM": 47.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8701,
+       "lon": -69.571
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -69.6065,
+       -2.6769
+      ],
+      [
+       -69.3158,
+       -2.6953
+      ],
+      [
+       -69.2792,
+       -2.7498
+      ],
+      [
+       -69.3509,
+       -2.9133
+      ],
+      [
+       -69.4416,
+       -2.9314
+      ],
+      [
+       -69.4226,
+       -3.0769
+      ],
+      [
+       -69.7686,
+       -2.913
+      ],
+      [
+       -69.7514,
+       -2.7495
+      ],
+      [
+       -69.6788,
+       -2.7495
+      ],
+      [
+       -69.642,
+       -2.8222
+      ],
+      [
+       -69.5878,
+       -2.7859
+      ],
+      [
+       -69.6246,
+       -2.695
+      ],
+      [
+       -69.6065,
+       -2.6769
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-07",
+    "nombre": "Núcleo convectivo 07 · a 54 NM",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T19:40:00Z",
+    "hastaZ": "2026-09-07T22:00:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -88.6 °C; mínimo absoluto ≤ −90 °C (tope de escala de la tabla). Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 1940z.jpg (19:40Z) por el umbral declarado de -52 °C. Área en su máximo: 339 NM². Seguida 15 cuadros, de 19:40Z a 22:00Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo. El mínimo absoluto está además SATURADO: la barra publicada no rotula por debajo de −90 °C, así que es un límite, no una medida.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 54 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:10Z la aeronave está en la milla 382 y la célula a 63.1 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -90,
+    "minTbSaturado": true,
+    "p05TbC": -88.6,
+    "medianaTbC": -84.6,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:10:00Z",
+     "distanciaNM": 63.1,
+     "aeronaveNM": 382,
+     "minTb": -73.9,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 53.9,
+    "cruzaRuta": false,
+    "areaMaxNM2": 339,
+    "horaPicoZ": "2026-09-07T19:40:00Z",
+    "archivoPico": "medios/satelite/band_13/1940z.jpg",
+    "cuadros": 15,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -90,
+      "p05": -88.6,
+      "areaNM2": 339,
+      "distanciaRutaNM": 53.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.049,
+       "lon": -71.6721
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -63.2,
+      "p05": -63.2,
+      "areaNM2": 129,
+      "distanciaRutaNM": 59.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.9719,
+       "lon": -71.7995
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -84.6,
+      "p05": -67.2,
+      "areaNM2": 210,
+      "distanciaRutaNM": 61.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.9778,
+       "lon": -71.8281
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -73.9,
+      "p05": -72.6,
+      "areaNM2": 360,
+      "distanciaRutaNM": 62.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.9878,
+       "lon": -71.8471
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -72.6,
+      "p05": -71.2,
+      "areaNM2": 515,
+      "distanciaRutaNM": 63.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.9938,
+       "lon": -71.861
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -73.9,
+      "p05": -69.9,
+      "areaNM2": 637,
+      "distanciaRutaNM": 64.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.001,
+       "lon": -71.8731
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -72.6,
+      "p05": -68.5,
+      "areaNM2": 750,
+      "distanciaRutaNM": 65.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0081,
+       "lon": -71.8977
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -72.6,
+      "p05": -67.2,
+      "areaNM2": 866,
+      "distanciaRutaNM": 67.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0112,
+       "lon": -71.9278
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -75.2,
+      "p05": -68.5,
+      "areaNM2": 1044,
+      "distanciaRutaNM": 70,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0149,
+       "lon": -71.97
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -73.9,
+      "p05": -68.5,
+      "areaNM2": 1166,
+      "distanciaRutaNM": 72.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0068,
+       "lon": -72.0245
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:20:00Z",
+      "minTb": -73.9,
+      "p05": -67.2,
+      "areaNM2": 1410,
+      "distanciaRutaNM": 77.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0187,
+       "lon": -72.0995
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:30:00Z",
+      "minTb": -73.9,
+      "p05": -67.2,
+      "areaNM2": 1668,
+      "distanciaRutaNM": 81.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0198,
+       "lon": -72.1707
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:40:00Z",
+      "minTb": -73.9,
+      "p05": -65.9,
+      "areaNM2": 1900,
+      "distanciaRutaNM": 83.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.023,
+       "lon": -72.2085
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:50:00Z",
+      "minTb": -72.6,
+      "p05": -67.2,
+      "areaNM2": 1911,
+      "distanciaRutaNM": 85.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.0278,
+       "lon": -72.2433
+      }
+     },
+     {
+      "horaZ": "2026-09-07T22:00:00Z",
+      "minTb": -75.2,
+      "p05": -67.2,
+      "areaNM2": 1977,
+      "distanciaRutaNM": 87.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.029,
+       "lon": -72.2815
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -71.7637,
+       -1.895
+      ],
+      [
+       -71.601,
+       -1.9495
+      ],
+      [
+       -71.6008,
+       -2.0221
+      ],
+      [
+       -71.5468,
+       -1.9677
+      ],
+      [
+       -71.3297,
+       -2.0403
+      ],
+      [
+       -71.5461,
+       -2.2036
+      ],
+      [
+       -71.8174,
+       -2.1127
+      ],
+      [
+       -71.9437,
+       -2.1671
+      ],
+      [
+       -71.7817,
+       -1.9131
+      ],
+      [
+       -71.7637,
+       -1.895
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-08",
+    "nombre": "Núcleo convectivo 08 · a 49 NM",
+    "tipo": "convectivo",
+    "severidad": "moderado",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T19:50:00Z",
+    "hastaZ": "2026-09-07T20:20:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -60.5 °C; mínimo absoluto -60.5 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 1950z.jpg (19:50Z) por el umbral declarado de -52 °C. Área en su máximo: 134 NM². Seguida 4 cuadros, de 19:50Z a 20:20Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 entre −60 y −70 °C: cumulonimbo maduro, con yunque desarrollado y probable actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 49 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:20Z la aeronave está en la milla 420 y la célula a 61.7 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -60.5,
+    "minTbSaturado": false,
+    "p05TbC": -60.5,
+    "medianaTbC": -55.2,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:20:00Z",
+     "distanciaNM": 61.7,
+     "aeronaveNM": 420,
+     "minTb": -57.8,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 49.4,
+    "cruzaRuta": false,
+    "areaMaxNM2": 134,
+    "horaPicoZ": "2026-09-07T19:50:00Z",
+    "archivoPico": "medios/satelite/band_13/1950z.jpg",
+    "cuadros": 4,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 134,
+      "distanciaRutaNM": 50.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.93,
+       "lon": -71.301
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -63.2,
+      "p05": -60.5,
+      "areaNM2": 180,
+      "distanciaRutaNM": 49.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9006,
+       "lon": -71.2854
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 185,
+      "distanciaRutaNM": 49.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9152,
+       "lon": -71.2805
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -57.8,
+      "p05": -57.8,
+      "areaNM2": 104,
+      "distanciaRutaNM": 49.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.949,
+       "lon": -71.2775
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -71.3633,
+       -2.821
+      ],
+      [
+       -71.1641,
+       -2.8757
+      ],
+      [
+       -71.2538,
+       -3.0755
+      ],
+      [
+       -71.3261,
+       -3.0754
+      ],
+      [
+       -71.3266,
+       -2.9664
+      ],
+      [
+       -71.4353,
+       -2.93
+      ],
+      [
+       -71.3813,
+       -2.8392
+      ],
+      [
+       -71.3633,
+       -2.821
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-09",
+    "nombre": "Núcleo convectivo 09 · a 74 NM",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T17:30:00Z",
+    "hastaZ": "2026-09-07T21:40:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -86 °C; mínimo absoluto ≤ −90 °C (tope de escala de la tabla). Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 1920z.jpg (19:20Z) por el umbral declarado de -52 °C. Área en su máximo: 3045 NM². Seguida 26 cuadros, de 17:30Z a 21:40Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo. El mínimo absoluto está además SATURADO: la barra publicada no rotula por debajo de −90 °C, así que es un límite, no una medida.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 74 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:00Z la aeronave está en la milla 344 y la célula a 85.4 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -90,
+    "minTbSaturado": true,
+    "p05TbC": -86,
+    "medianaTbC": -60.5,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:00:00Z",
+     "distanciaNM": 85.4,
+     "aeronaveNM": 344,
+     "minTb": -69.9,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 73.7,
+    "cruzaRuta": false,
+    "areaMaxNM2": 3045,
+    "horaPicoZ": "2026-09-07T19:20:00Z",
+    "archivoPico": "medios/satelite/band_13/1920z.jpg",
+    "cuadros": 26,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T17:30:00Z",
+      "minTb": -68.5,
+      "p05": -65.9,
+      "areaNM2": 351,
+      "distanciaRutaNM": 102.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.3023,
+       "lon": -69.5259
+      }
+     },
+     {
+      "horaZ": "2026-09-07T17:40:00Z",
+      "minTb": -68.5,
+      "p05": -65.9,
+      "areaNM2": 508,
+      "distanciaRutaNM": 101.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2833,
+       "lon": -69.5512
+      }
+     },
+     {
+      "horaZ": "2026-09-07T17:50:00Z",
+      "minTb": -73.9,
+      "p05": -67.2,
+      "areaNM2": 690,
+      "distanciaRutaNM": 100.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2787,
+       "lon": -69.5768
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:00:00Z",
+      "minTb": -72.6,
+      "p05": -67.2,
+      "areaNM2": 903,
+      "distanciaRutaNM": 99.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2778,
+       "lon": -69.5908
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:10:00Z",
+      "minTb": -67.2,
+      "p05": -65.9,
+      "areaNM2": 1056,
+      "distanciaRutaNM": 98.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2771,
+       "lon": -69.6071
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:20:00Z",
+      "minTb": -67.2,
+      "p05": -64.5,
+      "areaNM2": 1290,
+      "distanciaRutaNM": 97.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2711,
+       "lon": -69.6303
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:30:00Z",
+      "minTb": -68.5,
+      "p05": -65.9,
+      "areaNM2": 1480,
+      "distanciaRutaNM": 96.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2693,
+       "lon": -69.6516
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:40:00Z",
+      "minTb": -90,
+      "p05": -65.9,
+      "areaNM2": 1724,
+      "distanciaRutaNM": 95.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2693,
+       "lon": -69.6721
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:50:00Z",
+      "minTb": -73.9,
+      "p05": -67.2,
+      "areaNM2": 2015,
+      "distanciaRutaNM": 94,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2713,
+       "lon": -69.692
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:00:00Z",
+      "minTb": -73.9,
+      "p05": -67.2,
+      "areaNM2": 2300,
+      "distanciaRutaNM": 93.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2798,
+       "lon": -69.7055
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:10:00Z",
+      "minTb": -72.6,
+      "p05": -67.2,
+      "areaNM2": 2480,
+      "distanciaRutaNM": 92.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2791,
+       "lon": -69.7197
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:20:00Z",
+      "minTb": -90,
+      "p05": -86,
+      "areaNM2": 3045,
+      "distanciaRutaNM": 92.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.3563,
+       "lon": -69.6889
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:30:00Z",
+      "minTb": -72.6,
+      "p05": -65.9,
+      "areaNM2": 2731,
+      "distanciaRutaNM": 89.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.2961,
+       "lon": -69.766
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -67.2,
+      "p05": -64.5,
+      "areaNM2": 2815,
+      "distanciaRutaNM": 87.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.3089,
+       "lon": -69.7916
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -75.2,
+      "p05": -64.5,
+      "areaNM2": 2913,
+      "distanciaRutaNM": 86.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.318,
+       "lon": -69.8113
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -69.9,
+      "p05": -64.5,
+      "areaNM2": 3020,
+      "distanciaRutaNM": 85.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.3335,
+       "lon": -69.8272
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -69.9,
+      "p05": -64.5,
+      "areaNM2": 3143,
+      "distanciaRutaNM": 83.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.3501,
+       "lon": -69.8483
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -67.2,
+      "p05": -64.5,
+      "areaNM2": 2995,
+      "distanciaRutaNM": 82.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.3672,
+       "lon": -69.8625
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -67.2,
+      "p05": -63.2,
+      "areaNM2": 2921,
+      "distanciaRutaNM": 81.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.3794,
+       "lon": -69.8776
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -65.9,
+      "p05": -61.8,
+      "areaNM2": 2630,
+      "distanciaRutaNM": 79,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.4103,
+       "lon": -69.9074
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -64.5,
+      "p05": -60.5,
+      "areaNM2": 2525,
+      "distanciaRutaNM": 77.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.4248,
+       "lon": -69.9341
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -63.2,
+      "p05": -60.5,
+      "areaNM2": 2404,
+      "distanciaRutaNM": 76,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.4219,
+       "lon": -69.9563
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -64.5,
+      "p05": -60.5,
+      "areaNM2": 1766,
+      "distanciaRutaNM": 73.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.4209,
+       "lon": -69.9974
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:20:00Z",
+      "minTb": -55.2,
+      "p05": -55.2,
+      "areaNM2": 561,
+      "distanciaRutaNM": 90.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.1263,
+       "lon": -69.805
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:30:00Z",
+      "minTb": -56.5,
+      "p05": -55.2,
+      "areaNM2": 295,
+      "distanciaRutaNM": 91.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.1024,
+       "lon": -69.8008
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:40:00Z",
+      "minTb": -53.9,
+      "p05": -53.9,
+      "areaNM2": 128,
+      "distanciaRutaNM": 91.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -0.0897,
+       "lon": -69.7939
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -69.976,
+       0.1723
+      ],
+      [
+       -69.7043,
+       0.0998
+      ],
+      [
+       -69.5592,
+       0.1542
+      ],
+      [
+       -69.2145,
+       -0.0816
+      ],
+      [
+       -69.1782,
+       -0.2268
+      ],
+      [
+       -69.3052,
+       -0.3174
+      ],
+      [
+       -69.3051,
+       -0.4444
+      ],
+      [
+       -69.4139,
+       -0.4626
+      ],
+      [
+       -69.4681,
+       -0.6621
+      ],
+      [
+       -69.3955,
+       -0.7165
+      ],
+      [
+       -69.3774,
+       -0.644
+      ],
+      [
+       -68.9781,
+       -0.644
+      ],
+      [
+       -69.1049,
+       -0.8073
+      ],
+      [
+       -69.377,
+       -0.9342
+      ],
+      [
+       -69.4859,
+       -0.8979
+      ],
+      [
+       -69.5583,
+       -0.9705
+      ],
+      [
+       -69.6671,
+       -0.9704
+      ],
+      [
+       -69.921,
+       -0.8615
+      ],
+      [
+       -69.8667,
+       -0.8071
+      ],
+      [
+       -69.6673,
+       -0.8616
+      ],
+      [
+       -69.6674,
+       -0.8072
+      ],
+      [
+       -69.9394,
+       -0.7164
+      ],
+      [
+       -69.9936,
+       -0.789
+      ],
+      [
+       -69.9937,
+       -0.6801
+      ],
+      [
+       -70.1024,
+       -0.6801
+      ],
+      [
+       -70.175,
+       -0.535
+      ],
+      [
+       -70.2474,
+       -0.5531
+      ],
+      [
+       -70.0122,
+       -0.3537
+      ],
+      [
+       -70.1933,
+       -0.136
+      ],
+      [
+       -70.1934,
+       -0.0091
+      ],
+      [
+       -70.1028,
+       0.1179
+      ],
+      [
+       -69.9941,
+       0.1542
+      ],
+      [
+       -69.976,
+       0.1723
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-10",
+    "nombre": "Núcleo convectivo 10 · a 87 NM",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T20:40:00Z",
+    "hastaZ": "2026-09-07T22:00:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -73.9 °C; mínimo absoluto -75.2 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 2040z.jpg (20:40Z) por el umbral declarado de -52 °C. Área en su máximo: 1403 NM². Seguida 9 cuadros, de 20:40Z a 22:00Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 87 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:40Z la aeronave está en la milla 496 y la célula a 91.1 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -75.2,
+    "minTbSaturado": false,
+    "p05TbC": -73.9,
+    "medianaTbC": -65.9,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:40:00Z",
+     "distanciaNM": 91.1,
+     "aeronaveNM": 496,
+     "minTb": -75.2,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 87.1,
+    "cruzaRuta": false,
+    "areaMaxNM2": 1403,
+    "horaPicoZ": "2026-09-07T20:40:00Z",
+    "archivoPico": "medios/satelite/band_13/2040z.jpg",
+    "cuadros": 9,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -75.2,
+      "p05": -73.9,
+      "areaNM2": 1403,
+      "distanciaRutaNM": 90.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9229,
+       "lon": -68.7927
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -90,
+      "p05": -73.9,
+      "areaNM2": 1728,
+      "distanciaRutaNM": 87.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9256,
+       "lon": -68.8532
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -90,
+      "p05": -72.6,
+      "areaNM2": 3720,
+      "distanciaRutaNM": 104.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.4369,
+       "lon": -68.7186
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -79.3,
+      "p05": -71.2,
+      "areaNM2": 4201,
+      "distanciaRutaNM": 100.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.4631,
+       "lon": -68.7867
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:20:00Z",
+      "minTb": -75.2,
+      "p05": -72.6,
+      "areaNM2": 1500,
+      "distanciaRutaNM": 116.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.7736,
+       "lon": -68.7523
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:30:00Z",
+      "minTb": -90,
+      "p05": -71.2,
+      "areaNM2": 1551,
+      "distanciaRutaNM": 114,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.7528,
+       "lon": -68.8022
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:40:00Z",
+      "minTb": -90,
+      "p05": -69.9,
+      "areaNM2": 1653,
+      "distanciaRutaNM": 111.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.7377,
+       "lon": -68.8561
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:50:00Z",
+      "minTb": -69.9,
+      "p05": -68.5,
+      "areaNM2": 1604,
+      "distanciaRutaNM": 107.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.7142,
+       "lon": -68.9239
+      }
+     },
+     {
+      "horaZ": "2026-09-07T22:00:00Z",
+      "minTb": -68.5,
+      "p05": -67.2,
+      "areaNM2": 1220,
+      "distanciaRutaNM": 98,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -1.6707,
+       "lon": -69.1155
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -68.899,
+       -2.4776
+      ],
+      [
+       -68.7163,
+       -2.6049
+      ],
+      [
+       -68.6974,
+       -2.714
+      ],
+      [
+       -68.7694,
+       -2.8412
+      ],
+      [
+       -68.7145,
+       -2.8958
+      ],
+      [
+       -68.4595,
+       -2.896
+      ],
+      [
+       -68.4055,
+       -2.8052
+      ],
+      [
+       -68.2411,
+       -2.8599
+      ],
+      [
+       -68.2585,
+       -2.969
+      ],
+      [
+       -68.4041,
+       -3.0052
+      ],
+      [
+       -68.4028,
+       -3.1689
+      ],
+      [
+       -68.5304,
+       -3.1687
+      ],
+      [
+       -68.6934,
+       -3.2959
+      ],
+      [
+       -69.0766,
+       -3.1681
+      ],
+      [
+       -69.1681,
+       -3.0771
+      ],
+      [
+       -69.0958,
+       -3.0045
+      ],
+      [
+       -69.1707,
+       -2.6591
+      ],
+      [
+       -69.0434,
+       -2.6592
+      ],
+      [
+       -68.9171,
+       -2.4958
+      ],
+      [
+       -68.899,
+       -2.4776
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-11",
+    "nombre": "Núcleo convectivo 11 · a 87 NM",
+    "tipo": "convectivo",
+    "severidad": "moderado",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T19:00:00Z",
+    "hastaZ": "2026-09-07T21:00:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -65.9 °C; mínimo absoluto ≤ −90 °C (tope de escala de la tabla). Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 1930z.jpg (19:30Z) por el umbral declarado de -52 °C. Área en su máximo: 637 NM². Seguida 13 cuadros, de 19:00Z a 21:00Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo. El mínimo absoluto está además SATURADO: la barra publicada no rotula por debajo de −90 °C, así que es un límite, no una medida.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 entre −60 y −70 °C: cumulonimbo maduro, con yunque desarrollado y probable actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 87 NM de la traza. ENCUENTRO CON EL VUELO: a las 19:00Z la aeronave está en la milla 115 y la célula a 96.3 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -90,
+    "minTbSaturado": true,
+    "p05TbC": -65.9,
+    "medianaTbC": -60.5,
+    "encuentro": {
+     "horaZ": "2026-09-07T19:00:00Z",
+     "distanciaNM": 96.3,
+     "aeronaveNM": 115,
+     "minTb": -65.9,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 87.3,
+    "cruzaRuta": false,
+    "areaMaxNM2": 637,
+    "horaPicoZ": "2026-09-07T19:30:00Z",
+    "archivoPico": "medios/satelite/band_13/1930z.jpg",
+    "cuadros": 13,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T19:00:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 125,
+      "distanciaRutaNM": 87.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.4793,
+       "lon": -74.2287
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:10:00Z",
+      "minTb": -67.2,
+      "p05": -64.5,
+      "areaNM2": 353,
+      "distanciaRutaNM": 90.1,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3763,
+       "lon": -74.2247
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:20:00Z",
+      "minTb": -73.9,
+      "p05": -64.5,
+      "areaNM2": 536,
+      "distanciaRutaNM": 91.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3743,
+       "lon": -74.244
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:30:00Z",
+      "minTb": -90,
+      "p05": -65.9,
+      "areaNM2": 637,
+      "distanciaRutaNM": 91.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3668,
+       "lon": -74.2513
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -67.2,
+      "p05": -64.5,
+      "areaNM2": 671,
+      "distanciaRutaNM": 92.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3476,
+       "lon": -74.2614
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -68.5,
+      "p05": -64.5,
+      "areaNM2": 708,
+      "distanciaRutaNM": 93.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3416,
+       "lon": -74.2756
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -68.5,
+      "p05": -64.5,
+      "areaNM2": 705,
+      "distanciaRutaNM": 95.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3132,
+       "lon": -74.2928
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 684,
+      "distanciaRutaNM": 97.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.2799,
+       "lon": -74.3055
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 626,
+      "distanciaRutaNM": 99,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.2523,
+       "lon": -74.3242
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -64.5,
+      "p05": -63.2,
+      "areaNM2": 616,
+      "distanciaRutaNM": 100.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.23,
+       "lon": -74.3362
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -64.5,
+      "p05": -63.2,
+      "areaNM2": 478,
+      "distanciaRutaNM": 101.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.2063,
+       "lon": -74.3485
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -57.8,
+      "p05": -57.8,
+      "areaNM2": 137,
+      "distanciaRutaNM": 89.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3056,
+       "lon": -74.1735
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -56.5,
+      "p05": -55.2,
+      "areaNM2": 102,
+      "distanciaRutaNM": 88.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": 2.3074,
+       "lon": -74.1543
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -74.3241,
+       2.584
+      ],
+      [
+       -74.1438,
+       2.5841
+      ],
+      [
+       -73.9997,
+       2.4752
+      ],
+      [
+       -73.9818,
+       2.2755
+      ],
+      [
+       -74.108,
+       2.2755
+      ],
+      [
+       -74.1261,
+       2.0759
+      ],
+      [
+       -74.2702,
+       2.1848
+      ],
+      [
+       -74.3784,
+       2.1485
+      ],
+      [
+       -74.4684,
+       2.221
+      ],
+      [
+       -74.4323,
+       2.3299
+      ],
+      [
+       -74.5224,
+       2.3844
+      ],
+      [
+       -74.5044,
+       2.4388
+      ],
+      [
+       -74.4142,
+       2.5114
+      ],
+      [
+       -74.4503,
+       2.5659
+      ],
+      [
+       -74.3421,
+       2.5659
+      ],
+      [
+       -74.3241,
+       2.584
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-12",
+    "nombre": "Núcleo convectivo 12 · a 29 NM",
+    "tipo": "convectivo",
+    "severidad": "moderado",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T18:30:00Z",
+    "hastaZ": "2026-09-07T21:10:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -64.5 °C; mínimo absoluto -67.2 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 1950z.jpg (19:50Z) por el umbral declarado de -52 °C. Área en su máximo: 1583 NM². Seguida 17 cuadros, de 18:30Z a 21:10Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 entre −60 y −70 °C: cumulonimbo maduro, con yunque desarrollado y probable actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 29 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:20Z la aeronave está en la milla 420 y la célula a 97.1 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -67.2,
+    "minTbSaturado": false,
+    "p05TbC": -64.5,
+    "medianaTbC": -60.5,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:20:00Z",
+     "distanciaNM": 97.1,
+     "aeronaveNM": 420,
+     "minTb": -64.5,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 28.5,
+    "cruzaRuta": false,
+    "areaMaxNM2": 1583,
+    "horaPicoZ": "2026-09-07T19:50:00Z",
+    "archivoPico": "medios/satelite/band_13/1950z.jpg",
+    "cuadros": 17,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T18:30:00Z",
+      "minTb": -63.2,
+      "p05": -61.8,
+      "areaNM2": 117,
+      "distanciaRutaNM": 30.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9329,
+       "lon": -70.9369
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:40:00Z",
+      "minTb": -64.5,
+      "p05": -60.5,
+      "areaNM2": 135,
+      "distanciaRutaNM": 29.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.938,
+       "lon": -70.9138
+      }
+     },
+     {
+      "horaZ": "2026-09-07T18:50:00Z",
+      "minTb": -65.9,
+      "p05": -61.8,
+      "areaNM2": 145,
+      "distanciaRutaNM": 28.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9453,
+       "lon": -70.8989
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:00:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 70,
+      "distanciaRutaNM": 46.8,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8188,
+       "lon": -71.2685
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:10:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 97,
+      "distanciaRutaNM": 46.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8181,
+       "lon": -71.261
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:20:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 159,
+      "distanciaRutaNM": 46.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8189,
+       "lon": -71.2615
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:30:00Z",
+      "minTb": -60.5,
+      "p05": -57.8,
+      "areaNM2": 153,
+      "distanciaRutaNM": 47,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8349,
+       "lon": -71.2661
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 103,
+      "distanciaRutaNM": 50.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9101,
+       "lon": -71.2969
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -67.2,
+      "p05": -64.5,
+      "areaNM2": 1583,
+      "distanciaRutaNM": 86.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8357,
+       "lon": -71.9637
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 1587,
+      "distanciaRutaNM": 87.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8354,
+       "lon": -71.9851
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -65.9,
+      "p05": -64.5,
+      "areaNM2": 2003,
+      "distanciaRutaNM": 95.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9043,
+       "lon": -72.0986
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -64.5,
+      "p05": -63.2,
+      "areaNM2": 1900,
+      "distanciaRutaNM": 95.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9032,
+       "lon": -72.1033
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -65.9,
+      "p05": -61.8,
+      "areaNM2": 1768,
+      "distanciaRutaNM": 95.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8896,
+       "lon": -72.1046
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -65.9,
+      "p05": -61.8,
+      "areaNM2": 1560,
+      "distanciaRutaNM": 97,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9006,
+       "lon": -72.1284
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:50:00Z",
+      "minTb": -64.5,
+      "p05": -61.8,
+      "areaNM2": 1500,
+      "distanciaRutaNM": 98.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.905,
+       "lon": -72.1501
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:00:00Z",
+      "minTb": -64.5,
+      "p05": -64.5,
+      "areaNM2": 67,
+      "distanciaRutaNM": 97.2,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.3147,
+       "lon": -72.343
+      }
+     },
+     {
+      "horaZ": "2026-09-07T21:10:00Z",
+      "minTb": -63.2,
+      "p05": -61.8,
+      "areaNM2": 80,
+      "distanciaRutaNM": 98.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.3226,
+       "lon": -72.363
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -71.8166,
+       -2.4032
+      ],
+      [
+       -71.5811,
+       -2.5848
+      ],
+      [
+       -71.5988,
+       -2.6938
+      ],
+      [
+       -71.7613,
+       -2.7663
+      ],
+      [
+       -71.688,
+       -3.0389
+      ],
+      [
+       -71.5792,
+       -3.1298
+      ],
+      [
+       -71.7053,
+       -3.2569
+      ],
+      [
+       -71.9041,
+       -3.275
+      ],
+      [
+       -72.1212,
+       -3.2203
+      ],
+      [
+       -72.0853,
+       -3.1477
+      ],
+      [
+       -72.1764,
+       -2.9296
+      ],
+      [
+       -72.3568,
+       -3.0022
+      ],
+      [
+       -72.5015,
+       -2.9113
+      ],
+      [
+       -72.4296,
+       -2.8024
+      ],
+      [
+       -72.3031,
+       -2.8206
+      ],
+      [
+       -72.1595,
+       -2.512
+      ],
+      [
+       -71.9789,
+       -2.512
+      ],
+      [
+       -71.8346,
+       -2.4213
+      ],
+      [
+       -71.8166,
+       -2.4032
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-13",
+    "nombre": "Núcleo convectivo 13 · a 93 NM",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T19:40:00Z",
+    "hastaZ": "2026-09-07T20:40:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -73.9 °C; mínimo absoluto -77.9 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 2030z.jpg (20:30Z) por el umbral declarado de -52 °C. Área en su máximo: 1263 NM². Seguida 7 cuadros, de 19:40Z a 20:40Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 93 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:30Z la aeronave está en la milla 458 y la célula a 104.6 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -77.9,
+    "minTbSaturado": false,
+    "p05TbC": -73.9,
+    "medianaTbC": -65.9,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:30:00Z",
+     "distanciaNM": 104.6,
+     "aeronaveNM": 458,
+     "minTb": -77.9,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 92.6,
+    "cruzaRuta": false,
+    "areaMaxNM2": 1263,
+    "horaPicoZ": "2026-09-07T20:30:00Z",
+    "archivoPico": "medios/satelite/band_13/2030z.jpg",
+    "cuadros": 7,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -61.8,
+      "p05": -60.5,
+      "areaNM2": 344,
+      "distanciaRutaNM": 119.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3246,
+       "lon": -68.1309
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -60.5,
+      "p05": -60.5,
+      "areaNM2": 354,
+      "distanciaRutaNM": 119.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3375,
+       "lon": -68.1267
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -57.8,
+      "p05": -57.8,
+      "areaNM2": 313,
+      "distanciaRutaNM": 119.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.3468,
+       "lon": -68.127
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -73.9,
+      "p05": -72.6,
+      "areaNM2": 780,
+      "distanciaRutaNM": 99.5,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.0068,
+       "lon": -68.6042
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -88.6,
+      "p05": -72.6,
+      "areaNM2": 820,
+      "distanciaRutaNM": 97.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -3.0167,
+       "lon": -68.6386
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:30:00Z",
+      "minTb": -77.9,
+      "p05": -73.9,
+      "areaNM2": 1263,
+      "distanciaRutaNM": 92.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.931,
+       "lon": -68.7538
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:40:00Z",
+      "minTb": -68.5,
+      "p05": -68.5,
+      "areaNM2": 67,
+      "distanciaRutaNM": 115.7,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.4787,
+       "lon": -68.5083
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -68.8988,
+       -2.5139
+      ],
+      [
+       -68.7161,
+       -2.6413
+      ],
+      [
+       -68.7695,
+       -2.823
+      ],
+      [
+       -68.7328,
+       -2.8776
+      ],
+      [
+       -68.4594,
+       -2.9142
+      ],
+      [
+       -68.3691,
+       -2.787
+      ],
+      [
+       -68.2412,
+       -2.8417
+      ],
+      [
+       -68.2223,
+       -2.9326
+      ],
+      [
+       -68.4212,
+       -3.1506
+      ],
+      [
+       -68.6571,
+       -3.2777
+      ],
+      [
+       -68.8393,
+       -3.2593
+      ],
+      [
+       -68.9675,
+       -3.1501
+      ],
+      [
+       -69.0582,
+       -3.1863
+      ],
+      [
+       -69.1319,
+       -3.059
+      ],
+      [
+       -69.0047,
+       -3.0409
+      ],
+      [
+       -68.9506,
+       -2.9683
+      ],
+      [
+       -69.1152,
+       -2.8227
+      ],
+      [
+       -69.116,
+       -2.6773
+      ],
+      [
+       -69.0251,
+       -2.6774
+      ],
+      [
+       -68.9169,
+       -2.5321
+      ],
+      [
+       -68.8988,
+       -2.5139
+      ]
+     ]
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "id": "cb-14",
+    "nombre": "Núcleo convectivo 14 · a 88 NM",
+    "tipo": "convectivo",
+    "severidad": "severo",
+    "nivelesFt": "Tope estimado; ver topeFL en la ficha",
+    "desdeZ": "2026-09-07T19:40:00Z",
+    "hastaZ": "2026-09-07T20:20:00Z",
+    "bandaClave": "band_13",
+    "bandasApoyo": [
+     "band_09",
+     "band_07"
+    ],
+    "evidencia": "Percentil 5 de la temperatura de brillo: -76.6 °C; mínimo absoluto -79.3 °C. Banda 13 (10,3 µm), medida invirtiendo la tabla de color ircimss2 publicada por SLIDER. Contorno trazado sobre el cuadro 2020z.jpg (20:20Z) por el umbral declarado de -52 °C. Área en su máximo: 215 NM². Seguida 5 cuadros, de 19:40Z a 20:20Z. La severidad se clasifica por el PERCENTIL 5 y no por el mínimo: el mínimo es el valor de un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo.",
+    "interpretacion": "INTERPRETACIÓN DEL ANALISTA sobre la medida anterior, no dato observado. Percentil 5 por debajo de −70 °C: convección profunda con cima en la alta troposfera, compatible con corriente ascendente intensa, granizo en el núcleo y actividad eléctrica. La temperatura sola no distingue fase de crecimiento de fase de disipación: para eso está la evolución del área y del percentil, que va en `pasos`.",
+    "impacto": "Se aproxima a 88 NM de la traza. ENCUENTRO CON EL VUELO: a las 20:20Z la aeronave está en la milla 420 y la célula a 114.1 NM de ella.",
+    "recomendacion": "No condiciona la ruta por sí solo mientras mantenga esta separación.",
+    "minTbC": -79.3,
+    "minTbSaturado": false,
+    "p05TbC": -76.6,
+    "medianaTbC": -71.2,
+    "encuentro": {
+     "horaZ": "2026-09-07T20:20:00Z",
+     "distanciaNM": 114.1,
+     "aeronaveNM": 420,
+     "minTb": -79.3,
+     "dentroDelNucleo": false
+    },
+    "distanciaMinRutaNM": 88.3,
+    "cruzaRuta": false,
+    "areaMaxNM2": 215,
+    "horaPicoZ": "2026-09-07T20:20:00Z",
+    "archivoPico": "medios/satelite/band_13/2020z.jpg",
+    "cuadros": 5,
+    "pasos": [
+     {
+      "horaZ": "2026-09-07T19:40:00Z",
+      "minTb": -75.2,
+      "p05": -67.2,
+      "areaNM2": 624,
+      "distanciaRutaNM": 116.6,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.8973,
+       "lon": -68.3401
+      }
+     },
+     {
+      "horaZ": "2026-09-07T19:50:00Z",
+      "minTb": -90,
+      "p05": -72.6,
+      "areaNM2": 551,
+      "distanciaRutaNM": 104.9,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9768,
+       "lon": -68.5183
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:00:00Z",
+      "minTb": -75.2,
+      "p05": -72.6,
+      "areaNM2": 633,
+      "distanciaRutaNM": 102.4,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.9907,
+       "lon": -68.5577
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:10:00Z",
+      "minTb": -76.6,
+      "p05": -75.2,
+      "areaNM2": 64,
+      "distanciaRutaNM": 90.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.7125,
+       "lon": -68.8743
+      }
+     },
+     {
+      "horaZ": "2026-09-07T20:20:00Z",
+      "minTb": -79.3,
+      "p05": -76.6,
+      "areaNM2": 215,
+      "distanciaRutaNM": 88.3,
+      "cruzaRuta": false,
+      "centro": {
+       "lat": -2.7301,
+       "lon": -68.9037
+      }
+     }
+    ],
+    "_procedencia": "derivado"
+   },
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -68.8803,
+       -2.5685
+      ],
+      [
+       -68.7156,
+       -2.714
+      ],
+      [
+       -68.9147,
+       -2.8956
+      ],
+      [
+       -69.0056,
+       -2.8955
+      ],
+      [
+       -69.0429,
+       -2.75
+      ],
+      [
+       -68.8984,
+       -2.5866
+      ],
+      [
+       -68.8803,
+       -2.5685
+      ]
+     ]
+    ]
+   }
+  }
+ ]
+}

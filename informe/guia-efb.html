@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Cómo funciona el EFB</title>
+<style>
+  @page { size: A4 landscape; margin: 14mm 15mm 12mm; }
+
+  :root {
+    --tinta: #16202b;
+    --tinta2: #4a5b6b;
+    --tenue: #8595a4;
+    --linea: #d7dfe6;
+    --acento: #1668c4;
+    --rojo: #c0392b;
+    --ambar: #a9761a;
+    --verde: #1e7a45;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: var(--tinta);
+    font-size: 10.2pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  code, .mono { font-family: "Cascadia Mono", Consolas, monospace; font-size: 0.92em; }
+
+  section { page-break-after: always; page-break-inside: avoid; }
+  section:last-child { page-break-after: auto; }
+
+  h1 { font-size: 30pt; line-height: 1.1; margin: 0 0 6mm; letter-spacing: -0.5pt; }
+  h2 {
+    font-size: 15pt;
+    margin: 0 0 1.5mm;
+    letter-spacing: -0.2pt;
+  }
+  h2 .num {
+    display: inline-block;
+    min-width: 8.5mm;
+    color: var(--acento);
+    font-family: "Cascadia Mono", Consolas, monospace;
+  }
+  .sub { color: var(--tenue); font-size: 9.6pt; margin: 0 0 4mm; }
+  p { margin: 0 0 2.6mm; }
+
+  figure { margin: 0 0 4mm; }
+  figure img { width: 100%; display: block; border: 1px solid var(--linea); }
+  figure img.media { width: 62%; margin: 0 auto; }
+  figure.ajustada img { width: 93%; margin: 0 auto; }
+  figcaption { font-size: 8.4pt; color: var(--tenue); margin-top: 1.6mm; }
+
+  .cols { column-count: 2; column-gap: 9mm; }
+  .cols p { break-inside: avoid; }
+
+  .clave {
+    border-left: 3px solid var(--acento);
+    background: #f2f7fd;
+    padding: 3mm 4mm;
+    margin: 0 0 3mm;
+    break-inside: avoid;
+  }
+  .clave b { color: var(--acento); }
+
+  .ojo {
+    border-left: 3px solid var(--ambar);
+    background: #fdf8ee;
+    padding: 3mm 4mm;
+    margin: 3mm 0 0;
+    break-inside: avoid;
+  }
+  .ojo b { color: var(--ambar); }
+
+  ol.pasos { margin: 0; padding-left: 5.5mm; }
+  ol.pasos li { margin-bottom: 2mm; break-inside: avoid; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.4pt; margin: 0 0 3mm; }
+  th, td { text-align: left; padding: 1.2mm 2.5mm; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  th { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; color: var(--tenue); font-weight: 600; }
+  td.n { font-family: "Cascadia Mono", Consolas, monospace; white-space: nowrap; }
+
+  .globo {
+    display: inline-block;
+    width: 5.2mm; height: 5.2mm;
+    border-radius: 50%;
+    background: #ffcc33;
+    color: #1b1200;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-weight: 700;
+    font-size: 8.4pt;
+    text-align: center;
+    line-height: 5.2mm;
+    margin-right: 1mm;
+  }
+
+  .muestra { display: inline-block; width: 4mm; height: 3mm; border: 1px solid #0003; vertical-align: -0.3mm; margin-right: 1mm; }
+
+  /* ---- Portada ---- */
+  .portada { display: flex; flex-direction: column; justify-content: center; height: 180mm; }
+  .portada .eti { font-family: "Cascadia Mono", Consolas, monospace; font-size: 9pt; letter-spacing: 3pt; color: var(--acento); text-transform: uppercase; margin-bottom: 5mm; }
+  .portada .ruta { font-family: "Cascadia Mono", Consolas, monospace; font-size: 17pt; color: var(--acento); font-weight: 700; margin-bottom: 3mm; }
+  .portada .meta { color: var(--tinta2); font-size: 10.5pt; max-width: 150mm; }
+  .portada .reparto { margin-top: 10mm; display: flex; gap: 12mm; font-size: 10.5pt; }
+  .portada .reparto div { border-left: 2px solid var(--acento); padding-left: 3mm; font-weight: 600; }
+  .idx { margin-top: 12mm; font-size: 9.6pt; color: var(--tinta2); column-count: 2; column-gap: 10mm; }
+  .idx div { margin-bottom: 1.4mm; }
+  .idx .n { font-family: "Cascadia Mono", Consolas, monospace; color: var(--acento); margin-right: 2mm; }
+  figure.alta img { width: auto; display: block; }
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<section class="portada">
+  <div class="eti">Teledetección · guía de lectura</div>
+  <h1>Cómo funciona el EFB<br>y cómo se explica</h1>
+  <div class="ruta">SAT9721 · SKVV → SKLT · 07 SEP 2026</div>
+  <p class="meta">
+    El EFB es el panel que convierte el visor en un vuelo: deja de ser un atlas de capas
+    que se encienden y se apagan, y pasa a decir <b>qué tendría delante la tripulación en
+    cada instante</b>. Esta guía explica, sobre capturas reales del visor, de dónde sale
+    cada número del panel, cuándo salta cada alerta y cómo se defiende el punto de decisión.
+  </p>
+  <div class="reparto">
+    <div>Cristian Arcila</div>
+    <div>Ángela Torres</div>
+    <div>Leonardo Rodríguez</div>
+  </div>
+
+  <div class="idx">
+    <div><span class="n">1</span>La idea en una frase</div>
+    <div><span class="n">2</span>Dónde está y qué hace en pantalla</div>
+    <div><span class="n">3</span>Anatomía: los seis bloques</div>
+    <div><span class="n">4</span>La rejilla: de dónde sale cada número</div>
+    <div><span class="n">5</span>Bajo la vertical: la lectura satelital</div>
+    <div><span class="n">6</span>Las alertas y sus dos umbrales</div>
+    <div><span class="n">7</span>Células seguidas: la tabla de cabina</div>
+    <div><span class="n">8</span>El punto de decisión</div>
+    <div><span class="n">9</span>Qué decir en la sustentación</div>
+    <div><span class="n">10</span>Qué NO se puede afirmar</div>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>La idea en una frase</h2>
+  <p class="sub">Si solo se retiene una cosa de esta guía, que sea esta.</p>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>El mapa y el corte vertical contestan «cómo está la ruta». El EFB contesta otra
+      pregunta, que es la que se hace de verdad en cabina: «¿qué tengo delante ahora mismo,
+      y cuánto tiempo me queda para decidir?»</b> Por eso el panel no enseña la ruta entera:
+      enseña <i>un instante</i> del vuelo, y cambia entero al mover la barra de tiempo.
+    </p>
+  </div>
+
+  <div class="cols">
+    <p>
+      La barra de tiempo mueve la aeronave por la ruta. Para cada posición, el EFB reúne
+      cuatro cosas que en el resto del visor están separadas: <b>dónde está</b> el avión,
+      <b>qué hay sobre él</b> según el satélite, <b>qué células</b> tiene alrededor y
+      <b>qué le espera</b> en el destino.
+    </p>
+    <p>
+      Nada de eso está escrito de antemano. Cada campo se calcula en el momento a partir de
+      las imágenes congeladas de la banda 13, del METAR de las estaciones y de la geometría
+      de la ruta. Si un dato falta, el panel <b>lo dice</b> en vez de rellenarlo: «sin lectura
+      satelital en esta posición», «color ambiguo en este punto».
+    </p>
+    <p>
+      Esa es la diferencia entre un panel de cabina y una maqueta: una maqueta enseña lo que
+      se quiere enseñar; este panel enseña lo que se puede medir, con su hora y su fuente
+      escritas al lado.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>Dónde está y qué hace en pantalla</h2>
+  <p class="sub">Se abre con el botón EFB de la cabecera y flota sobre el mapa.</p>
+
+  <figure style="width:70%; margin-left:auto; margin-right:auto">
+    <img src="figuras/efb-contexto.jpg" alt="El visor con el panel EFB abierto sobre el mapa" />
+    <figcaption>El visor a 2030Z con el EFB abierto. El panel flota sobre el mapa, a la izquierda del panel de herramientas: se consulta sin perder de vista la imagen satelital ni la ruta.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <p>
+      <b>Flota a propósito.</b> Si el panel ocupara una pestaña, habría que elegir entre ver
+      el mapa o ver los datos del vuelo, que es justo lo que no se quiere: la gracia está en
+      leer «célula a 16 NM a las 10» y poder mirar el mapa en ese mismo momento para verla.
+    </p>
+    <p>
+      El botón <b>EFB</b> aparece en la cabecera solo cuando hay análisis radiométrico
+      disponible. Si faltara la tabla de color de la banda 13, el visor sigue funcionando
+      pero el EFB no se ofrece: no hay con qué calcular la lectura bajo la vertical.
+    </p>
+    <p>
+      Se cierra con la <b>×</b> de su cabecera. Se puede dejar abierto mientras se mueve la
+      barra de tiempo, y esa es la forma natural de usarlo en la exposición: abrirlo y
+      recorrer el vuelo.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>Anatomía: los seis bloques</h2>
+  <p class="sub">Siempre en el mismo orden, de lo seguro a lo que exige decidir.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure class="alta" style="flex:0 0 46mm; margin:0">
+      <img src="figuras/efb-anatomia.png" style="height:152mm" alt="El panel EFB con sus seis bloques numerados" />
+      <figcaption>El EFB completo a 2030Z, con la aeronave a 458 NM de SKVV.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table>
+        <tr><th style="width:9mm"></th><th style="width:33mm">Bloque</th><th>Qué contiene</th></tr>
+        <tr>
+          <td><span class="globo">1</span></td><td><b>Cabecera</b></td>
+          <td>Indicativo, ruta y <b>hora Zulu</b>. Es la misma hora de la barra de tiempo: si el reloj del EFB dice 2030Z, todo lo que hay debajo es de las 2030Z.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">2</span></td><td><b>Rejilla de vuelo</b></td>
+          <td>Ocho campos: posición, rumbo, altitud, velocidad, recorrido, restante, siguiente punto y ETA. El apartado 4 los desglosa.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">3</span></td><td><b>Bajo la vertical</b></td>
+          <td>Lo que el satélite ve <i>justo encima del avión</i>: temperatura de brillo, si hay nube, el tope estimado y si ese tope queda por encima o por debajo del nivel.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">4</span></td><td><b>Alertas</b></td>
+          <td>De una a cuatro líneas de color. Rojo es alerta, ámbar es aviso, verde es «sin conflictos». Nunca está vacío.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">5</span></td><td><b>Células seguidas</b></td>
+          <td>Las cinco más próximas en este instante, con distancia, marcación en horas de reloj y temperatura de su tope.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">6</span></td><td><b>Punto de decisión</b></td>
+          <td>Solo aparece cuando falta poco para un encuentro comprometido. Trae las opciones con su coste calculado.</td>
+        </tr>
+      </table>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>El orden no es casual:</b> arriba lo que siempre está (dónde estoy), en medio lo
+          medido (qué hay encima, qué hay cerca) y abajo lo que obliga a actuar. Se lee de
+          arriba abajo y termina en una decisión.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>La rejilla: de dónde sale cada número</h2>
+  <p class="sub">Ocho campos, cuatro fuentes distintas. Conviene saber cuál es cuál.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 68mm; margin:0">
+      <img src="figuras/efb-rejilla.png" alt="La rejilla de ocho campos del EFB" />
+      <figcaption>La rejilla a 2030Z.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table>
+        <tr><th style="width:26mm">Campo</th><th>De dónde sale</th></tr>
+        <tr><td class="n"><b>Posición</b></td><td>Interpolación sobre la ruta publicada según la fracción de vuelo transcurrida. Es la posición <b>prevista</b>, no una traza real.</td></tr>
+        <tr><td class="n"><b>Rumbo</b></td><td>Rumbo del tramo que se está volando, calculado sobre las coordenadas de los waypoints.</td></tr>
+        <tr><td class="n"><b>Altitud</b></td><td>Interpolada: sube de la elevación de SKVV (1 381 ft) a FL210 hasta el TOC, se mantiene en crucero, y baja desde el TOD hasta SKLT (271 ft). Es el perfil <b>previsto</b>.</td></tr>
+        <tr><td class="n"><b>Velocidad</b></td><td>250 kt, la velocidad de crucero declarada del ATR 72-600 en el caso. Es constante: no se modela viento.</td></tr>
+        <tr><td class="n"><b>Recorrido / Restante</b></td><td>Sobre las 553 NM reales de la ruta, repartidas entre la salida (1830Z) y la ETA (2055Z).</td></tr>
+        <tr><td class="n"><b>Siguiente</b></td><td>El siguiente punto <b>publicado</b> por delante, con su distancia y los minutos que faltan a 250 kt.</td></tr>
+        <tr><td class="n"><b>ETA</b></td><td>La hora estimada del caso, y debajo <b>la categoría meteorológica del destino a esa hora</b>, calculada con el METAR vigente. Por eso el color cambia solo.</td></tr>
+      </table>
+
+      <div class="ojo">
+        <p style="margin:0">
+          <b>La pregunta que se puede caer encima:</b> «¿esa posición es real?». No, y hay que
+          decirlo antes: es la posición <b>prevista</b> del plan de vuelo recorrida a velocidad
+          constante. Lo que <i>sí</i> es medido es todo lo que el panel dice <b>sobre</b> esa
+          posición: la temperatura de brillo, los topes y las células salen de las imágenes.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>Bajo la vertical: la lectura satelital</h2>
+  <p class="sub">Cuatro campos que contestan «¿qué tengo justo encima?».</p>
+
+  <figure class="ajustada" style="width:70%; margin-left:auto; margin-right:auto">
+    <img src="figuras/efb-vertical.png" alt="Bloque Bajo la vertical del EFB" />
+    <figcaption>A 2030Z, con la aeronave a 458 NM: −8,4 °C, hay nube, tope estimado FL195, por debajo del nivel de crucero.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <p>
+      El panel toma la <b>posición exacta</b> del avión, va al cuadro de la banda 13 más
+      próximo a esa hora e invierte la tabla de color para obtener la <b>temperatura de
+      brillo</b> de ese píxel. La cabecera del bloque dice de qué cuadro se ha leído
+      (<code>banda 13 · 2030Z</code>), que es la trazabilidad del dato.
+    </p>
+    <p>
+      <b>Nube: sí / no detectada.</b> Es la máscara de nube: separa nube de superficie por
+      temperatura. Un «no detectada» no significa cielo despejado, significa que a esa
+      temperatura no se puede distinguir la nube del suelo tropical.
+    </p>
+    <p>
+      <b>Tope estimado.</b> La altura del tope <i>no la mide el satélite</i>: se calcula desde
+      la temperatura con un gradiente térmico tipo. Por eso dice «estimado». Cuando la
+      temperatura cae por debajo de la tropopausa del modelo, el panel escribe «sobre
+      tropopausa» en vez de inventar un número.
+    </p>
+    <p>
+      <b>Respecto al nivel.</b> La comparación que importa: ese tope, ¿queda POR ENCIMA o por
+      debajo de FL210? Es lo mismo que hace el corte vertical, pero solo en el punto donde
+      está el avión.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>Si la lectura no es concluyente, lo dice.</b> La tabla de color usa el gris dos
+        veces —para lo muy cálido y para lo muy frío—, así que hay puntos ambiguos. En esos
+        casos aparece «color ambiguo en este punto: lectura no concluyente», y no se afirma
+        nada. Ese aviso es una función, no un fallo.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>Las alertas y sus dos umbrales</h2>
+  <p class="sub">Cuatro tipos de alerta, todas con una medida detrás.</p>
+
+  <figure class="ajustada" style="width:66%; margin-left:auto; margin-right:auto">
+    <img src="figuras/efb-alertas.png" alt="Bloque de alertas del EFB" />
+    <figcaption>A 2030Z: dos alertas rojas (células a 16 y 19 NM) y un aviso ámbar (célula a 48 NM).</figcaption>
+  </figure>
+
+  <table>
+    <tr><th style="width:38mm">Alerta</th><th style="width:30mm">Cuándo salta</th><th>Qué hay detrás</th></tr>
+    <tr>
+      <td><b>Célula próxima</b> (ámbar)</td><td class="n">&lt; 50 NM</td>
+      <td>Aviso. Se listan como mucho las tres más próximas.</td>
+    </tr>
+    <tr>
+      <td><b>Célula próxima</b> (rojo)</td><td class="n">&lt; 25 NM</td>
+      <td>Alerta. 25 NM es la separación que se busca mantener, y por eso es también el umbral del punto de decisión y del veredicto EVITAR de la pestaña Tramos.</td>
+    </tr>
+    <tr>
+      <td><b>Tope sobre el nivel</b> (rojo)</td><td class="n">tope &gt; FL210</td>
+      <td>Hay nube en la vertical y su tope supera el nivel de crucero. Sale de la lectura del apartado 5.</td>
+    </tr>
+    <tr>
+      <td><b>Destino degradado</b> (rojo)</td><td class="n">IFR o LIFR</td>
+      <td>La categoría de SKLT calculada con el METAR vigente <b>a la hora estimada de llegada</b>, no a la hora actual.</td>
+    </tr>
+    <tr>
+      <td><b>Sin conflictos</b> (verde)</td><td class="n">ninguna de las anteriores</td>
+      <td>«Sin conflictos a menos de 50 NM». El bloque nunca queda vacío: el silencio se afirma, no se deja en blanco.</td>
+    </tr>
+  </table>
+
+  <div class="cols">
+    <p>
+      <b>«A las 10», «a las 5».</b> La marcación se canta en horas de reloj relativas al morro
+      del avión, que es como se usa en cabina: las 12 es de frente, las 3 a la derecha, las 9 a
+      la izquierda. Sale de comparar la marcación real a la célula con el rumbo actual.
+    </p>
+    <p>
+      <b>Cada alerta guarda su medida.</b> Al pasar el cursor por encima aparece el detalle:
+      percentil 5 del tope, área en millas cuadradas y marcación en grados. Es la respuesta
+      preparada para «¿de dónde sacas eso?».
+    </p>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>Células seguidas: la tabla de cabina</h2>
+  <p class="sub">Cuatro columnas, y un criterio temporal que conviene saber explicar.</p>
+
+  <div class="cols">
+    <p>
+      La tabla lista las <b>cinco células más próximas</b> en este instante, ordenadas por
+      distancia: identificador, distancia en NM, marcación en horas de reloj y percentil 5 de
+      la temperatura de su tope. El color del identificador es su severidad.
+    </p>
+    <p>
+      La cabecera dice cuántas están <b>vivas ahora</b> —a 2030Z son 14—, que no es lo mismo
+      que cuántas hay en el archivo: una célula solo cuenta si tiene un paso seguido a menos
+      de 15 minutos de la hora actual.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>El detalle que distingue un panel serio de una animación:</b> la distancia se mide
+        contra <i>el paso de la célula más cercano en el tiempo</i>, no contra su geometría de
+        máximo desarrollo. Una célula que a las 2030Z está a 18 NM pudo estar a 80 NM a las
+        1950Z. Mezclar las dos cosas daría una alerta falsa, así que no se mezclan.
+      </p>
+    </div>
+
+    <p>
+      Esto es lo que permite mover la barra de tiempo y ver la tabla reordenarse sola: las
+      células se acercan, se alejan y desaparecen cuando dejan de estar vivas. No es una
+      animación preparada; es el seguimiento célula a célula, cuadro a cuadro.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section>
+  <h2><span class="num">8</span>El punto de decisión</h2>
+  <p class="sub">Lo más importante del panel: cuatro opciones, cada una con su cuenta.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <div style="flex:0 0 66mm">
+    <figure style="margin:0">
+      <img src="figuras/efb-decision.png" alt="Panel de punto de decisión del EFB" />
+      <figcaption>El punto de decisión a 2030Z, diez minutos antes del paso junto a cb-02.</figcaption>
+    </figure>
+    <figure style="margin:4mm 0 0">
+      <img src="figuras/efb-decidido.png" alt="Decisión registrada en el EFB" />
+      <figcaption>Al elegir, el panel registra la decisión y su consecuencia. El desvío cuesta 1,1 NM —redondeado a 0 min—, que es justo el argumento: separarse sale casi gratis si se decide a tiempo.</figcaption>
+    </figure>
+    </div>
+
+    <div style="flex:1">
+      <p>
+        <b>Cuándo aparece.</b> No es un guion: se dispara con el encuentro <i>calculado</i> con
+        la célula más comprometida —la que pasará a menos de 25 NM— y solo dentro de los
+        <b>20 minutos previos</b> al punto de máxima aproximación. Antes no hace falta decidir;
+        después ya no sirve de nada.
+      </p>
+      <table>
+        <tr><th style="width:34mm">Opción</th><th>La cuenta que trae</th></tr>
+        <tr><td><b>Mantener ruta y nivel</b></td><td>La separación a la que se pasaría y la hora. Coste cero.</td></tr>
+        <tr><td><b>Desvío lateral</b></td><td>Las millas necesarias para separarse 25 NM, y su coste: <code>2·(√((150/2)² + d²) − 150/2)</code> sobre un tramo de 150 NM. Es geometría declarada, no una estimación a ojo.</td></tr>
+        <tr><td><b>Cambiar de nivel</b></td><td>Se compara el percentil 5 del tope con los niveles disponibles. Con topes de −71 °C sale <b>NO VIABLE</b>, y dice por qué.</td></tr>
+        <tr><td><b>Desviar al alterno</b></td><td>Distancia al alterno más próximo desde la posición actual, minutos a 250 kt y <b>la categoría que tendría ese alterno a la hora de llegar</b>.</td></tr>
+      </table>
+      <div class="ojo">
+        <p style="margin:0">
+          <b>Pasar el cursor por una opción enseña su base.</b> Cada una guarda escrito de dónde
+          sale su número. Esa es la prueba de que las consecuencias están calculadas y no
+          redactadas de antemano.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<!-- ============ 9 ============ -->
+<section>
+  <h2><span class="num">9</span>Qué decir en la sustentación</h2>
+  <p class="sub">Un guion de cinco frases, con el EFB abierto y la barra de tiempo en la mano.</p>
+
+  <ol class="pasos" style="font-size:10.6pt">
+    <li>
+      <b>Presenta el panel.</b> «Esto es el EFB: el visor deja de ser un mapa y pasa a ser un
+      vuelo. Todo lo que hay aquí es de una sola hora, la que marca el reloj de arriba.»
+    </li>
+    <li>
+      <b>Sitúa el avión.</b> «A las 2030Z llevamos 458 NM de las 553, estamos a 29 NM del punto
+      de descenso y el destino está en VFR a la hora estimada de llegada.»
+    </li>
+    <li>
+      <b>Enseña la lectura satelital.</b> «Justo encima tenemos nube con tope estimado en
+      FL195: por debajo de nuestro nivel. Esa temperatura se lee del píxel de la banda 13 en
+      nuestra posición, no es un supuesto.»
+    </li>
+    <li>
+      <b>Lee las alertas.</b> «Pero a 16 NM, a las 10, hay una célula severa con el tope a
+      −72,6 °C, y otra a 19 NM. Por debajo de 25 NM esto es alerta roja.»
+    </li>
+    <li>
+      <b>Cierra con la decisión.</b> «El panel abre el punto de decisión diez minutos antes del
+      paso. Sobrevolar no es opción: con topes de −71 °C no hay nivel para un ATR. Desviarse
+      9 NM cuesta poco más de una milla. La decisión defendible es lateral y temprana, y aquí
+      está la cuenta que lo sostiene.»
+    </li>
+  </ol>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Si preguntan «¿esto no es un simulador de vuelo?»:</b> no. Un simulador genera un
+      escenario; esto <b>lee</b> uno real. La posición es la del plan de vuelo, pero cada cosa
+      que el panel dice sobre esa posición sale de imágenes GOES congeladas de ese día y de los
+      METAR de esa hora. Lo que se demuestra no es pilotar: es que con teledetección se puede
+      <i>anticipar</i> una decisión que en ruta se tomaría a ciegas.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section>
+  <h2><span class="num">10</span>Qué NO se puede afirmar</h2>
+  <p class="sub">Decir los límites antes de que los pregunten es lo que sostiene el resto.</p>
+
+  <div class="cols">
+    <p>
+      <b>1. La posición no es una traza real.</b> Es el plan de vuelo recorrido a velocidad
+      constante entre la salida y la ETA. No hay viento, ni retrasos, ni vectores de control.
+      El EFB no reconstruye un vuelo que ocurrió: recorre el que estaba planificado.
+    </p>
+    <p>
+      <b>2. La altitud es la prevista, no la volada.</b> Ascenso y descenso son rectas entre el
+      TOC y el TOD. Sirve para comparar con los topes de nube, no para afirmar a qué altura
+      estaba el avión en un instante.
+    </p>
+    <p>
+      <b>3. El satélite ve el tope.</b> Lo que hay bajo el yunque —base de nube, cizalladura,
+      granizo— no está en el dato. Una célula «a 16 NM» es a 16 NM <i>de su centroide en el
+      tope</i>.
+    </p>
+    <p>
+      <b>4. El alterno se elige por distancia.</b> La opción «desviar al alterno» toma el más
+      próximo a la posición actual y comprueba su categoría, pero no evalúa pista, servicios ni
+      combustible remanente. Es un apoyo a la decisión, no una planificación de alternos.
+    </p>
+    <p>
+      <b>5. Los umbrales son criterio declarado.</b> 50 NM para el aviso, 25 NM para la alerta
+      y 25 NM de separación objetivo son <b>decisiones de este trabajo</b>, escritas en el
+      código y defendibles como criterio. No son una norma citada.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>La frase que cierra:</b> el EFB no sustituye al radar meteorológico de a bordo ni al
+        control de tránsito aéreo. Enseña algo que ninguno de los dos da: las 553 NM de ruta
+        completas, con dos horas de antelación, que es lo que convierte un desvío improvisado
+        en un desvío planificado.
+      </p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

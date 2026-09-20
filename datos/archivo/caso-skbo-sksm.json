@@ -1,0 +1,1088 @@
+{
+  "meta": {
+    "titulo": "Análisis de teledetección aplicada a ruta aeronáutica",
+    "subtitulo": "SKBO → SKSM · corredor del Magdalena · AIP Colombia AIRAC A 73-26",
+    "autor": "",
+    "asignatura": "Teledetección",
+    "esEjemplo": false,
+    "notaEjemplo": "",
+    "_procedenciaDatos": {
+      "verificado": "METAR, TAF y SIGMET descargados de la API del Aviation Weather Center (NOAA): reales y trazables. Coordenadas ARP, elevaciones, designación/longitud/superficie de pistas, aerovías ATS, puntos significativos, VOR/DME y zonas restringidas provienen del eAIP Colombia (Aerocivil), AIRAC A 73-26 vigente desde 09 JUL 2026, a través de la base aeronáutica del proyecto Simulador NALA (AD 2.2 / AD 2.12 / ENR 3.1-3.2 / ENR 4.1 / ENR 4.4 / ENR 5.1).",
+      "calculado": "Distancias, rumbos, TOC/TOD y las puntuaciones de distancia, pista y ayudas de la matriz de alternos se calculan a partir de los datos anteriores con las fórmulas declaradas en alternos.metodo. No son valores escritos a mano.",
+      "sinVerificar": "Tipo de aproximación por pista (ILS/RNP/VOR), horario de operación y servicios en tierra: NO están publicados en esta base. Se dejan explícitamente pendientes de AIP AD 2.3, AD 2.4 y AD 2.19 en vez de suponerlos. Por eso el criterio de ayudas puntúa la proximidad del VOR/DME de referencia (ENR 4.1), que sí es dato publicado, y no la existencia de ILS.",
+      "ilustrativo": "Las zonas ENR 5.1 se dibujan como círculos de 5 NM alrededor del punto de referencia publicado: el AIP remite el trazado lateral exacto al RAC 5-1.3 y a las cartas de radionavegación, que no son texto. Sirven para situar el conflicto, no para medirlo."
+    }
+  },
+  "vuelo": {
+    "indicativo": "AVA9721",
+    "aeronave": "Airbus A320",
+    "categoriaEstela": "M",
+    "velocidadCruceroKt": 450,
+    "nivelCrucero": "FL350",
+    "salidaZ": "2026-08-31T13:00:00Z",
+    "etaZ": "2026-08-31T14:10:00Z",
+    "combustibleAlternoMin": 45,
+    "_nota": "Indicativo y perfil de vuelo son el escenario del ejercicio. La duración (70 min) sale de la distancia real de la ruta (431.9 NM) a 450 kt más 12 min de rodaje, ascenso y aproximación."
+  },
+  "ventanaTiempo": {
+    "inicioZ": "2026-08-31T11:00:00Z",
+    "finZ": "2026-08-31T17:00:00Z",
+    "pasoMinutos": 10,
+    "horaAnalisisZ": "2026-08-31T13:40:00Z"
+  },
+  "aerodromos": [
+    {
+      "icao": "SKBO",
+      "nombre": "El Dorado",
+      "ciudad": "Bogotá",
+      "lat": 4.7016,
+      "lon": -74.14694,
+      "elevFt": 8358,
+      "rol": "origen",
+      "tipoAlterno": null,
+      "pistas": [
+        {
+          "designacion": "14L/32R",
+          "longitudM": 3800,
+          "longitudFt": 12467,
+          "anchoM": 45,
+          "superficie": "ASPHALT"
+        },
+        {
+          "designacion": "14R/32L",
+          "longitudM": 3800,
+          "longitudFt": 12467,
+          "anchoM": 45,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME SOA (Soacha) a 9.6 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Aeródromo de gran altitud (8 358 ft). Dos pistas paralelas de 3 800 m. La sabana es cuenca cerrada de altura: estratos de radiación frecuentes antes del amanecer."
+    },
+    {
+      "icao": "SKSM",
+      "nombre": "Simón Bolívar",
+      "ciudad": "Santa Marta",
+      "lat": 11.11969,
+      "lon": -74.23064,
+      "elevFt": 22,
+      "rol": "destino",
+      "tipoAlterno": null,
+      "pistas": [
+        {
+          "designacion": "01/19",
+          "longitudM": 1700,
+          "longitudFt": 5577,
+          "anchoM": 40,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME STA (Santa Marta) a 9.5 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Pista única de 1 700 m a nivel del mar, la más corta de todo el caso. Aproximación sobre el mar con la Sierra Nevada al oriente."
+    },
+    {
+      "icao": "SKBQ",
+      "nombre": "Ernesto Cortissoz",
+      "ciudad": "Barranquilla",
+      "lat": 10.88946,
+      "lon": -74.78068,
+      "elevFt": 95,
+      "rol": "alterno",
+      "tipoAlterno": "destino",
+      "pistas": [
+        {
+          "designacion": "05/23",
+          "longitudM": 3001,
+          "longitudFt": 9846,
+          "anchoM": 45,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME BAQ (Barranquilla) a 7.3 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Pista de 3 001 m, la más larga del área del destino. Su cercanía (ver distancia calculada) lo hace el alterno natural de SKSM."
+    },
+    {
+      "icao": "SKCG",
+      "nombre": "Rafael Núñez",
+      "ciudad": "Cartagena",
+      "lat": 10.44168,
+      "lon": -75.51292,
+      "elevFt": 7,
+      "rol": "alterno",
+      "tipoAlterno": "destino",
+      "pistas": [
+        {
+          "designacion": "01/19",
+          "longitudM": 2390,
+          "longitudFt": 7841,
+          "anchoM": 45,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME CTG (Cartagena) a 14.0 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Pista de 2 390 m a 7 ft. Alterno costero al occidente, fuera del área de influencia meteorológica inmediata de la Sierra Nevada."
+    },
+    {
+      "icao": "SKVP",
+      "nombre": "Alfonso López Pumarejo",
+      "ciudad": "Valledupar",
+      "lat": 10.43513,
+      "lon": -73.2494,
+      "elevFt": 485,
+      "rol": "alterno",
+      "tipoAlterno": "destino",
+      "pistas": [
+        {
+          "designacion": "02/20",
+          "longitudM": 2100,
+          "longitudFt": 6890,
+          "anchoM": 35,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME VUP (Valledupar) a 0.6 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Pista de 2 100 m a 485 ft. Alterno al oriente de la Sierra Nevada: útil precisamente cuando la costa está afectada."
+    },
+    {
+      "icao": "SKRG",
+      "nombre": "José María Córdova",
+      "ciudad": "Rionegro / Medellín",
+      "lat": 6.16446,
+      "lon": -75.423,
+      "elevFt": 7024,
+      "rol": "alterno",
+      "tipoAlterno": "ruta",
+      "pistas": [
+        {
+          "designacion": "01/19",
+          "longitudM": 3440,
+          "longitudFt": 11286,
+          "anchoM": 45,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME MRN (Rionegro) a 6.0 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Pista de 3 440 m pero a 7 024 ft de elevación: la longitud efectiva se reduce por altitud y temperatura. Valle encajonado."
+    },
+    {
+      "icao": "SKEJ",
+      "nombre": "Yariguíes",
+      "ciudad": "Barrancabermeja",
+      "lat": 7.0238,
+      "lon": -73.8072,
+      "elevFt": 414,
+      "rol": "alterno",
+      "tipoAlterno": "ruta",
+      "pistas": [
+        {
+          "designacion": "04/22",
+          "longitudM": 1607,
+          "longitudFt": 5272,
+          "anchoM": 45,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME EJA (Barrancabermeja) a 0.3 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Justo bajo la ruta, sobre el VOR EJA. Pista de 1 607 m: alterno de ruta para emergencia, no equivalente a un alterno de destino."
+    },
+    {
+      "icao": "SKBG",
+      "nombre": "Palonegro",
+      "ciudad": "Bucaramanga",
+      "lat": 7.12638,
+      "lon": -73.18473,
+      "elevFt": 3901,
+      "rol": "alterno",
+      "tipoAlterno": "ruta",
+      "pistas": [
+        {
+          "designacion": "17/35",
+          "longitudM": 2102,
+          "longitudFt": 6896,
+          "anchoM": 45,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME PIE (Piedecuesta) a 15.6 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Pista de 2 102 m a 3 901 ft, en meseta. Alterno de ruta al oriente del corredor del Magdalena."
+    }
+  ],
+  "ruta": {
+    "origen": "SKBO",
+    "destino": "SKSM",
+    "distanciaNM": 431.9,
+    "cadenaATS": "SKBO BOG A323 MQU V712 EJA W12 ELB UG444 STA SKSM",
+    "aerovias": [
+      {
+        "designador": "A323",
+        "desde": "BOG",
+        "hasta": "MQU",
+        "clase": "inferior",
+        "fuente": "AIP ENR 3.1"
+      },
+      {
+        "designador": "V712",
+        "desde": "MQU",
+        "hasta": "EJA",
+        "clase": "inferior",
+        "fuente": "AIP ENR 3.1"
+      },
+      {
+        "designador": "W12",
+        "desde": "EJA",
+        "hasta": "ELB",
+        "clase": "inferior",
+        "fuente": "AIP ENR 3.1"
+      },
+      {
+        "designador": "UG444",
+        "desde": "ELB",
+        "hasta": "STA",
+        "clase": "superior",
+        "fuente": "AIP ENR 3.2"
+      }
+    ],
+    "enlaceSkyVector": "https://skyvector.com/?fpl=SKBO%20BOG%20A323%20MQU%20V712%20EJA%20W12%20ELB%20UG444%20STA%20SKSM",
+    "_procedencia": "Waypoints reales: cada punto es un VOR/DME de ENR 4.1 o un fix de ruta de ENR 4.4, y cada tramo recorre una aerovía ATS publicada en el orden en que el AIP lista sus puntos. TOC y TOD son los dos únicos puntos calculados (modelo declarado en ruta.perfilVertical).",
+    "perfilVertical": {
+      "tocDesdeOrigenNM": 92,
+      "todAntesDestinoNM": 118,
+      "modelo": "TOC: ascenso de 8 358 ft a FL350 en ~19 min a 290 kt de velocidad respecto al suelo media. TOD: descenso desde FL350 con regla 3:1 más margen de desaceleración. Son estimaciones de planificación, no datos publicados."
+    },
+    "waypoints": [
+      {
+        "nombre": "SKBO",
+        "lat": 4.7016,
+        "lon": -74.14694,
+        "tipo": "aerodromo",
+        "via": "SID",
+        "desdeOrigenNM": 0
+      },
+      {
+        "nombre": "BOG",
+        "lat": 4.84667,
+        "lon": -74.32333,
+        "tipo": "vor",
+        "via": "SID",
+        "desdeOrigenNM": 14
+      },
+      {
+        "nombre": "MQU",
+        "lat": 5.205,
+        "lon": -74.92111,
+        "tipo": "vor",
+        "via": "A323",
+        "desdeOrigenNM": 55
+      },
+      {
+        "nombre": "TOLOD",
+        "lat": 5.32667,
+        "lon": -74.81194,
+        "tipo": "waypoint",
+        "via": "V712",
+        "desdeOrigenNM": 65
+      },
+      {
+        "nombre": "PAL",
+        "lat": 5.48722,
+        "lon": -74.66056,
+        "tipo": "vor",
+        "via": "V712",
+        "desdeOrigenNM": 78
+      },
+      {
+        "nombre": "TOC",
+        "lat": 5.68517,
+        "lon": -74.55089,
+        "tipo": "toc",
+        "via": "calculado",
+        "desdeOrigenNM": 92,
+        "estimado": true
+      },
+      {
+        "nombre": "PQ900",
+        "lat": 5.70583,
+        "lon": -74.53944,
+        "tipo": "waypoint",
+        "via": "V712",
+        "desdeOrigenNM": 93
+      },
+      {
+        "nombre": "PQ901",
+        "lat": 6.07056,
+        "lon": -74.33722,
+        "tipo": "waypoint",
+        "via": "V712",
+        "desdeOrigenNM": 118
+      },
+      {
+        "nombre": "VUNRO",
+        "lat": 6.75056,
+        "lon": -73.95972,
+        "tipo": "waypoint",
+        "via": "V712",
+        "desdeOrigenNM": 165
+      },
+      {
+        "nombre": "EJA",
+        "lat": 7.02861,
+        "lon": -73.80556,
+        "tipo": "vor",
+        "via": "V712",
+        "desdeOrigenNM": 184
+      },
+      {
+        "nombre": "NEDOR",
+        "lat": 7.38639,
+        "lon": -73.83417,
+        "tipo": "waypoint",
+        "via": "W12",
+        "desdeOrigenNM": 206
+      },
+      {
+        "nombre": "LOKOV",
+        "lat": 8.04611,
+        "lon": -73.88694,
+        "tipo": "waypoint",
+        "via": "W12",
+        "desdeOrigenNM": 245
+      },
+      {
+        "nombre": "DEXOX",
+        "lat": 8.53889,
+        "lon": -73.92639,
+        "tipo": "waypoint",
+        "via": "W12",
+        "desdeOrigenNM": 275
+      },
+      {
+        "nombre": "ELB",
+        "lat": 9.04528,
+        "lon": -73.96722,
+        "tipo": "vor",
+        "via": "W12",
+        "desdeOrigenNM": 306
+      },
+      {
+        "nombre": "TOD",
+        "lat": 9.18388,
+        "lon": -73.9733,
+        "tipo": "tod",
+        "via": "calculado",
+        "desdeOrigenNM": 314,
+        "estimado": true
+      },
+      {
+        "nombre": "EDVAR",
+        "lat": 10.09722,
+        "lon": -74.01333,
+        "tipo": "waypoint",
+        "via": "UG444",
+        "desdeOrigenNM": 369
+      },
+      {
+        "nombre": "STA",
+        "lat": 10.9625,
+        "lon": -74.24056,
+        "tipo": "vor",
+        "via": "UG444",
+        "desdeOrigenNM": 422
+      },
+      {
+        "nombre": "SKSM",
+        "lat": 11.11969,
+        "lon": -74.23064,
+        "tipo": "aerodromo",
+        "via": "STAR",
+        "desdeOrigenNM": 432
+      }
+    ]
+  },
+  "navegacion": {
+    "_nota": "Radioayudas y zonas del AIP Colombia que caen en el área del caso. Se cargan como capas propias del mapa.",
+    "vor": [
+      {
+        "ident": "BOG",
+        "nombre": "Bogotá",
+        "lat": 4.84667,
+        "lon": -74.32333,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": true
+      },
+      {
+        "ident": "SOA",
+        "nombre": "Soacha",
+        "lat": 4.60306,
+        "lon": -74.27306,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "MQU",
+        "nombre": "Mariquita",
+        "lat": 5.205,
+        "lon": -74.92111,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": true
+      },
+      {
+        "ident": "PAL",
+        "nombre": "Palanquero",
+        "lat": 5.48722,
+        "lon": -74.66056,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": true
+      },
+      {
+        "ident": "EJA",
+        "nombre": "Barrancabermeja",
+        "lat": 7.02861,
+        "lon": -73.80556,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": true
+      },
+      {
+        "ident": "PIE",
+        "nombre": "Piedecuesta",
+        "lat": 6.88389,
+        "lon": -73.09194,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "ELB",
+        "nombre": "El Banco",
+        "lat": 9.04528,
+        "lon": -73.96722,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": true
+      },
+      {
+        "ident": "MGN",
+        "nombre": "Magangué",
+        "lat": 9.28722,
+        "lon": -74.84694,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "BAQ",
+        "nombre": "Barranquilla",
+        "lat": 10.79528,
+        "lon": -74.86028,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "STA",
+        "nombre": "Santa Marta",
+        "lat": 10.9625,
+        "lon": -74.24056,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": true
+      },
+      {
+        "ident": "CTG",
+        "nombre": "Cartagena",
+        "lat": 10.20833,
+        "lon": -75.50611,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "VUP",
+        "nombre": "Valledupar",
+        "lat": 10.44472,
+        "lon": -73.24917,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "MRN",
+        "nombre": "Rionegro",
+        "lat": 6.17639,
+        "lon": -75.32389,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "RNG",
+        "nombre": "Riomagno",
+        "lat": 5.98056,
+        "lon": -75.41833,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      },
+      {
+        "ident": "MZL",
+        "nombre": "Manizales",
+        "lat": 5.05389,
+        "lon": -75.52889,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false
+      }
+    ],
+    "zonas": [
+      {
+        "id": "SKR40",
+        "nombre": "BOGOTÁ",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 18500,
+        "hastaEtq": null,
+        "lat": 4.7016,
+        "lon": -74.14694,
+        "radioNM": 5,
+        "distanciaRutaNM": 0,
+        "afectaRuta": true,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKP31",
+        "nombre": "PALANQUERO",
+        "clase": "P",
+        "claseTexto": "Prohibida",
+        "desdeFt": 0,
+        "hastaFt": 14000,
+        "hastaEtq": null,
+        "lat": 5.48722,
+        "lon": -74.66056,
+        "radioNM": 5,
+        "distanciaRutaNM": 0,
+        "afectaRuta": true,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR10",
+        "nombre": "PALANQUERO",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 60000,
+        "hastaEtq": "UNL",
+        "lat": 5.48722,
+        "lon": -74.66056,
+        "radioNM": 5,
+        "distanciaRutaNM": 0,
+        "afectaRuta": true,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKD37",
+        "nombre": "BARRANCABERMEJA",
+        "clase": "D",
+        "claseTexto": "Peligrosa",
+        "desdeFt": 0,
+        "hastaFt": 4500,
+        "hastaEtq": null,
+        "lat": 7.0238,
+        "lon": -73.8072,
+        "radioNM": 5,
+        "distanciaRutaNM": 0.1,
+        "afectaRuta": true,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKD36",
+        "nombre": "CHÍA",
+        "clase": "D",
+        "claseTexto": "Peligrosa",
+        "desdeFt": 0,
+        "hastaFt": 10000,
+        "hastaEtq": null,
+        "lat": 4.8125,
+        "lon": -74.06508,
+        "radioNM": 5,
+        "distanciaRutaNM": 8.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKP35",
+        "nombre": "CHÍA",
+        "clase": "P",
+        "claseTexto": "Prohibida",
+        "desdeFt": 0,
+        "hastaFt": 12000,
+        "hastaEtq": null,
+        "lat": 4.8125,
+        "lon": -74.06508,
+        "radioNM": 5,
+        "distanciaRutaNM": 8.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR1",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 500,
+        "hastaFt": 3500,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 32.1,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR11",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 9000,
+        "hastaFt": 19000,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 32.1,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR23",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 5000,
+        "hastaFt": 18000,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 32.1,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR24",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 10000,
+        "hastaFt": 18000,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 32.1,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR19",
+        "nombre": "MEDELLÍN",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 7500,
+        "hastaEtq": null,
+        "lat": 6.22048,
+        "lon": -75.59043,
+        "radioNM": 5,
+        "distanciaRutaNM": 69.9,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR17",
+        "nombre": "CARTAGENA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 2000,
+        "hastaEtq": null,
+        "lat": 10.44168,
+        "lon": -75.51292,
+        "radioNM": 5,
+        "distanciaRutaNM": 80.5,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      }
+    ]
+  },
+  "satelite": {
+    "plataforma": "GOES-19 (GOES-East)",
+    "sector": "Full Disk / Mesoscale",
+    "fuente": "CIRA/RAMMB SLIDER — Colorado State University",
+    "urlFuente": "https://rammb-slider.cira.colostate.edu/",
+    "bandas": [
+      {
+        "id": "geocolor",
+        "nombre": "GeoColor",
+        "canal": "Compuesto RGB",
+        "longitudOnda": "multibanda",
+        "resolucion": "2 km",
+        "para": "Vista general de referencia. De día color verdadero aproximado, de noche realza nubes bajas y niebla.",
+        "leer": "Sirve para orientarse y para comunicar. No se toman mediciones cuantitativas de aquí.",
+        "medio": {
+          "tipo": "pendiente",
+          "archivo": ""
+        },
+        "permalink": ""
+      },
+      {
+        "id": "vis-c02",
+        "nombre": "Visible de alta resolución",
+        "canal": "Banda 2",
+        "longitudOnda": "0.64 µm",
+        "resolucion": "0.5 km",
+        "para": "Textura y estructura de la nube: torres convectivas, sombras, líneas de turbulencia, yunques.",
+        "leer": "Blanco intenso y textura granulada abultada = desarrollo vertical activo. Solo sirve de día.",
+        "medio": {
+          "tipo": "pendiente",
+          "archivo": ""
+        },
+        "permalink": ""
+      },
+      {
+        "id": "wv-c08",
+        "nombre": "Vapor de agua nivel alto",
+        "canal": "Banda 8",
+        "longitudOnda": "6.2 µm",
+        "resolucion": "2 km",
+        "para": "Humedad y dinámica en niveles altos: vaguadas, corriente en chorro, aire seco descendente.",
+        "leer": "Oscuro = aire seco y subsidente. Claro = húmedo. Los gradientes marcan cizalladura y turbulencia en aire claro.",
+        "medio": {
+          "tipo": "pendiente",
+          "archivo": ""
+        },
+        "permalink": ""
+      },
+      {
+        "id": "ir-c13",
+        "nombre": "Infrarrojo ventana limpia",
+        "canal": "Banda 13",
+        "longitudOnda": "10.3 µm",
+        "resolucion": "2 km",
+        "para": "Temperatura de brillo del tope de nube. Es la banda que cuantifica la severidad convectiva.",
+        "leer": "Topes por debajo de −60 °C indican convección profunda con probable granizo, turbulencia severa y rayos. Funciona de día y de noche.",
+        "medio": {
+          "tipo": "pendiente",
+          "archivo": ""
+        },
+        "permalink": ""
+      },
+      {
+        "id": "sandwich",
+        "nombre": "Sandwich RGB",
+        "canal": "Banda 2 + Banda 13",
+        "longitudOnda": "0.64 + 10.3 µm",
+        "resolucion": "0.5 km",
+        "para": "Combina la textura del visible con la temperatura del infrarrojo en una sola imagen.",
+        "leer": "Permite ver dónde están los topes más fríos DENTRO de la estructura de la tormenta. Ideal para la sustentación.",
+        "medio": {
+          "tipo": "pendiente",
+          "archivo": ""
+        },
+        "permalink": ""
+      },
+      {
+        "id": "day-cloud-phase",
+        "nombre": "Day Cloud Phase Distinction",
+        "canal": "RGB multibanda",
+        "longitudOnda": "0.64 / 1.6 / 10.3 µm",
+        "resolucion": "1 km",
+        "para": "Distingue nube de agua líquida de nube de hielo.",
+        "leer": "Clave para engelamiento: agua líquida sobreenfriada (tonos verdes/azules) es la que produce hielo en célula. Hielo puro no engela.",
+        "medio": {
+          "tipo": "pendiente",
+          "archivo": ""
+        },
+        "permalink": ""
+      },
+      {
+        "id": "nube-baja-niebla",
+        "nombre": "Nube baja y niebla (nocturno)",
+        "canal": "Banda 13 − Banda 7",
+        "longitudOnda": "10.3 − 3.9 µm",
+        "resolucion": "2 km",
+        "para": "Detecta estratos bajos y niebla de madrugada, invisibles en el infrarrojo simple.",
+        "leer": "Determinante para los mínimos de aterrizaje del origen y del alterno en operaciones de primera hora.",
+        "medio": {
+          "tipo": "pendiente",
+          "archivo": ""
+        },
+        "permalink": ""
+      }
+    ]
+  },
+  "alternos": {
+    "metodo": {
+      "distancia": "Puntuación = 10·(250 − d)/(250 − 40), acotada a 0–10, con d = distancia ortodrómica destino → alterno calculada sobre coordenadas ARP del AIP.",
+      "pista": "Puntuación = 10·(Lef − 1400)/(2600 − 1400), acotada a 0–10, con Lef = longitud de la pista más larga corregida por elevación (Lef = L / (1 + 0,07·elev/1000)).",
+      "ayudas": "Provisional: 10 si el VOR/DME de referencia está a ≤2 NM del ARP, 8 si ≤7 NM, 6 si ≤15 NM, 4 si más. Sustituir por el tipo de aproximación real cuando se consulte AIP AD 2.19.",
+      "meteo": "No se almacena: lo recalcula el visor con la categoría de vuelo del METAR vigente a la hora seleccionada en la barra de tiempo.",
+      "_excluido": "El criterio de horario y servicios se retiró de la matriz porque el dato (AD 2.3 / AD 2.4) no está disponible en esta base: puntuarlo habría sido inventarlo."
+    },
+    "criterios": [
+      {
+        "id": "meteo",
+        "nombre": "Meteorología a la ETA",
+        "peso": 30,
+        "descripcion": "Categoría de vuelo del METAR vigente a la hora seleccionada. Se recalcula al mover la barra de tiempo."
+      },
+      {
+        "id": "distancia",
+        "nombre": "Distancia y combustible",
+        "peso": 25,
+        "descripcion": "Distancia ortodrómica desde el destino, calculada sobre coordenadas ARP del AIP."
+      },
+      {
+        "id": "pista",
+        "nombre": "Pista y performance",
+        "peso": 25,
+        "descripcion": "Longitud de pista publicada corregida por elevación del aeródromo."
+      },
+      {
+        "id": "ayudas",
+        "nombre": "Radioayuda de referencia",
+        "peso": 20,
+        "descripcion": "Proximidad del VOR/DME publicado en ENR 4.1 al punto de referencia del aeródromo. Provisional hasta consultar AD 2.19."
+      }
+    ],
+    "evaluacion": {
+      "SKBQ": {
+        "distancia": 10,
+        "pista": 10,
+        "ayudas": 6
+      },
+      "SKCG": {
+        "distancia": 7.8,
+        "pista": 8.2,
+        "ayudas": 6
+      },
+      "SKVP": {
+        "distancia": 8.5,
+        "pista": 5.3,
+        "ayudas": 10
+      },
+      "SKRG": {
+        "distancia": 0,
+        "pista": 7.6,
+        "ayudas": 8
+      },
+      "SKEJ": {
+        "distancia": 0.1,
+        "pista": 1.3,
+        "ayudas": 10
+      },
+      "SKBG": {
+        "distancia": 0.1,
+        "pista": 2.1,
+        "ayudas": 4
+      }
+    },
+    "_memoriaCalculo": {
+      "SKBQ": {
+        "nm": 35.2,
+        "lda": 3001,
+        "efectivaM": 2981,
+        "vor": "BAQ 7.3 NM"
+      },
+      "SKCG": {
+        "nm": 85.9,
+        "lda": 2390,
+        "efectivaM": 2389,
+        "vor": "CTG 14 NM"
+      },
+      "SKVP": {
+        "nm": 71,
+        "lda": 2100,
+        "efectivaM": 2031,
+        "vor": "VUP 0.6 NM"
+      },
+      "SKRG": {
+        "nm": 305.8,
+        "lda": 3440,
+        "efectivaM": 2306,
+        "vor": "MRN 6 NM"
+      },
+      "SKEJ": {
+        "nm": 247.2,
+        "lda": 1607,
+        "efectivaM": 1562,
+        "vor": "EJA 0.3 NM"
+      },
+      "SKBG": {
+        "nm": 247.6,
+        "lda": 2102,
+        "efectivaM": 1651,
+        "vor": "PIE 15.6 NM"
+      }
+    },
+    "descartados": [
+      {
+        "icao": "SKRH",
+        "motivo": "Riohacha queda a distancia comparable a SKVP con pista más corta (1 900 m) y sin aportar cobertura meteorológica distinta: SKVP ya cubre el flanco oriental de la Sierra Nevada."
+      },
+      {
+        "icao": "SKCC",
+        "motivo": "Cúcuta estaba en el caso de ejemplo, pero queda fuera del corredor del Magdalena: como alterno de ruta lo sustituye SKBG, mucho más cercano al eje EJA–ELB."
+      }
+    ],
+    "seleccionado": "",
+    "justificacion": ""
+  },
+  "bitacora": {
+    "decision": "PENDIENTE",
+    "minimos": "",
+    "combustibleAlterno": "",
+    "riesgosPrincipales": [],
+    "medidasMitigacion": [],
+    "firmadoPor": ""
+  },
+  "escenas": [
+    {
+      "id": "intro",
+      "titulo": "La ruta",
+      "texto": "SKBO → SKSM, 432 NM por el corredor del Magdalena: BOG A323 MQU, V712 hasta EJA, W12 hasta ELB y UG444 por EDVAR a STA. Todos los puntos son VOR/DME de ENR 4.1 o fijos de ruta de ENR 4.4 del AIP Colombia; solo TOC y TOD son calculados.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "vor"
+      ],
+      "vista": {
+        "lat": 8,
+        "lon": -74.3,
+        "zoom": 6
+      },
+      "banda": null,
+      "horaZ": "2026-08-31T13:00:00Z"
+    },
+    {
+      "id": "espacio-aereo",
+      "titulo": "Espacio aéreo y radioayudas",
+      "texto": "La ruta no solo cruza meteorología: atraviesa espacio aéreo con restricción publicada (SKR40, SKP31, SKR10, SKD37). Palanquero llega hasta UNL sobre el propio VOR PAL, y Barrancabermeja hasta 4 500 ft sobre EJA. Los círculos son ilustrativos —el AIP remite el trazado lateral a las cartas—, pero sitúan el conflicto.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "vor",
+        "zonas"
+      ],
+      "vista": {
+        "lat": 6.6,
+        "lon": -74.2,
+        "zoom": 7
+      },
+      "banda": null,
+      "horaZ": "2026-08-31T13:00:00Z"
+    },
+    {
+      "id": "vista-general",
+      "titulo": "Vista general del satélite",
+      "texto": "GeoColor sitúa la ruta dentro del patrón sinóptico del día. Es el punto de partida antes de entrar a bandas individuales.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos"
+      ],
+      "vista": {
+        "lat": 8,
+        "lon": -74.3,
+        "zoom": 6
+      },
+      "banda": "geocolor",
+      "horaZ": "2026-08-31T13:40:00Z"
+    },
+    {
+      "id": "convectivo",
+      "titulo": "Diagnóstico convectivo",
+      "texto": "El visible muestra la textura; el infrarrojo 10.3 µm cuantifica la temperatura de los topes. La comparación de ambas bandas es la que sustenta la severidad sobre el tramo VUNRO – EJA – NEDOR, el más encajonado de la ruta.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "fenomenos"
+      ],
+      "vista": {
+        "lat": 7.6,
+        "lon": -74,
+        "zoom": 7
+      },
+      "banda": "ir-c13",
+      "comparar": "vis-c02",
+      "horaZ": "2026-08-31T13:40:00Z"
+    },
+    {
+      "id": "meteorologia",
+      "titulo": "METAR y TAF",
+      "texto": "Los reportes de superficie confirman o corrigen lo observado desde el satélite. Contraste entre lo detectado remotamente y lo medido en tierra, aeródromo por aeródromo.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos"
+      ],
+      "vista": {
+        "lat": 9.8,
+        "lon": -74.4,
+        "zoom": 7
+      },
+      "banda": "geocolor",
+      "horaZ": "2026-08-31T14:00:00Z"
+    },
+    {
+      "id": "alterno",
+      "titulo": "Selección del alterno",
+      "texto": "Matriz ponderada sobre seis candidatos. Distancia y pista salen de las coordenadas y las longitudes publicadas; el criterio meteorológico se recalcula con el METAR vigente. SKBQ está a 35.2 NM del destino con 3 001 m de pista; SKVP cubre el flanco oriental de la Sierra Nevada cuando la costa se cierra.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "anillos"
+      ],
+      "vista": {
+        "lat": 10.7,
+        "lon": -74.4,
+        "zoom": 7
+      },
+      "banda": null,
+      "horaZ": "2026-08-31T14:10:00Z"
+    }
+  ]
+}

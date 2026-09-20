@@ -1,0 +1,3209 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CWP 6 · Simulador Plan de Vuelo y Radar | SoyAeronáutico</title>
+<link rel="icon" type="image/svg+xml" href="ASSETS/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root{
+    /* ---- paleta del portal (idéntica al resto de las pestañas) ---- */
+    --bg:#FFFFFF;
+    --panel:#F5F8FC;
+    --panel-alt:#EAF1FB;
+    --accent:#1657C6;
+    --accent-rgb:22,87,198;
+    --navy:#0A2647;
+    --text:#0F1B2D;
+    --text-muted:#5B6B7F;
+    --hairline:#E1E7EF;
+    --danger:#D64545;
+    --danger-rgb:214,69,69;
+    --vfr:#2E9E6D;
+    --vfr-rgb:46,158,109;
+    --warn:#E08E3E;
+    --warn-rgb:224,142,62;
+    --live:#2E9E6D;
+    --live-rgb:46,158,109;
+    --topbar-bg:rgba(255,255,255,0.85);
+    --shadow-card:0 12px 30px -18px rgba(15,23,42,0.18);
+    --on-accent:#FFFFFF;
+
+    /* ---- alias del CWP: apuntan a la paleta de arriba, no se tocan ---- */
+    --deck-bg:var(--bg);
+    --screen-bg:var(--panel);
+    --topbar1:var(--navy);
+    --topbar2:var(--accent);
+    --win-head1:var(--accent);
+    --win-head2:var(--navy);
+    --field:var(--bg);
+    --field-text:var(--text);
+    --field-disabled:var(--panel-alt);
+    --red:var(--danger);
+    --red-glow:rgba(var(--danger-rgb),.45);
+    --btn:var(--accent);
+    --btn-light:var(--accent);
+    --btn-text:var(--on-accent);
+    --ok:var(--vfr);
+    --font-ui:'IBM Plex Mono', 'Courier New', monospace;
+  }
+  [data-theme="dark"]{
+    --bg:#0B1220;
+    --panel:#121C2E;
+    --panel-alt:#17223A;
+    --accent:#4F8EF7;
+    --accent-rgb:79,142,247;
+    --navy:#0A2647;
+    --text:#EDEFF3;
+    --text-muted:#8894A8;
+    --hairline:#2A3548;
+    --danger:#C9564F;
+    --danger-rgb:201,86,79;
+    --vfr:#4FA88C;
+    --vfr-rgb:79,168,140;
+    --warn:#D19A55;
+    --warn-rgb:209,154,85;
+    --live:#4FA88C;
+    --live-rgb:79,168,140;
+    --topbar-bg:rgba(11,18,32,0.85);
+    --shadow-card:0 12px 30px -18px rgba(0,0,0,0.55);
+    --on-accent:#0B1220;
+  }
+  html{ transition:background .2s; }
+  *{box-sizing:border-box;}
+  html,body{ margin:0; height:100%; background:var(--bg); font-family:var(--font-ui); color:var(--text); transition:background .2s, color .2s; }
+  body{ display:flex; flex-direction:column; overflow:hidden; }
+  h1,h2,h3,h4{ font-family:'Archivo', sans-serif; margin:0; }
+  a{ color:inherit; }
+
+  /* ---------- top bar (idéntico al resto del portal) ---------- */
+  .topbar{ position:sticky; top:0; z-index:50; display:flex; align-items:center; justify-content:space-between; padding:14px 32px; background:var(--topbar-bg); backdrop-filter:blur(8px); border-bottom:1px solid var(--hairline); font-family:'IBM Plex Sans', sans-serif; }
+  .brand{ display:flex; align-items:center; gap:10px; font-family:'Archivo', sans-serif; font-weight:800; font-size:1.05rem; letter-spacing:0.02em; }
+  a.brand{ text-decoration:none; color:var(--text); cursor:pointer; }
+  .brand-mark{ width:34px; height:34px; display:flex; align-items:center; justify-content:center; color:var(--accent); flex-shrink:0; }
+  .brand-mark svg{ display:block; }
+  .brand small{ display:flex; align-items:center; gap:6px; font-family:'IBM Plex Mono', monospace; font-weight:400; font-size:0.65rem; color:var(--text-muted); letter-spacing:0.08em; }
+  .live-dot{ width:6px; height:6px; border-radius:50%; background:var(--live); box-shadow:0 0 0 0 rgba(var(--live-rgb),0.6); animation:pulseDot 2.2s ease-out infinite; flex-shrink:0; }
+  @keyframes pulseDot{ 0%{box-shadow:0 0 0 0 rgba(var(--live-rgb),0.55);} 70%{box-shadow:0 0 0 6px rgba(var(--live-rgb),0);} 100%{box-shadow:0 0 0 0 rgba(var(--live-rgb),0);} }
+  @media (prefers-reduced-motion:reduce){ .live-dot{ animation:none; } }
+  nav.desktop-nav{ display:flex; align-items:center; gap:26px; font-size:0.88rem; font-weight:500; font-family:'IBM Plex Sans', sans-serif; }
+  nav.desktop-nav a{ position:relative; text-decoration:none; color:var(--text-muted); padding-bottom:6px; transition:color .2s; }
+  nav.desktop-nav a::after{ content:''; position:absolute; left:0; right:100%; bottom:0; height:2px; background:var(--accent); transition:right .25s cubic-bezier(.4,0,.2,1); }
+  nav.desktop-nav a:hover, nav.desktop-nav a:focus-visible{ color:var(--text); }
+  nav.desktop-nav a:hover::after, nav.desktop-nav a:focus-visible::after{ right:0; }
+  nav.desktop-nav a.active{ color:var(--vfr); font-weight:600; }
+  nav.desktop-nav a.active::after{ right:0; background:var(--vfr); }
+  /* ---------- DROPDOWN "MÓDULOS" ---------- */
+  .nav-dropdown{ position:relative; }
+  .nav-dropdown-btn{ display:flex; align-items:center; gap:6px; background:none; border:none; padding:0 0 6px; margin:0; font-family:'IBM Plex Sans', sans-serif; font-size:0.88rem; font-weight:500; color:var(--text-muted); cursor:pointer; position:relative; transition:color .2s; }
+  .nav-dropdown-btn::after{ content:''; position:absolute; left:0; right:100%; bottom:0; height:2px; background:var(--accent); transition:right .25s cubic-bezier(.4,0,.2,1); }
+  .nav-dropdown-btn:hover, .nav-dropdown-btn:focus-visible{ color:var(--text); }
+  .nav-dropdown-btn:hover::after, .nav-dropdown-btn:focus-visible::after{ right:0; }
+  .nav-dropdown.active .nav-dropdown-btn{ color:var(--vfr); font-weight:600; }
+  .nav-dropdown.active .nav-dropdown-btn::after{ right:0; background:var(--vfr); }
+  .nav-dropdown-caret{ width:11px; height:11px; flex-shrink:0; transition:transform .2s; }
+  .nav-dropdown.open .nav-dropdown-caret, .nav-dropdown:hover .nav-dropdown-caret{ transform:rotate(180deg); }
+  .nav-dropdown-menu{ display:none; position:absolute; top:100%; left:50%; transform:translateX(-50%); padding-top:14px; z-index:60; }
+  .nav-dropdown.open .nav-dropdown-menu, .nav-dropdown:hover .nav-dropdown-menu{ display:block; }
+  .nav-dropdown-menu-inner{ background:var(--bg); border:1px solid var(--hairline); border-radius:10px; padding:8px; min-width:180px; box-shadow:var(--shadow-card); }
+  .nav-dropdown-menu a{ display:block; padding:9px 12px; border-radius:6px; font-size:0.88rem; font-weight:500; color:var(--text); text-decoration:none; transition:background .15s, color .15s; }
+  .nav-dropdown-menu a:hover, .nav-dropdown-menu a:focus-visible{ background:var(--panel-alt); color:var(--accent); }
+  .nav-dropdown-menu a.active{ color:var(--vfr); font-weight:600; }
+  .nav-divider{ width:1px; height:18px; background:var(--hairline); }
+  .nav-icon-btn{ display:flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; background:none; border:1px solid transparent; color:var(--text-muted); cursor:pointer; transition:border-color .2s, color .2s; }
+  .nav-icon-btn:hover{ color:var(--accent); border-color:var(--hairline); }
+  .nav-right{ display:flex; align-items:center; gap:14px; font-family:'IBM Plex Sans', sans-serif; }
+  .nav-login-btn{ display:inline-block; text-decoration:none; background:var(--accent); color:#fff; font-weight:600; font-size:0.85rem; padding:8px 20px; border-radius:30px; transition:filter .15s; white-space:nowrap; }
+  .nav-login-btn:hover{ filter:brightness(1.08); }
+  @media (max-width:600px){ .nav-login-btn{ padding:8px 14px; font-size:0.8rem; } }
+  .zulu-mini{ font-size:0.78rem; font-weight:600; color:var(--accent); letter-spacing:0.03em; font-family:'IBM Plex Mono', monospace; }
+  @media (max-width:600px){ .zulu-mini{ display:none; } }
+  .theme-toggle svg{ display:block; }
+  .theme-toggle .icon-moon{ display:none; }
+  [data-theme="dark"] .theme-toggle .icon-sun{ display:none; }
+  [data-theme="dark"] .theme-toggle .icon-moon{ display:block; }
+  .menu-btn{ display:none; background:none; border:1px solid var(--hairline); color:var(--text); padding:8px 12px; border-radius:8px; font-size:1rem; }
+  @media (max-width:1100px){ nav.desktop-nav{display:none;} .nav-right .nav-login-btn{display:none;} .menu-btn{display:block;} }
+
+  /* ---------- modo pantalla completa (solo topbar/CWP; deja visible el reloj zulu) ---------- */
+  #fsToggle .icon-collapse{ display:none; }
+  body.fs-mode .brand,
+  body.fs-mode nav.desktop-nav,
+  body.fs-mode .nav-right .nav-icon-btn:not(#fsToggle),
+  body.fs-mode .nav-divider,
+  body.fs-mode .menu-btn,
+  body.fs-mode .cwp-bar,
+  body.fs-mode footer{ display:none !important; }
+  body.fs-mode .topbar{ justify-content:flex-end; padding:8px 16px; }
+  body.fs-mode #fsToggle .icon-expand{ display:none; }
+  body.fs-mode #fsToggle .icon-collapse{ display:block; }
+
+  /* ---------- barra de contexto CWP ---------- */
+  .cwp-bar{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:9px 32px; background:var(--panel); border-bottom:1px solid var(--hairline); font-family:'IBM Plex Sans', sans-serif; flex-wrap:wrap; }
+  .cwp-bar .cwp-id{ font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:.85rem; color:var(--text); letter-spacing:.04em; }
+  .cwp-bar .role{ background:var(--panel-alt); border:1px solid var(--hairline); color:var(--text-muted); padding:3px 10px; border-radius:20px; font-size:.72rem; font-family:'IBM Plex Mono', monospace; letter-spacing:.04em; }
+  .cwp-bar .help-btn{ cursor:pointer; background:var(--bg); border:1px solid var(--hairline); color:var(--text); padding:5px 12px; border-radius:20px; font-family:'IBM Plex Sans', sans-serif; font-size:.75rem; font-weight:600; transition:border-color .2s, color .2s; }
+  .cwp-bar .help-btn:hover{ border-color:var(--accent); color:var(--accent); }
+
+  /* ---------- main deck ---------- */
+  .deck{ flex:1; display:flex; overflow:hidden; position:relative; background:
+      radial-gradient(circle at 20% 15%, rgba(var(--accent-rgb),.08) 0%, transparent 45%),
+      var(--screen-bg); }
+
+  .sidebar{ width:190px; flex-shrink:0; background:var(--panel); border-right:1px solid var(--hairline); padding:10px 8px; overflow-y:auto; }
+  .sidebar-title{ font-size:.68rem; letter-spacing:.12em; color:var(--text-muted); margin-bottom:8px; text-align:center; }
+  .fp-chip{ background:var(--bg); border:1px solid var(--hairline); border-radius:6px; padding:7px 8px; margin-bottom:6px; cursor:pointer; transition:.12s; }
+  .fp-chip:hover{ border-color:var(--accent); background:var(--panel-alt); }
+  .fp-chip .cs{ font-weight:bold; font-size:.85rem; color:var(--text); }
+  .fp-chip .route{ font-size:.65rem; color:var(--text-muted); margin-top:2px; }
+  .fp-chip .st{ display:inline-block; margin-top:4px; font-size:.62rem; padding:1px 6px; border-radius:8px; letter-spacing:.05em; }
+  .fp-chip .st.active{ background:rgba(var(--vfr-rgb),.18); color:var(--vfr); border:1px solid var(--vfr); }
+  .fp-chip .st.queued{ background:rgba(var(--warn-rgb),.18); color:var(--warn); border:1px solid var(--warn); }
+  .fp-chip .st.conflict{ background:rgba(var(--warn-rgb),.25); color:var(--warn); border:1px solid var(--warn); }
+  .fp-chip .st.collision{ background:rgba(var(--danger-rgb),.25); color:var(--danger); border:1px solid var(--danger); animation:shake .4s infinite alternate; }
+  .fp-chip .st{ display:block; width:fit-content; }
+  .fp-takeoff-btn{ display:block; width:100%; margin-top:6px; padding:5px 6px; background:var(--vfr); border:1px solid var(--vfr); color:#fff; border-radius:6px; cursor:pointer; font-family:var(--font-ui); font-size:.62rem; letter-spacing:.04em; transition:filter .15s; }
+  .fp-takeoff-btn:hover{ filter:brightness(1.1); }
+  .side-new-btn{ width:100%; margin-top:6px; padding:8px 4px; background:var(--accent); border:1px solid var(--accent); color:var(--on-accent); border-radius:6px; cursor:pointer; font-family:var(--font-ui); font-size:.72rem; letter-spacing:.03em; transition:filter .15s; }
+  .side-new-btn:hover{ filter:brightness(1.1); }
+  .side-empty{ font-size:.68rem; color:var(--text-muted); text-align:center; padding:14px 4px; line-height:1.5; }
+
+  .windows-area{ flex:1; position:relative; overflow:auto; }
+
+  /* ---------- windows ---------- */
+  .sim-window{ position:absolute; background:var(--panel); border:1px solid var(--hairline); border-radius:10px; box-shadow:var(--shadow-card); display:none; }
+  .sim-window.open{ display:block; }
+  .win-head{ background:linear-gradient(180deg,var(--win-head1),var(--win-head2)); color:var(--on-accent); font-weight:bold; letter-spacing:.03em; font-size:.82rem; padding:8px 12px; display:flex; align-items:center; justify-content:space-between; cursor:move; border-bottom:1px solid var(--hairline); border-radius:10px 10px 0 0; user-select:none; }
+  .win-close{ background:var(--danger); border:1px solid var(--danger); color:#fff; width:20px; height:18px; line-height:16px; text-align:center; cursor:pointer; font-weight:bold; font-size:.72rem; border-radius:4px; }
+  .win-close:hover{ filter:brightness(1.15); }
+  .win-body{ padding:14px 16px; }
+
+  label.f-label{ display:block; font-size:.62rem; letter-spacing:.06em; color:var(--text-muted); margin-bottom:3px; font-weight:bold; }
+  input.f, select.f, textarea.f{ width:100%; background:var(--field); color:var(--field-text); border:1px solid var(--hairline); border-radius:6px; padding:5px 6px; font-family:var(--font-ui); font-size:.78rem; outline:none; }
+  input.f:focus, select.f:focus, textarea.f:focus{ box-shadow:0 0 0 2px var(--accent); border-color:var(--accent); }
+  input.f:disabled, textarea.f:disabled, input.f[readonly]{ background:var(--field-disabled); color:var(--text-muted); }
+  .f-compulsory{ background:var(--red) !important; color:#fff !important; }
+  .f-compulsory::placeholder{ color:rgba(255,255,255,.7); }
+  .f-compulsory.f-invalid{ box-shadow:0 0 0 3px var(--red-glow); animation:shake .3s; }
+  @keyframes shake{ 0%,100%{transform:translateX(0);} 25%{transform:translateX(-3px);} 75%{transform:translateX(3px);} }
+  .f-ok{ background:rgba(var(--vfr-rgb),.18) !important; }
+
+  .grid-row{ display:flex; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .grid-row > div{ display:flex; flex-direction:column; }
+  .compulsory-tag{ display:inline-block; background:var(--red); color:#fff; font-size:.62rem; padding:3px 10px; border-radius:20px; margin-top:4px; letter-spacing:.05em; }
+
+  .mode-row{ display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top:1px solid var(--hairline); flex-wrap:wrap; gap:10px; }
+  .mode-list{ display:flex; gap:14px; flex-wrap:wrap; }
+  .mode-item{ font-size:.68rem; cursor:pointer; color:var(--text-muted); display:flex; align-items:center; gap:5px; opacity:.55; }
+  .mode-item.active{ opacity:1; font-weight:bold; color:var(--text); }
+  .mode-item .dot{ width:9px; height:9px; border-radius:50%; background:var(--hairline); display:inline-block; }
+  .mode-item.active .dot{ background:var(--accent); }
+  .win-buttons{ display:flex; gap:8px; }
+  .wbtn{ background:var(--btn); border:1px solid var(--btn); color:var(--btn-text); padding:8px 16px; border-radius:6px; cursor:pointer; font-family:var(--font-ui); font-size:.72rem; letter-spacing:.03em; transition:filter .15s; }
+  .wbtn:hover{ filter:brightness(1.1); }
+  .wbtn:disabled{ opacity:.4; cursor:not-allowed; }
+
+  .msg-flash{ margin-top:10px; padding:8px 10px; border-radius:6px; font-size:.72rem; display:none; }
+  .msg-flash.ok{ background:rgba(var(--vfr-rgb),.15); border:1px solid var(--vfr); color:var(--text); display:block; }
+  .msg-flash.err{ background:rgba(var(--danger-rgb),.15); border:1px solid var(--danger); color:var(--text); display:block; }
+
+  /* free aftn */
+  .addr-lines textarea.f{ height:26px; margin-bottom:5px; resize:none; }
+  #aftnFreeText{ width:100%; height:230px; resize:vertical; font-size:.82rem; line-height:1.5; }
+  .aftn-toprow{ display:flex; gap:16px; align-items:center; margin-bottom:10px; }
+  .aftn-toprow .pr{ width:50px; }
+
+  /* history */
+  #historyBox{ width:100%; height:260px; background:var(--bg); color:var(--text); padding:10px; font-size:.78rem; line-height:1.5; overflow:auto; white-space:pre-wrap; border:1px solid var(--hairline); border-radius:6px; }
+
+  /* queue */
+  .queue-item{ background:var(--panel-alt); border:1px solid var(--hairline); border-radius:6px; padding:8px 10px; margin-bottom:8px; }
+  .queue-item .qcs{ font-weight:bold; font-size:.78rem; color:var(--text); }
+  .queue-item .qerr{ font-size:.68rem; color:var(--danger); margin-top:4px; line-height:1.5; }
+  .queue-item .qretry{ margin-top:6px; }
+  .queue-empty{ font-size:.7rem; color:var(--text-muted); text-align:center; padding:16px; }
+
+  /* help modal */
+  .help-overlay{ position:fixed; inset:0; background:rgba(0,0,0,.5); display:none; align-items:center; justify-content:center; z-index:999; }
+  .help-overlay.open{ display:flex; }
+  .help-modal{ background:var(--panel); border:1px solid var(--hairline); border-radius:12px; max-width:640px; width:90%; max-height:80vh; overflow:auto; padding:22px 26px; font-size:.82rem; line-height:1.65; color:var(--text); box-shadow:var(--shadow-card); }
+  .help-modal h2{ font-size:1rem; color:var(--accent); margin-top:0; }
+  .help-modal h3{ font-size:.85rem; color:var(--warn); margin-bottom:4px; }
+  .help-modal code{ background:var(--panel-alt); padding:1px 5px; border-radius:4px; font-family:'IBM Plex Mono', monospace; color:var(--accent); }
+  .help-modal .close-help{ float:right; cursor:pointer; background:var(--accent); border:1px solid var(--accent); color:var(--on-accent); padding:4px 10px; border-radius:6px; font-family:'IBM Plex Sans', sans-serif; font-weight:600; }
+
+  /* bottom toolbar */
+  .bottom-toolbar{ display:flex; gap:4px; padding:8px 10px; background:var(--panel); border-top:1px solid var(--hairline); flex-wrap:wrap; }
+  .tb-btn{ background:var(--bg); border:1px solid var(--hairline); color:var(--text); padding:6px 12px; border-radius:6px; cursor:pointer; font-family:var(--font-ui); font-size:.7rem; letter-spacing:.03em; transition:border-color .15s, color .15s; }
+  .tb-btn:hover{ border-color:var(--accent); color:var(--accent); }
+  .tb-btn.disabled{ opacity:.4; cursor:not-allowed; }
+  .tb-btn.highlight{ background:var(--vfr); border-color:var(--vfr); color:#fff; }
+  .tb-btn.highlight:hover{ filter:brightness(1.1); color:#fff; }
+
+  ::-webkit-scrollbar{ width:10px; height:10px; }
+  ::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:5px; }
+  ::-webkit-scrollbar-track{ background:var(--panel); }
+
+  /* ---------- mapa de rutas ---------- */
+  #flightMap{ width:100%; height:520px; background:var(--panel); border:1px solid var(--hairline); border-radius:8px; }
+
+  /* Leyenda del mapa de rutas: agrupada por tipo de capa (tráfico / espacio aéreo /
+     referencia) en vez de una sola fila de puntos de color. Cada símbolo reproduce
+     literalmente cómo se dibuja esa capa en Leaflet — el avión reutiliza .plane-icon
+     (mismas clases que los marcadores reales), el círculo con borde imita el L.circle
+     de las zonas ENR 5.1, y el punto sólido el circleMarker ámbar de los aeródromos. */
+  .map-legend{
+    display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+    background:var(--panel-alt); border:1px solid var(--hairline); border-radius:8px;
+    padding:9px 14px; margin-bottom:8px;
+  }
+  .map-legend .lg-group{ display:flex; align-items:center; gap:11px; flex-wrap:wrap; }
+  .map-legend .lg-group-label{ font-size:.6rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--text-muted); white-space:nowrap; }
+  .map-legend .lg-div{ width:1px; align-self:stretch; background:var(--hairline); }
+  .map-legend .lg-item{ display:flex; align-items:center; gap:5px; font-size:.68rem; color:var(--text); white-space:nowrap; }
+
+  .lg-plane{ font-size:.85rem; display:inline-block; transform:rotate(45deg); }
+  .lg-dot{ width:9px; height:9px; border-radius:50%; flex:none; background:var(--warn); box-shadow:0 0 5px rgba(var(--warn-rgb),.7); }
+  .lg-zone{ width:12px; height:12px; border-radius:50%; flex:none; border:1.5px solid var(--danger); background:rgba(var(--danger-rgb),.15); }
+  .lg-zone.lg-zone--warn{ border-color:var(--warn); border-style:dashed; background:rgba(var(--warn-rgb),.15); }
+
+  .map-status-bar{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; font-size:.64rem; color:var(--text-muted); padding:2px 4px 10px; }
+  .map-status-bar .map-hint{ flex:1 1 320px; }
+  .map-status-bar .map-speed{ margin-left:auto; white-space:nowrap; }
+  .map-status-bar .map-speed b{ color:var(--accent); font-family:var(--font-ui); }
+
+  .map-toolbar{ display:flex; gap:8px; align-items:center; padding:0 4px 10px; flex-wrap:wrap; }
+  .map-toolbar select.tb-btn{ appearance:auto; }
+  .plane-icon{ color:var(--vfr); filter:drop-shadow(0 0 3px rgba(var(--vfr-rgb),.9)); }
+  .plane-icon.queued{ color:var(--warn); filter:drop-shadow(0 0 3px rgba(var(--warn-rgb),.9)); }
+  .plane-icon.collision{ color:var(--danger) !important; filter:drop-shadow(0 0 6px rgba(var(--danger-rgb),.9)); animation:blinkCollision .6s infinite alternate; }
+  .plane-icon.zonebust{ color:var(--warn) !important; filter:drop-shadow(0 0 6px rgba(var(--warn-rgb),.9)); animation:blinkCollision 1s infinite alternate; }
+  @keyframes blinkCollision{ 0%{opacity:1; transform:scale(1);} 100%{opacity:.35; transform:scale(1.3);} }
+  .leaflet-tooltip.fp-tooltip{ background:var(--panel); border:1px solid var(--hairline); color:var(--text); font-family:var(--font-ui); font-size:.68rem; padding:3px 6px; border-radius:4px; }
+  .leaflet-tooltip.airport-label{ background:transparent; border:none; box-shadow:none; color:var(--text); font-family:var(--font-ui); font-size:.62rem; font-weight:600; text-shadow:0 0 3px var(--panel), 0 0 3px var(--panel), 0 0 3px var(--panel); padding:0; }
+
+  /* Zonas ENR 5.1 (prohibida/restringida/peligrosa): el círculo responde al hover con una
+     transición suave en vez de un salto brusco, y el tooltip se arma como una pequeña ficha
+     (badge de tipo + nombre + rango de altitud) en vez de una sola línea de texto plana. */
+  .zone-path{ transition: fill-opacity .15s ease, stroke-width .15s ease; cursor:pointer; }
+  .leaflet-tooltip.zone-tooltip{ padding:7px 10px; line-height:1.45; }
+  .zone-tip-badge{ display:inline-block; font-family:var(--font-ui); font-size:.58rem; font-weight:700; letter-spacing:.05em; color:#fff; padding:1px 7px; border-radius:99px; }
+  .zone-tip-name{ font-weight:600; font-size:.7rem; margin-top:4px; }
+  .zone-tip-alt{ color:var(--text-muted); font-size:.64rem; margin-top:1px; font-variant-numeric:tabular-nums; }
+  .ap-popup{ font-family:var(--font-ui); font-size:.72rem; color:var(--text); min-width:200px; }
+  .ap-popup .ap-title{ font-size:.8rem; font-weight:700; margin-bottom:2px; }
+  .ap-popup .ap-elev{ color:var(--text-muted); margin-bottom:6px; }
+  .ap-popup table{ width:100%; border-collapse:collapse; font-size:.68rem; }
+  .ap-popup th, .ap-popup td{ border:1px solid var(--hairline); padding:2px 5px; text-align:center; }
+  .ap-popup th{ background:var(--panel); }
+  .ap-metar-block{ margin-top:7px; padding-top:6px; border-top:1px dashed var(--hairline); }
+  .ap-metar-label{ color:var(--text-muted); font-size:.64rem; text-transform:uppercase; letter-spacing:.03em; margin-bottom:2px; }
+  .ap-metar-raw{ font-family:var(--font-ui); font-size:.66rem; line-height:1.35; word-break:break-word; }
+  .ap-metar-time{ color:var(--text-muted); font-size:.62rem; margin-top:2px; }
+  .ap-metar-loading{ color:var(--text-muted); font-style:italic; }
+  .ap-metar-error{ color:var(--warn); font-size:.66rem; }
+  .leaflet-popup-content-wrapper{ background:var(--bg); color:var(--text); border:1px solid var(--hairline); }
+  .leaflet-popup-tip{ background:var(--bg); }
+
+  footer{ border-top:1px solid var(--hairline); padding:10px 32px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-size:0.72rem; color:var(--text-muted); font-family:'IBM Plex Sans', sans-serif; background:var(--panel); }
+
+  /* ---------- MOBILE NAV DRAWER ---------- */
+  .mobile-nav{ display:none; position:fixed; inset:0; z-index:200; }
+  .mobile-nav.open{ display:block; }
+  .mobile-nav-backdrop{ position:absolute; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(3px); }
+  .mobile-nav-panel{
+    position:absolute; top:0; right:0; bottom:0;
+    width:min(300px, 85vw);
+    background:var(--panel);
+    border-left:1px solid var(--hairline);
+    padding:24px 0;
+    display:flex; flex-direction:column;
+    overflow-y:auto;
+    box-shadow:-8px 0 32px rgba(0,0,0,0.2);
+  }
+  .mobile-nav-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 24px 20px;
+    border-bottom:1px solid var(--hairline);
+    margin-bottom:12px;
+  }
+  .mobile-nav-close{
+    background:none; border:1px solid var(--hairline);
+    color:var(--text); width:40px; height:40px;
+    border-radius:8px; font-size:1.1rem; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .mobile-nav-links a{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 24px;
+    text-decoration:none; color:var(--text);
+    font-size:0.95rem; font-weight:500;
+    border-bottom:1px solid var(--hairline);
+    transition:background .15s, color .15s, padding-left .15s;
+  }
+  .mobile-nav-links a:hover{ background:var(--panel-alt); color:var(--accent); padding-left:30px; }
+  .mobile-nav-links a span.mnav-arrow{ color:var(--text-muted); font-size:0.85rem; }
+  .mobile-nav-footer{
+    margin-top:auto; padding:20px 24px 0;
+    display:flex; align-items:center; justify-content:space-between;
+    border-top:1px solid var(--hairline);
+  }
+  .mobile-nav-footer .theme-toggle{
+    display:flex; align-items:center; gap:8px;
+    background:none; border:1px solid var(--hairline);
+    color:var(--text-muted); padding:8px 14px; border-radius:8px;
+    cursor:pointer; font-size:0.82rem; font-family:'IBM Plex Sans';
+    transition:color .2s, border-color .2s;
+  }
+  .mobile-nav-footer .theme-toggle:hover{ color:var(--accent); border-color:var(--accent); }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.4"></script>
+<script src="supabase-config.js"></script>
+<script src="progreso.js"></script>
+</head>
+<body>
+<script src="auth-gate.js"></script>
+
+<header class="topbar">
+  <a class="brand" href="index.html" aria-label="Ir al inicio — SoyAeronáutico">
+    <div class="brand-mark">
+      <svg viewBox="0 0 40 40" width="30" height="30" aria-hidden="true">
+        <circle cx="20" cy="20" r="17" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M20 6 L25.5 20 L14.5 20 Z" fill="currentColor"/>
+        <path d="M20 34 L25.5 20 L14.5 20 Z" fill="currentColor" opacity="0.4"/>
+        <circle cx="20" cy="20" r="2.6" fill="var(--bg)" stroke="currentColor" stroke-width="1.3"/>
+      </svg>
+    </div>
+    <div>SoyAeronáutico <small><span class="live-dot" aria-hidden="true"></span>PORTAL AIS · COM · MET</small></div>
+  </a>
+  <nav class="desktop-nav">
+    <div class="nav-dropdown" id="modulosDropdown">
+      <button class="nav-dropdown-btn" id="modulosBtn" type="button" aria-haspopup="true" aria-expanded="false">
+        Módulos
+        <svg class="nav-dropdown-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown-menu" id="modulosMenu">
+        <div class="nav-dropdown-menu-inner">
+          <a href="meteorologia.html">Meteorología</a>
+          <a href="ats.html">ATS</a>
+          <a href="fraseologia.html">Fraseología</a>
+          <a href="plan-de-vuelo.html">Plan de Vuelo</a>
+          <a href="navegacion.html">Navegación</a>
+        </div>
+      </div>
+    </div>
+    <a href="designadores.html">Designadores</a>
+    <a href="metar-taf.html">METAR y TAF</a>
+    <a href="satelite.html">Satélite</a>
+    <a href="glosario.html">Glosario</a>
+    <a href="quizzes.html" class="active">Quizzes</a>
+    <a href="quienes-somos.html">Quiénes somos</a>
+  </nav>
+  <div class="nav-right">
+    <span class="zulu-mini mono" id="zuluMini">--:--:-- Z</span>
+    <a href="login.html" class="nav-login-btn" id="navLoginBtn">Iniciar sesión</a>
+    <button class="nav-icon-btn theme-toggle" id="themeToggle" aria-label="Cambiar a modo oscuro" type="button">
+      <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+      <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+    </button>
+    <button class="nav-icon-btn" id="fsToggle" aria-label="Pantalla completa" type="button" onclick="toggleFullscreenMode()">
+      <svg class="icon-expand" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M21 16v3a2 2 0 0 1-2 2h-3M8 21H5a2 2 0 0 1-2-2v-3"/></svg>
+      <svg class="icon-collapse" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v3a2 2 0 0 1-2 2H4M21 8h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3M16 21v-3a2 2 0 0 1 2-2h3"/></svg>
+    </button>
+    <div class="nav-divider"></div>
+    <button class="menu-btn" id="menuBtn" aria-label="Abrir menú" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<!-- MOBILE NAV DRAWER -->
+<div class="mobile-nav" id="mobileNav" role="dialog" aria-label="Menú de navegación" aria-modal="true">
+  <div class="mobile-nav-backdrop" id="mobileNavBackdrop"></div>
+  <div class="mobile-nav-panel">
+    <div class="mobile-nav-header">
+      <span style="font-family:'Archivo';font-weight:800;font-size:1rem;">Menú</span>
+      <button class="mobile-nav-close" id="mobileNavClose" aria-label="Cerrar menú">✕</button>
+    </div>
+    <nav class="mobile-nav-links">
+      <a href="ats.html">ATS <span class="mnav-arrow">→</span></a>
+      <a href="designadores.html">Designadores <span class="mnav-arrow">→</span></a>
+      <a href="meteorologia.html">Meteorología <span class="mnav-arrow">→</span></a>
+      <a href="metar-taf.html">METAR y TAF <span class="mnav-arrow">→</span></a>
+      <a href="satelite.html">Satélite <span class="mnav-arrow">→</span></a>
+      <a href="plan-de-vuelo.html">Plan de Vuelo <span class="mnav-arrow">→</span></a>
+      <a href="navegacion.html">Navegación <span class="mnav-arrow">→</span></a>
+      <a href="fraseologia.html">Fraseología <span class="mnav-arrow">→</span></a>
+      <a href="glosario.html">Glosario <span class="mnav-arrow">→</span></a>
+      <a href="quizzes.html">Quizzes <span class="mnav-arrow">→</span></a>
+      <a href="quienes-somos.html">Quiénes somos <span class="mnav-arrow">→</span></a>
+      <a href="login.html" id="navLoginBtnMobile">Iniciar sesión <span class="mnav-arrow">→</span></a>
+    </nav>
+    <div class="mobile-nav-footer">
+      <button class="theme-toggle" id="themeToggleMobile" type="button">
+        <svg class="icon-sun" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>
+        Modo oscuro
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="cwp-bar">
+  <div class="cwp-id">CWP 6 · SIMULADOR PLAN DE VUELO Y RADAR</div>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <div class="role">ROLE: SUPERVISOR</div>
+    <div class="help-btn" onclick="toggleHelp(true)">? INSTRUCCIONES</div>
+  </div>
+</div>
+
+<div class="deck">
+  <aside class="sidebar">
+    <div class="sidebar-title">PLANES DE VUELO</div>
+    <div id="fpList"></div>
+    <button class="side-new-btn" onclick="openFPOperationCreate()">+ NUEVO (FP OPERATION)</button>
+  </aside>
+
+  <div class="windows-area" id="windowsArea">
+
+    <!-- FP OPERATION window -->
+    <div class="sim-window" id="win-fpop" style="top:20px; left:20px; width:900px;">
+      <div class="win-head" data-drag>
+        <span>FP OPERATION</span>
+        <span class="win-close" onclick="closeWindow('win-fpop')">X</span>
+      </div>
+      <div class="win-body">
+        <div class="grid-row">
+          <div style="flex:1.3"><label class="f-label">FLIGHT ID</label><input class="f" id="f_flightId" maxlength="7" list="callsignList" autocomplete="off" placeholder="AVA123"><datalist id="callsignList"></datalist></div>
+          <div style="flex:1.5"><label class="f-label">RADIO CALLSIGN</label><input class="f" id="f_radio"></div>
+          <div style="width:55px"><label class="f-label">NO</label><input class="f" id="f_no" value="01"></div>
+          <div style="flex:1"><label class="f-label">A/C TYPE</label><input class="f" id="f_acType" list="acTypeList" autocomplete="off" placeholder="Elige de la lista"><datalist id="acTypeList"></datalist></div>
+          <div style="width:50px"><label class="f-label">W</label><input class="f" id="f_wake" maxlength="1" placeholder="—" readonly></div>
+          <div style="width:70px"><label class="f-label">DEP</label><input class="f" id="f_dep" maxlength="4" placeholder="SKBO"></div>
+          <div style="width:70px"><label class="f-label">DEST</label><input class="f" id="f_dest" maxlength="4" placeholder="SKBQ"></div>
+          <div style="flex:1.3"><label class="f-label">NAV/COM</label><input class="f" id="f_navcom" placeholder="S"></div>
+          <div style="width:60px"><label class="f-label">RVSM</label><input class="f" id="f_rvsm" placeholder="UN"></div>
+          <div style="width:90px"><label class="f-label">SURVEILLANCE EQUIPMENT</label><input class="f" id="f_surv" placeholder="C"></div>
+          <div style="width:55px"><label class="f-label">CSSR</label><input class="f" id="f_cssr"></div>
+          <div style="width:38px"><label class="f-label">R</label><input class="f" id="f_r" maxlength="1" placeholder="I"></div>
+          <div style="width:38px"><label class="f-label">FT</label><input class="f" id="f_ft" maxlength="1" placeholder="S"></div>
+        </div>
+        <div class="grid-row">
+          <div style="width:90px"><label class="f-label">SID</label><input class="f" id="f_sid"></div>
+          <div style="flex:1"><label class="f-label">FIR ROUTE</label><input class="f" id="f_route" placeholder="DCT ZIP DCT BUV DCT ILSEV DCT BAQ DCT"></div>
+          <div style="width:90px"><label class="f-label">STAR</label><input class="f" id="f_star"></div>
+        </div>
+        <div class="grid-row">
+          <div style="width:75px"><label class="f-label">EOBD</label><input class="f" id="f_eobd" maxlength="6" placeholder="YYMMDD"></div>
+          <div style="width:65px"><label class="f-label">EOBT</label><input class="f" id="f_eobt" maxlength="4" placeholder="HHMM"></div>
+          <div style="width:55px"><label class="f-label">MSG</label><input class="f" id="f_msg" disabled></div>
+          <div style="width:60px"><label class="f-label">CTOT</label><input class="f" id="f_ctot" disabled></div>
+          <div style="width:65px"><label class="f-label">ATFCM</label><input class="f" id="f_atfcm" disabled></div>
+          <div style="width:60px"><label class="f-label">ATD</label><input class="f" id="f_atd" disabled></div>
+          <div style="width:65px"><label class="f-label">ETA</label><input class="f" id="f_eta" placeholder="Auto"></div>
+          <div style="width:70px"><label class="f-label">SPEED</label><input class="f" id="f_speed" placeholder="N0260"></div>
+          <div style="width:65px"><label class="f-label">LEVEL</label><input class="f" id="f_level" placeholder="F360"></div>
+          <div style="width:60px"><label class="f-label">FIX</label><input class="f" id="f_fix" disabled></div>
+          <div style="width:65px"><label class="f-label">TIME</label><input class="f" id="f_estTime" disabled></div>
+          <div style="width:60px"><label class="f-label">LEVEL</label><input class="f" id="f_estLevel" disabled></div>
+          <div style="width:75px"><label class="f-label">RCOORD</label><input class="f" id="f_rcoord" disabled></div>
+          <div style="width:75px"><label class="f-label">SCOORD</label><input class="f" id="f_scoord" disabled></div>
+          <div style="flex:1;min-width:100px"><label class="f-label">ALT AD(S)</label><input class="f" id="f_altad"></div>
+        </div>
+        <div class="grid-row">
+          <div style="flex:1"><label class="f-label">FIELD 18</label><input class="f" id="f_field18" placeholder="DOF/260729 (0 si no hay más datos)"></div>
+        </div>
+        <div class="grid-row">
+          <div style="width:60px"><label class="f-label">EAT</label><input class="f" id="f_eat" disabled></div>
+          <div style="flex:1.4"><label class="f-label">FREE TEXT</label><input class="f" id="f_freetext"></div>
+          <div style="width:65px"><label class="f-label">CFL</label><input class="f" id="f_cfl"></div>
+          <div style="width:65px"><label class="f-label">ECL</label><input class="f" id="f_ecl"></div>
+          <div style="width:45px"><label class="f-label">S</label><input class="f" id="f_s"></div>
+          <div style="flex:.8"><label class="f-label">REG</label><input class="f" id="f_reg"></div>
+          <div style="flex:1"><label class="f-label">STS</label><input class="f" id="f_sts"></div>
+          <div style="width:80px"><label class="f-label">MODE S</label><input class="f" id="f_modes"></div>
+        </div>
+        <div class="grid-row">
+          <div style="flex:1"><label class="f-label">ORIGINAL ROUTE</label><input class="f" id="f_origroute" disabled></div>
+        </div>
+        <div id="compulsoryTag" class="compulsory-tag" style="display:none;">COMPULSORY</div>
+        <div class="mode-row">
+          <div class="mode-list">
+            <div class="mode-item" id="mode_view" onclick="setMode('VIEW')"><span class="dot"></span>VIEW</div>
+            <div class="mode-item" id="mode_create" onclick="setMode('CREATE')"><span class="dot"></span>CREATE</div>
+            <div class="mode-item" title="No simulado en este ejercicio">MODIFY</div>
+            <div class="mode-item" title="No simulado en este ejercicio">HISTORY</div>
+          </div>
+          <div class="win-buttons">
+            <button class="wbtn" onclick="fpUpdate()">UPDATE</button>
+            <button class="wbtn" id="fpDepartBtn" style="display:none; background:var(--ok); border-color:var(--ok);" onclick="if(currentFP) fpDepart(currentFP.flightId)">🛫 DESPEGUE</button>
+            <button class="wbtn" onclick="fpCancel()">CANCEL</button>
+            <button class="wbtn" onclick="fpClear()">CLEAR</button>
+            <button class="wbtn" onclick="openHistoryFor(currentFP? currentFP.flightId : (document.getElementById('f_flightId').value||''))">HISTORY</button>
+          </div>
+        </div>
+        <div class="msg-flash" id="fpFlash"></div>
+      </div>
+    </div>
+
+    <!-- FREE AFTN window -->
+    <div class="sim-window" id="win-aftn" style="top:60px; left:960px; width:480px;">
+      <div class="win-head" data-drag>
+        <span>FREE AFTN TRANSMISSION</span>
+        <span class="win-close" onclick="closeWindow('win-aftn')">X</span>
+      </div>
+      <div class="win-body">
+        <div class="aftn-toprow">
+          <div class="pr"><label class="f-label">PRIORITY</label><input class="f" id="aftnPriority" value="FF" maxlength="2"></div>
+          <div style="flex:1"><label class="f-label">ADDRESSES</label></div>
+        </div>
+        <div class="addr-lines">
+          <textarea class="f" rows="1">SKBOZQZX</textarea>
+          <textarea class="f" rows="1"></textarea>
+        </div>
+        <div class="grid-row" style="margin-top:8px;">
+          <div style="width:110px"><label class="f-label">FILLING TIME</label><input class="f" id="aftnFillTime" readonly></div>
+          <div style="flex:1"><label class="f-label">ORIGINATOR</label><input class="f" id="aftnOriginator" value="SKBOZQZX"></div>
+        </div>
+        <label class="f-label" style="margin-top:8px;">FREE TEXT (escribe el mensaje ICAO del plan de vuelo)</label>
+        <textarea class="f" id="aftnFreeText" placeholder="(FPL-GIGI122-IS
+-01A320/M-S/C
+-SKBO2000
+-N0260F360 DCT ZIP DCT BUV DCT ILSEV DCT BAQ DCT
+-SKBQ
+-DOF/260729
+)"></textarea>
+        <div class="win-buttons" style="margin-top:10px; justify-content:flex-end;">
+          <label style="font-size:.68rem; margin-right:auto; display:flex; align-items:center; gap:5px;"><input type="checkbox" id="aftnAutoSend" checked> AUTO SEND</label>
+          <button class="wbtn" onclick="aftnFill()">PRINT</button>
+          <button class="wbtn" onclick="aftnTrans()">TRANS</button>
+          <button class="wbtn" onclick="aftnCancel()">CANCEL</button>
+          <button class="wbtn" onclick="aftnClear()">CLEAR</button>
+        </div>
+        <div class="msg-flash" id="aftnFlash"></div>
+      </div>
+    </div>
+
+    <!-- FP HISTORY window -->
+    <div class="sim-window" id="win-hist" style="top:20px; left:340px; width:640px;">
+      <div class="win-head" data-drag>
+        <span id="histTitle">FP HISTORY</span>
+        <span class="win-close" onclick="closeWindow('win-hist')">X</span>
+      </div>
+      <div class="win-body">
+        <div id="historyBox"></div>
+      </div>
+    </div>
+
+    <!-- QUEUE / ARCHIVE window -->
+    <div class="sim-window" id="win-queue" style="top:100px; left:400px; width:520px;">
+      <div class="win-head" data-drag>
+        <span>ARCHIVE — MENSAJES ENCOLADOS</span>
+        <span class="win-close" onclick="closeWindow('win-queue')">X</span>
+      </div>
+      <div class="win-body">
+        <div id="queueList"></div>
+      </div>
+    </div>
+    
+    <!-- RADAR DISPLAY window -->
+    <div class="sim-window" id="win-radar" style="top:50px; left:500px; width:440px;">
+      <div class="win-head" data-drag>
+        <span>RADAR DISPLAY (ACTIVOS)</span>
+        <span class="win-close" onclick="closeWindow('win-radar')">X</span>
+      </div>
+      <div class="win-body" style="display:flex; justify-content:center; background:#05070a; padding:15px; border-radius:0 0 10px 10px;">
+        <canvas id="radarScreen" width="400" height="400" style="border:1px solid var(--hairline); border-radius:50%; background:radial-gradient(circle, #0c141c 0%, #05070a 100%); box-shadow: 0 0 15px rgba(var(--accent-rgb),0.35);"></canvas>
+      </div>
+    </div>
+
+    <!-- ROUTE MAP window -->
+    <div class="sim-window" id="win-map" style="top:40px; left:60px; width:780px;">
+      <div class="win-head" data-drag>
+        <span>MAPA DE RUTAS — TRÁFICO EN VIVO</span>
+        <span class="win-close" onclick="closeWindow('win-map')">X</span>
+      </div>
+      <div class="win-body" style="padding:10px;">
+        <div class="map-legend">
+          <div class="lg-group">
+            <span class="lg-group-label">Tráfico</span>
+            <div class="lg-item"><span class="plane-icon lg-plane">✈</span>En ruta</div>
+            <div class="lg-item"><span class="plane-icon queued lg-plane">✈</span>Encolado</div>
+            <div class="lg-item"><span class="plane-icon collision lg-plane">✈</span>Colisión</div>
+          </div>
+          <div class="lg-div"></div>
+          <div class="lg-group">
+            <span class="lg-group-label">Espacio aéreo</span>
+            <div class="lg-item"><span class="lg-zone"></span>Prohibida (ENR 5.1)</div>
+            <div class="lg-item"><span class="lg-zone lg-zone--warn"></span>Restringida / peligrosa</div>
+          </div>
+          <div class="lg-div"></div>
+          <div class="lg-group">
+            <span class="lg-group-label">Referencia</span>
+            <div class="lg-item"><span class="lg-dot"></span>Aeródromo</div>
+          </div>
+        </div>
+        <div class="map-status-bar">
+          <span class="map-hint">Click en una aeronave para instrucción ATC (nivel / rumbo) · Click en un aeródromo para pistas, elevación y METAR</span>
+          <span class="map-speed">Velocidad sim <b id="mapSpeedLabel">x60</b></span>
+        </div>
+        <div class="map-toolbar">
+          <button type="button" class="tb-btn" id="btnToggleLabels" onclick="toggleAirportLabels()">Etiquetas: ocultas</button>
+          <select id="mapBasemapSelect" class="tb-btn" onchange="setBasemap(this.value)">
+            <option value="osm">Mapa — Calles (OSM)</option>
+            <option value="sat">Mapa — Satélite (Esri World Imagery)</option>
+            <option value="topo">Mapa — Topográfico (Esri)</option>
+          </select>
+          <button type="button" class="tb-btn" id="btnToggleGoes" onclick="toggleGoesLayer()">Satélite GOES: apagado</button>
+          <button type="button" class="tb-btn" id="btnToggleZones" onclick="toggleZones()">Zonas ENR 5.1: visibles</button>
+        </div>
+        <div id="flightMap"></div>
+      </div>
+    </div>
+
+    <!-- ATC QUICK EDIT window -->
+    <div class="sim-window" id="win-atcedit" style="top:120px; left:520px; width:300px;">
+      <div class="win-head" data-drag>
+        <span>ATC — INSTRUCCIÓN RÁPIDA</span>
+        <span class="win-close" onclick="closeWindow('win-atcedit')">X</span>
+      </div>
+      <div class="win-body">
+        <div style="font-size:.82rem; font-weight:bold; margin-bottom:8px;" id="atcEditFlightId">—</div>
+        <div id="atcEditConflictNote" style="font-size:.66rem; color:var(--danger); margin-bottom:8px; display:none;"></div>
+        <div class="grid-row">
+          <div style="flex:1"><label class="f-label">NUEVO NIVEL (ej. F360)</label><input class="f" id="atcEditLevel" placeholder="F360"></div>
+        </div>
+        <div class="grid-row">
+          <div style="flex:1"><label class="f-label">RUMBO / DESVÍO (°, -90 a 90)</label><input class="f" id="atcEditHeading" placeholder="0"></div>
+        </div>
+        <div class="win-buttons" style="justify-content:flex-end;">
+          <button class="wbtn" onclick="applyAtcEdit()">APLICAR</button>
+          <button class="wbtn" onclick="closeWindow('win-atcedit')">CANCELAR</button>
+        </div>
+        <div class="msg-flash" id="atcEditFlash"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="bottom-toolbar">
+  <div class="tb-btn highlight" onclick="openWindow('win-aftn')">FREE TEXT (AFTN)</div>
+  <div class="tb-btn" onclick="openFPOperationCreate()">FP OPERATION</div>
+  <div class="tb-btn" onclick="openWindow('win-queue')">ARCHIVE</div>
+  <div class="tb-btn highlight" onclick="openWindow('win-radar')">RADAR</div>
+  <div class="tb-btn highlight" onclick="openWindow('win-map')">MAPA DE RUTAS</div>
+  <div class="tb-btn disabled" title="No simulado">QNH</div>
+  <div class="tb-btn disabled" title="No simulado">FLOW</div>
+  <div class="tb-btn disabled" title="No simulado">FLOW MG</div>
+  <div class="tb-btn disabled" title="No simulado">METEO</div>
+  <div class="tb-btn disabled" title="No simulado">NOTAM</div>
+  <div class="tb-btn disabled" title="No simulado">LINES</div>
+  <div class="tb-btn disabled" title="No simulado">INFO</div>
+  <div class="tb-btn disabled" title="No simulado">EST</div>
+  <div class="tb-btn" onclick="closeAll()">CLOSE ALL</div>
+</div>
+
+<footer>
+  <span>Portal de estudio independiente — contenido con fines educativos, no reemplaza fuentes oficiales AIP/OACI.</span>
+  <span>Módulo Plan de Vuelo — Simulador CWP de práctica ATC/AIS</span>
+  <span>Creado por <strong>Cristian Arcila</strong> &middot; &copy; 2026 &mdash; Todos los derechos reservados</span>
+</footer>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-modal">
+    <span class="close-help" onclick="toggleHelp(false)">CERRAR</span>
+    <h2>Cómo usar el simulador</h2>
+    <p>Este simulador reproduce el ejercicio de <b>plan de vuelo (FPL)</b> de un puesto de trabajo (CWP). Hay dos caminos para crear un plan de vuelo, y ambos deben terminar en un mensaje bien escrito según la sintaxis OACI.</p>
+    <h3>1. Desde FP OPERATION (formulario)</h3>
+    <p>Pulsa <b>+ NUEVO</b> o el botón <b>FP OPERATION</b>. Los campos en rojo son obligatorios. El A/C TYPE completa automáticamente la estela turbulenta. Pulsa <b>UPDATE</b> para transmitir.</p>
+    <h3>2. Desde FREE AFTN TRANSMISSION</h3>
+    <p>Escribe directamente el mensaje en formato OACI. Pulsa <b>TRANS</b>. Si la sintaxis es correcta o la ruta contiene puntos válidos (ENR 4.1 y 4.4), se activará. Si hay un error, quedará <b>ENCOLADO</b> en ARCHIVE.</p>
+    <h3>Nuevo: Radar y ETA Geográfico</h3>
+    <p>El simulador ahora incluye un botón <b>RADAR</b> en la barra inferior. Todos los vuelos activos aparecerán como contactos (blips) en la pantalla de radar. Además, el campo ETA se calcula usando la distancia real (Haversine) entre aeropuertos con coordenadas ARP publicadas, considerando la velocidad (SPEED) y altitud (LEVEL) indicadas. DEP y DEST se validan contra una base de 72 aeropuertos colombianos: si el designador no existe en esa base, el plan se rechaza.</p>
+    <h3>Nuevo: Aerovías reales (ENR 3), zonas ENR 5.1 y alerta STCA</h3>
+    <p>El campo <b>FIR ROUTE</b> ya acepta aerovías ATS reales del AIP Colombia (p. ej. <code>EJA G431 ILSEV</code> en vez de solo <code>DCT</code>) — si el punto de entrada o salida no pertenece a esa aerovía, el plan se rechaza, igual que lo haría un controlador real. En el <b>MAPA DE RUTAS</b> se dibujan además las zonas prohibidas/restringidas/peligrosas de ENR 5.1 (círculo de 5 NM ilustrativo alrededor de la ubicación publicada); si una aeronave entra a una dentro de su banda vertical, el ícono parpadea en ámbar y queda registrado en su HISTORY. Cuando dos aeronaves pierden separación (STCA), además del aviso visual suena una alerta corta que se repite cada 5 s mientras el conflicto siga activo — actívala haciendo click en cualquier parte de la pantalla primero (los navegadores bloquean el audio hasta el primer gesto del usuario).</p>
+  </div>
+</div>
+
+<script>
+/* ===================== TEMA (idéntico al portal) + RELOJ ZULU ===================== */
+const themeToggle = document.getElementById('themeToggle');
+const savedTheme = localStorage.getItem('aisTheme');
+if(savedTheme === 'dark'){
+  document.documentElement.setAttribute('data-theme', 'dark');
+  themeToggle.setAttribute('aria-label', 'Cambiar a modo claro');
+}
+themeToggle.addEventListener('click', () => {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if(isDark){
+    document.documentElement.removeAttribute('data-theme');
+    localStorage.setItem('aisTheme', 'light');
+    themeToggle.setAttribute('aria-label', 'Cambiar a modo oscuro');
+  } else {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    localStorage.setItem('aisTheme', 'dark');
+    themeToggle.setAttribute('aria-label', 'Cambiar a modo claro');
+  }
+  refreshMapTheme();
+});
+
+/* ---------- PANTALLA COMPLETA (oculta topbar/CWP, deja solo el reloj zulu) ---------- */
+const fsToggle = document.getElementById('fsToggle');
+function toggleFullscreenMode(){
+  const active = document.body.classList.toggle('fs-mode');
+  if(active){
+    const el = document.documentElement;
+    const req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+    try{ if(req){ const p = req.call(el); if(p && p.catch) p.catch(()=>{}); } }catch(e){}
+    fsToggle.setAttribute('aria-label', 'Salir de pantalla completa');
+  } else {
+    if(document.fullscreenElement){
+      const exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+      try{ if(exit){ const p = exit.call(document); if(p && p.catch) p.catch(()=>{}); } }catch(e){}
+    }
+    fsToggle.setAttribute('aria-label', 'Pantalla completa');
+  }
+  setTimeout(()=>{ if(typeof flightMap !== 'undefined' && flightMap) flightMap.invalidateSize(); }, 150);
+}
+document.addEventListener('fullscreenchange', ()=>{
+  if(!document.fullscreenElement && document.body.classList.contains('fs-mode')){
+    document.body.classList.remove('fs-mode');
+    fsToggle.setAttribute('aria-label', 'Pantalla completa');
+  }
+});
+
+const zuluMini = document.getElementById('zuluMini');
+function updateZuluMini(){
+  const now = new Date();
+  const p = n => n.toString().padStart(2, '0');
+  zuluMini.textContent = `${p(now.getUTCHours())}:${p(now.getUTCMinutes())}:${p(now.getUTCSeconds())} Z`;
+}
+updateZuluMini();
+setInterval(updateZuluMini, 1000);
+
+// Lee los colores vivos de la paleta del portal (Leaflet/Canvas no pueden usar var() directamente).
+function getPalette(){
+  const cs = getComputedStyle(document.documentElement);
+  const v = name => cs.getPropertyValue(name).trim();
+  return {
+    accent: v('--accent'), danger: v('--danger'), vfr: v('--vfr'), warn: v('--warn'),
+    text: v('--text'), textMuted: v('--text-muted'), hairline: v('--hairline'), panel: v('--panel')
+  };
+}
+let PAL = getPalette();
+
+/* ===================== BASE DE DATOS DE INDICATIVOS DE RADIO (CALLSIGNS) ===================== */
+// Cada fila es un operador: designador ICAO de 3 letras (lo que se escribe al inicio del
+// FLIGHT ID), el nombre del operador y su indicativo de radiotelefonía (lo que se usa por voz,
+// RAC 91 / Doc 8643). Para añadir una aerolínea nueva, agrega una fila más aquí abajo —
+// el resto del simulador (autocompletado, datalist, RADIO CALLSIGN) se actualiza solo.
+const CALLSIGN_DB = [
+  // ---- Colombia ----
+  { icao:'ABO', operador:'Aeroexpreso Bogotá',                 radio:'AEROEXPRESO' },
+  { icao:'ACL', operador:'ADA — Aerolínea de Antioquia',       radio:'ADMIRE' },
+  { icao:'AJS', operador:'Aeroejecutivos',                     radio:'AEROEJECUTIVOS' },
+  { icao:'ANQ', operador:'Aerolínea Antioquia',                radio:'ANTIOQUIA' },
+  { icao:'AQA', operador:'ATCO',                                radio:'ATCO' },
+  { icao:'ARE', operador:'LAN Colombia',                       radio:'LAN COLOMBIA' },
+  { icao:'ATK', operador:'Aerotaca',                            radio:'AEROTACA' },
+  { icao:'AVA', operador:'Avianca',                             radio:'AVIANCA' },
+  { icao:'AVR', operador:'Avianca Express',                     radio:'AVAEXPRESS' },
+  { icao:'FAC', operador:'Fuerza Aérea Colombiana',             radio:'COLOMBIAN AIR FORCE' },
+  { icao:'HEL', operador:'Helicol',                             radio:'HELICOL' },
+  { icao:'HTS', operador:'Helisas',                             radio:'HELISAS' },
+  { icao:'ICT', operador:'Contavia',                            radio:'CONTAVIA' },
+  { icao:'JEC', operador:'Jetrock',                             radio:'JETROCK' },
+  { icao:'LAE', operador:'Lanco',                               radio:'LANCO' },
+  { icao:'LAU', operador:'Suramericana de Aviación',            radio:'SURAMERICANO' },
+  { icao:'NSE', operador:'Satena',                              radio:'SATENA' },
+  { icao:'PET', operador:'Aeropetro',                           radio:'AEROPETRO' },
+  { icao:'PHC', operador:'Helicopters',                         radio:'HELICOPTERS' },
+  { icao:'RPB', operador:'Aerorepública',                       radio:'AEROREPUBLICA' },
+  { icao:'SDK', operador:'Sadelca',                             radio:'SADELCA' },
+  { icao:'SDV', operador:'Selva',                                radio:'SELVA' },
+  { icao:'SRC', operador:'Searca',                               radio:'SEARCA' },
+  { icao:'TCB', operador:'Aéreo Colombia',                       radio:'AEREO COLOMBIA' },
+  { icao:'TCO', operador:'Transcolombia',                        radio:'TRANSCOLOMBIA' },
+  { icao:'TPA', operador:'Tampa Cargo',                          radio:'TAMPA' },
+  { icao:'VVC', operador:'Viva Colombia',                        radio:'VIVA COLOMBIA' },
+  { icao:'VVG', operador:'Aerovilla',                            radio:'AEROVILLA' },
+  // ---- Internacionales ----
+  { icao:'SWA', operador:'Southwest Airlines',                   radio:'SOUTHWEST' },
+  { icao:'AAL', operador:'American Airlines',                    radio:'AMERICAN' },
+  { icao:'DAL', operador:'Delta Air Lines',                      radio:'DELTA' },
+  { icao:'UAL', operador:'United Airlines',                      radio:'UNITED' },
+  { icao:'SKW', operador:'SkyWest Airlines',                     radio:'SKYWEST' },
+  { icao:'FDX', operador:'FedEx Express',                        radio:'FEDEX' },
+  { icao:'ASA', operador:'Alaska Airlines',                      radio:'ALASKA' },
+  { icao:'UPS', operador:'UPS Airlines',                         radio:'UPS' },
+  { icao:'JBU', operador:'JetBlue Airways',                      radio:'JETBLUE' },
+  { icao:'FFT', operador:'Frontier Airlines',                    radio:'FRONTIER FLIGHT' },
+  { icao:'IGO', operador:'IndiGo',                                radio:'IFLY' },
+  { icao:'ACA', operador:'Air Canada',                            radio:'AIR CANADA' },
+  { icao:'THY', operador:'Turkish Airlines',                      radio:'TURKISH' },
+  { icao:'QTR', operador:'Qatar Airways',                         radio:'QATARI' },
+  { icao:'ANA', operador:'All Nippon Airways',                    radio:'ALL NIPPON' },
+  { icao:'DLH', operador:'Lufthansa',                             radio:'LUFTHANSA' },
+  { icao:'AFR', operador:'Air France',                            radio:'AIRFRANS' },
+  { icao:'UAE', operador:'Emirates',                              radio:'EMIRATES' },
+  { icao:'CPA', operador:'Cathay Pacific',                        radio:'CATHAY' },
+  { icao:'CCA', operador:'Air China',                             radio:'AIR CHINA' },
+];
+
+// Índice ICAO -> indicativo de radio, generado automáticamente a partir de CALLSIGN_DB.
+const CALLSIGN_MAP = Object.fromEntries(CALLSIGN_DB.map(a => [a.icao, a.radio]));
+
+function airlineFromFlightId(flightId){
+  if(!flightId) return '';
+  return CALLSIGN_MAP[flightId.trim().toUpperCase().slice(0,3)] || '';
+}
+
+// Llena el datalist del FLIGHT ID para que el usuario vea y elija los designadores
+// disponibles en vez de tener que adivinarlos.
+function populateCallsignList(){
+  const dl = document.getElementById('callsignList');
+  if(!dl) return;
+  dl.innerHTML = CALLSIGN_DB.slice().sort((a,b)=>a.icao.localeCompare(b.icao)).map(a=>
+    `<option value="${a.icao}">${a.icao} — ${a.operador} (indicativo: ${a.radio})</option>`
+  ).join('');
+}
+
+/* ===================== TIPOS DE AERONAVE Y WTC ===================== */
+// Designadores OACI (Doc 8643) y categoría de estela turbulenta (WTC).
+// WTC: L (Light, <=7000 kg) · M (Medium, 7000-136000 kg) · H (Heavy, >=136000 kg) · J (Super, solo A380-800).
+const AIRCRAFT_TYPES = {
+  // ---- Airbus ----
+  A19N:{wtc:'M', name:'Airbus A319neo'}, A20N:{wtc:'M', name:'Airbus A320neo'}, A21N:{wtc:'M', name:'Airbus A321neo'},
+  A318:{wtc:'M', name:'Airbus A318'}, A319:{wtc:'M', name:'Airbus A319'}, A320:{wtc:'M', name:'Airbus A320'}, A321:{wtc:'M', name:'Airbus A321'},
+  A306:{wtc:'H', name:'Airbus A300-600'}, A310:{wtc:'H', name:'Airbus A310'},
+  A332:{wtc:'H', name:'Airbus A330-200'}, A333:{wtc:'H', name:'Airbus A330-300'}, A338:{wtc:'H', name:'Airbus A330-800'}, A339:{wtc:'H', name:'Airbus A330-900'},
+  A342:{wtc:'H', name:'Airbus A340-200'}, A343:{wtc:'H', name:'Airbus A340-300'}, A345:{wtc:'H', name:'Airbus A340-500'}, A346:{wtc:'H', name:'Airbus A340-600'},
+  A359:{wtc:'H', name:'Airbus A350-900'}, A35K:{wtc:'H', name:'Airbus A350-1000'}, A388:{wtc:'J', name:'Airbus A380-800'},
+  BCS1:{wtc:'M', name:'Airbus A220-100'}, BCS3:{wtc:'M', name:'Airbus A220-300'},
+
+  // ---- Boeing ----
+  B712:{wtc:'M', name:'Boeing 717-200'}, B721:{wtc:'M', name:'Boeing 727-100'}, B722:{wtc:'M', name:'Boeing 727-200'},
+  B732:{wtc:'M', name:'Boeing 737-200'}, B733:{wtc:'M', name:'Boeing 737-300'}, B734:{wtc:'M', name:'Boeing 737-400'}, B735:{wtc:'M', name:'Boeing 737-500'},
+  B736:{wtc:'M', name:'Boeing 737-600'}, B737:{wtc:'M', name:'Boeing 737-700'}, B738:{wtc:'M', name:'Boeing 737-800'}, B739:{wtc:'M', name:'Boeing 737-900'},
+  B37M:{wtc:'M', name:'Boeing 737 MAX 7'}, B38M:{wtc:'M', name:'Boeing 737 MAX 8'}, B39M:{wtc:'M', name:'Boeing 737 MAX 9'}, B3XM:{wtc:'M', name:'Boeing 737 MAX 10'},
+  B741:{wtc:'H', name:'Boeing 747-100'}, B742:{wtc:'H', name:'Boeing 747-200'}, B743:{wtc:'H', name:'Boeing 747-300'}, B744:{wtc:'H', name:'Boeing 747-400'}, B748:{wtc:'H', name:'Boeing 747-8'},
+  B752:{wtc:'M', name:'Boeing 757-200'}, B753:{wtc:'M', name:'Boeing 757-300'},
+  B762:{wtc:'H', name:'Boeing 767-200'}, B763:{wtc:'H', name:'Boeing 767-300'}, B764:{wtc:'H', name:'Boeing 767-400ER'},
+  B772:{wtc:'H', name:'Boeing 777-200'}, B773:{wtc:'H', name:'Boeing 777-300'}, B77L:{wtc:'H', name:'Boeing 777-200LR'}, B77W:{wtc:'H', name:'Boeing 777-300ER'},
+  B788:{wtc:'H', name:'Boeing 787-8'}, B789:{wtc:'H', name:'Boeing 787-9'}, B78X:{wtc:'H', name:'Boeing 787-10'},
+
+  // ---- McDonnell Douglas ----
+  MD11:{wtc:'H', name:'McDonnell Douglas MD-11'}, MD82:{wtc:'M', name:'McDonnell Douglas MD-82'}, MD83:{wtc:'M', name:'McDonnell Douglas MD-83'},
+  MD88:{wtc:'M', name:'McDonnell Douglas MD-88'}, MD90:{wtc:'M', name:'McDonnell Douglas MD-90'}, DC10:{wtc:'H', name:'McDonnell Douglas DC-10'},
+
+  // ---- Embraer ----
+  E135:{wtc:'M', name:'Embraer ERJ-135'}, E145:{wtc:'M', name:'Embraer ERJ-145'},
+  E170:{wtc:'M', name:'Embraer 170'}, E175:{wtc:'M', name:'Embraer 175'}, E190:{wtc:'M', name:'Embraer 190'}, E195:{wtc:'M', name:'Embraer 195'},
+  E290:{wtc:'M', name:'Embraer E190-E2'}, E295:{wtc:'M', name:'Embraer E195-E2'},
+  E50P:{wtc:'L', name:'Embraer Phenom 100'}, E55P:{wtc:'M', name:'Embraer Phenom 300'},
+  E545:{wtc:'M', name:'Embraer Legacy 450 / Praetor 500'}, E550:{wtc:'M', name:'Embraer Legacy 500 / Praetor 600'}, E35L:{wtc:'M', name:'Embraer Legacy 600/650'},
+
+  // ---- Bombardier / Canadair / de Havilland Canada ----
+  CRJ1:{wtc:'M', name:'Canadair Regional Jet 100'}, CRJ2:{wtc:'M', name:'Canadair Regional Jet 200'}, CRJ7:{wtc:'M', name:'Canadair Regional Jet 700'},
+  CRJ9:{wtc:'M', name:'Canadair Regional Jet 900'}, CRJX:{wtc:'M', name:'Canadair Regional Jet 1000'},
+  CL30:{wtc:'M', name:'Bombardier Challenger 300'}, CL35:{wtc:'M', name:'Bombardier Challenger 350'}, CL60:{wtc:'M', name:'Canadair Challenger 600'}, GLEX:{wtc:'M', name:'Bombardier Global Express'},
+  DHC6:{wtc:'L', name:'DHC-6 Twin Otter'}, DH8A:{wtc:'M', name:'Dash 8-100'}, DH8B:{wtc:'M', name:'Dash 8-200'}, DH8C:{wtc:'M', name:'Dash 8-300'}, DH8D:{wtc:'M', name:'Dash 8-400 (Q400)'},
+
+  // ---- ATR / Fokker / Saab (turbohélice regional) ----
+  AT43:{wtc:'M', name:'ATR 42-300'}, AT45:{wtc:'M', name:'ATR 42-500'}, AT72:{wtc:'M', name:'ATR 72'}, AT75:{wtc:'M', name:'ATR 72-500'}, AT76:{wtc:'M', name:'ATR 72-600'},
+  F27:{wtc:'M', name:'Fokker F27 Friendship'}, F28:{wtc:'M', name:'Fokker F28 Fellowship'}, F50:{wtc:'M', name:'Fokker 50'}, F70:{wtc:'M', name:'Fokker 70'}, F100:{wtc:'M', name:'Fokker 100'},
+  SF34:{wtc:'M', name:'Saab 340'}, SB20:{wtc:'M', name:'Saab 2000'},
+
+  // ---- Cessna / aviación general ligera ----
+  C152:{wtc:'L', name:'Cessna 152'}, C172:{wtc:'L', name:'Cessna 172 Skyhawk'}, C182:{wtc:'L', name:'Cessna 182 Skylane'},
+  C208:{wtc:'L', name:'Cessna 208 Caravan'}, C210:{wtc:'L', name:'Cessna 210 Centurion'}, C310:{wtc:'L', name:'Cessna 310'}, C337:{wtc:'L', name:'Cessna 337 Skymaster'},
+
+  // ---- Jets ejecutivos / de negocios ----
+  C500:{wtc:'L', name:'Cessna Citation I'}, C510:{wtc:'L', name:'Cessna Citation Mustang'}, C525:{wtc:'L', name:'Cessna CitationJet'},
+  C25A:{wtc:'L', name:'Cessna Citation CJ2'}, C25B:{wtc:'L', name:'Cessna Citation CJ3'}, C25C:{wtc:'M', name:'Cessna Citation CJ4'},
+  C550:{wtc:'L', name:'Cessna Citation II'}, C560:{wtc:'M', name:'Cessna Citation V/Ultra'}, C56X:{wtc:'M', name:'Cessna Citation Excel/XLS'},
+  C650:{wtc:'M', name:'Cessna Citation III/VI/VII'}, C680:{wtc:'M', name:'Cessna Citation Sovereign'}, C68A:{wtc:'M', name:'Cessna Citation Latitude'},
+  C700:{wtc:'M', name:'Cessna Citation Longitude'}, C750:{wtc:'M', name:'Cessna Citation X'},
+  BE20:{wtc:'L', name:'Beechcraft King Air 200'}, B350:{wtc:'L', name:'Beechcraft King Air 350'}, BE40:{wtc:'M', name:'Hawker 400XP'}, B190:{wtc:'M', name:'Beechcraft 1900'},
+  LJ35:{wtc:'M', name:'Learjet 35'}, LJ60:{wtc:'M', name:'Learjet 60'},
+  FA50:{wtc:'M', name:'Dassault Falcon 50'}, F2TH:{wtc:'M', name:'Dassault Falcon 2000'}, F900:{wtc:'M', name:'Dassault Falcon 900'}, FA7X:{wtc:'M', name:'Dassault Falcon 7X'},
+  GLF4:{wtc:'M', name:'Gulfstream IV'}, GLF5:{wtc:'M', name:'Gulfstream V'}, GLF6:{wtc:'M', name:'Gulfstream G650'}, GA7C:{wtc:'M', name:'Gulfstream G700/G800'},
+  PC12:{wtc:'L', name:'Pilatus PC-12'}, PC24:{wtc:'M', name:'Pilatus PC-24'},
+
+  // ---- Antonov / carga pesada ----
+  AN12:{wtc:'M', name:'Antonov An-12'}, A124:{wtc:'H', name:'Antonov An-124 Ruslan'}, A225:{wtc:'H', name:'Antonov An-225 Mriya'}, IL76:{wtc:'H', name:'Ilyushin Il-76'},
+
+  // ---- Militares (Fuerza Aérea Colombiana y similares) ----
+  C130:{wtc:'M', name:'Lockheed C-130 Hercules'}, C30J:{wtc:'M', name:'Lockheed Martin C-130J Super Hercules'}, C17:{wtc:'H', name:'Boeing C-17 Globemaster III'}, T27:{wtc:'L', name:'Embraer EMB-312 Tucano'},
+
+  // ---- Helicópteros (Helicol, Helisas, PHC, FAC) ----
+  B206:{wtc:'L', name:'Bell 206 JetRanger'}, B407:{wtc:'L', name:'Bell 407'}, B412:{wtc:'L', name:'Bell 412'}, B429:{wtc:'L', name:'Bell 429'},
+  A109:{wtc:'L', name:'Agusta A109'}, A139:{wtc:'L', name:'AgustaWestland AW139'}, EC35:{wtc:'L', name:'Eurocopter EC135'}, EC45:{wtc:'L', name:'Eurocopter/Airbus EC145'},
+  H125:{wtc:'L', name:'Airbus H125 (AS350)'}, H145:{wtc:'L', name:'Airbus H145'}, R44:{wtc:'L', name:'Robinson R44'}, R66:{wtc:'L', name:'Robinson R66'},
+  S76:{wtc:'L', name:'Sikorsky S-76'}, S92:{wtc:'M', name:'Sikorsky S-92'}, UH60:{wtc:'M', name:'Sikorsky UH-60 Black Hawk'}, CH47:{wtc:'M', name:'Boeing CH-47 Chinook'}, MI17:{wtc:'M', name:'Mil Mi-17'}
+};
+function acTypeInfo(code){ return AIRCRAFT_TYPES[(code||'').trim().toUpperCase()] || null; }
+function populateAcTypeList(){
+  document.getElementById('acTypeList').innerHTML = Object.keys(AIRCRAFT_TYPES).sort().map(code=>
+    `<option value="${code}">${code} — ${AIRCRAFT_TYPES[code].name} (WTC ${AIRCRAFT_TYPES[code].wtc})</option>`
+  ).join('');
+}
+
+/* ===================== BASE DE DATOS DE PUNTOS Y RUTAS ===================== */
+const VALID_ROUTE_POINTS = [
+  "ABL", "AGUJA", "AKNIL", "AKPAM", "AKPEK", "AKROB", "AKSER", "AKSIM", "AKSOK", "AKTAB", "ALBAK",
+  "ALBEL", "ALGUK", "ALPON", "ALSIK", "AMAYA", "AMBAS", "AMUBI", "AMVOR", "ANGEL", "ANGUV", "ANKAS",
+  "ANKIP", "ANLAV", "ANLUK", "ANPIX", "ANRAX", "ANRON", "ANSON", "ANSUG", "ARMOL", "ARMUM", "ARORO",
+  "AROTI", "ARPEN", "ARSUP", "ARTID", "ARTUX", "ARUXA", "ASAPA", "ASBIX", "ASEPI", "ASGAR", "ASIKO",
+  "ASKAT", "ATABA", "ATANA", "ATEDI", "AUC", "AXM", "BACUE", "BAQ", "BITIX", "BIVIG", "BIXOX",
+  "BOBKA", "BODAT", "BODED", "BOG", "BOGAL", "BOGUS", "BOKAN", "BOKUS", "BOLAV", "BOLOM", "BUN",
+  "BURPA", "BUSMO", "BUTAB", "BUTAL", "BUTAN", "BUTBA", "BUTES", "BUTIK", "BUTRO", "BUTUM", "BUV",
+  "BUXEG", "BUXIV", "BUXOS", "CEIFA", "CJN", "CLO", "COLBY", "CTG", "CUC", "CZU", "DABAX", "DABID",
+  "DADIL", "DADKA", "DADVO", "DAGAN", "DAGAS", "DAGIK", "DAGLU", "DAGMI", "DAGUR", "DAKMO", "DAKOP",
+  "DALOK", "DANSA", "DARNI", "DEXOX", "DIBAM", "DILAR", "DIMIL", "DIMOL", "DIPRA", "DOBLI", "DODGI",
+  "DOPLO", "DOSGO", "DOSPU", "DOTRO", "DUBKU", "DUBRA", "DURAM", "EDMOL", "EDNAD", "EDPES", "EDPIB",
+  "EDPUL", "EDRAN", "EDRES", "EDROD", "EDSID", "EDVAR", "EDVIL", "EDVOP", "EGDUK", "EGEPI", "EGISA",
+  "EGOBI", "EGOKU", "EJA", "EKARA", "EKENA", "EKEVO", "EKISI", "EKOLO", "EKUTO", "ELABU", "ELB",
+  "ENPUT", "ENSOL", "ENTIP", "EPLAG", "ERIKO", "ESARO", "ESBOM", "ESDEB", "ESEDA", "ESKOR", "ESMOD",
+  "ESNUT", "ETALO", "EVNOM", "EVPIP", "EVRAK", "EVRET", "EVRUP", "EVSOS", "EYP", "FALLA", "FLA",
+  "FLOCK", "GARCI", "GAVAD", "GAVEK", "GAVUT", "GAXAL", "GAXAP", "GEBUT", "GEDEP", "GEKAR", "GEKIM",
+  "GELER", "GELMO", "GEMAN", "GENGU", "GENTO", "GEPKI", "GEPSO", "GERNA", "GESTU", "GEVBA", "GIBTU",
+  "GIKBA", "GIKPU", "GILGA", "GIR", "IBG", "ICAER", "ILKUG", "ILMUX", "ILNAG", "ILPID", "ILSEV",
+  "ILTEN", "ILTUR", "ILVIR", "IMBIS", "IPI", "IRASO", "IRAXU", "IRIGI", "IRONU", "IROTI", "ISADI",
+  "ISIMO", "ISKED", "ISKUN", "ISLAG", "ISLID", "ISLUN", "ISNIM", "ISNOX", "ISOPA", "ISORI", "ISOTO",
+  "ISRAP", "ISROD", "ISVAT", "ISVON", "ITEKU", "IVRIK", "IVROS", "KABOS", "KAGEM", "KAKOL", "KAKUD",
+  "KALEV", "KALOR", "KAMIS", "KASOR", "KEXAN", "KIBEX", "KIKAS", "KIKUM", "KILER", "KODSI", "KONKO",
+  "KONSO", "KOPGI", "KORBA", "KORNU", "KOSDO", "KOTER", "KOTIN", "KOTMI", "KOVAB", "KOVBU", "KOVIP",
+  "KUBEK", "KUBIV", "KUBTU", "KUDGA", "KUDUT", "LATIS", "LCE", "LET", "LEVOR", "LIVEL", "LIVOB",
+  "LIXAG", "LLIVO", "LOBUL", "LODUN", "LOKOS", "LOKOV", "LOLUD", "LOLUS", "LONAK", "LONAX", "LOTOA",
+  "LOURA", "LUCHA", "LUTVI", "LUVTO", "MAKBU", "MAKTO", "MANGA", "MAPSA", "MARTU", "MATRO", "MAVDA",
+  "MDU", "MER", "METAS", "MEVUB", "MEXAS", "MEXIG", "MGN", "MIBIM", "MIKOX", "MOGOS", "MOMGA",
+  "MONVI", "MORGI", "MORMO", "MOXAS", "MQU", "MRN", "MTR", "MTU", "MUBMI", "MUBOD", "MUDAG",
+  "MUDIN", "MUGBU", "MUGOP", "MUPIR", "MZL", "NAXIX", "NAXUP", "NEDOR", "NEKEB", "NENES", "NENUB",
+  "NEONO", "NESGU", "NESMO", "NESNI", "NETKU", "NEVPA", "NEVSU", "NIBRO", "NIGMO", "NIRBU", "NIRSO",
+  "NVA", "OBDOX", "OBKIL", "OBLUL", "OGLUT", "OGNAS", "OGTEX", "OPLIS", "OPLOS", "OPMEL", "OPNIR",
+  "OPNOX", "OPROG", "OPRUS", "OPSAL", "OPTIL", "ORBAB", "OREGA", "ORELU", "ORIBO", "OROSA", "OSILU",
+  "OSUBO", "OSUNA", "OTAMO", "OVTUD", "PABON", "PADAR", "PADUD", "PAL", "PALUG", "PAMAG", "PAMBA",
+  "PANID", "PANOR", "PAPAD", "PAPEM", "PDA", "PEI", "PEJES", "PELRA", "PIE", "PLG", "PORDA",
+  "POTBA", "POVKA", "POVPI", "POVSO", "PPN", "PQ900", "PQ901", "PTC", "PUDSU", "PUGIG", "PUGSO",
+  "PUKAM", "PUKEN", "PULOX", "PULTU", "PUNUG", "PUPAS", "PUPLA", "RAXIX", "RAXOG", "REBIM", "REDEV",
+  "REKAD", "REMEX", "REMIB", "REMUK", "RENAV", "RENOS", "REPEG", "RHC", "RNG", "ROKIN", "ROKUL",
+  "ROLUS", "ROPOL", "ROPOR", "SALGU", "SASNU", "SASTO", "SATMI", "SATPI", "SAVGA", "SEBNU", "SEKLU",
+  "SEKTA", "SELAN", "SEMDO", "SERVO", "SIBOS", "SIDOV", "SIDUN", "SIGIR", "SIGUN", "SILEG", "SIMAT",
+  "SINID", "SIPAR", "SIPIT", "SIPOK", "SIRUG", "SISAK", "SJE", "SOA", "SPP", "SPRIN", "STA",
+  "SUBLO", "SUDSA", "SUMGU", "SUPNU", "SURIX", "SVC", "TCO", "TEDOG", "TEDON", "TEDUL", "TESIR",
+  "TIBUS", "TIDSA", "TIGRO", "TILSO", "TIMRO", "TINPA", "TIPGA", "TIPVA", "TIRTO", "TISLU", "TITGU",
+  "TITNA", "TME", "TOBSU", "TODAD", "TODUK", "TOKUT", "TOL", "TOLIM", "TOLOD", "TOMEK", "TOMEX",
+  "TOPIG", "TORAT", "TOREP", "TOROL", "TQS", "TUNGI", "UBLAX", "UBMUN", "UBNOT", "UBRID", "UBSUX",
+  "UGALU", "UGAXI", "UGEVA", "UGOSA", "UGREB", "UGSAT", "UGSOL", "UGUPI", "UGVIX", "UIB", "UKDUS",
+  "UKLOS", "UKMEN", "ULQ", "UMBET", "UMGOS", "UMKAG", "UMKIR", "UMPEX", "UMPUR", "URIBI", "USANA",
+  "USEKO", "USVUS", "UTGUL", "UTKIV", "UTNUS", "VAKIM", "VAMOS", "VAPUK", "VARON", "VASIL", "VIDAL",
+  "VOVGO", "VOVLU", "VOVRA", "VUGED", "VUGUM", "VUKRA", "VUKTU", "VULAM", "VULNO", "VULRI", "VUMAL",
+  "VUMBA", "VUMLO", "VUNRO", "VUP", "VURMU", "VUROR", "VUSRU", "VUTKI", "VVC", "XOGEN", "XOKIG",
+  "XUXOR", "YACAR", "ZIP"
+]; // Lista completa: 53 VOR/DME (ENR 4.1) + 490 fixes de ruta (ENR 4.4), AIRAC vigente
+
+// Aerovías ATS reales (ENR 3.1 rutas inferiores + ENR 3.2 rutas superiores), AIP Colombia,
+// AIRAC AMDT 72/26 vigente desde 09 JUL 2026. Cada designador lista, en orden publicado, los
+// puntos significativos que lo componen. Solo se incluyen las aerovías cuyos puntos existen
+// TODOS en VALID_ROUTE_POINTS de arriba (algunas rutas reales tocan fixes fuera de esta base
+// simplificada — p.ej. oceánicos o VOR sin ARP publicado — y se omitieron para no dejar tramos
+// a medias). El sentido de vuelo (par/impar) publicado en el AIP no se modela: se tratan como
+// bidireccionales, que es la simplificación razonable para este ejercicio.
+const AIRWAYS = {
+  A319: ["OROSA","ERIKO","SIPOK","NESMO","ESKOR","AGUJA"],
+  A322: ["SPP","AMUBI"],
+  A323: ["IVROS","ISRAP","KOTIN","NENES","RNG","RENOS","MQU","BOG"],
+  A550: ["BUV","GESTU","PUGSO","ASBIX","KIKAS"],
+  A552: ["FALLA","SPP","TIMRO","ALPON","ESKOR","LUVTO","VARON","BAQ","VUMBA","DAGMI","MAKBU","UTKIV"],
+  A566: ["KALOR","LET","BUTAB"],
+  A567: ["ENPUT","CUC","ESNUT","PIE","OPROG","KOVBU","BUV","GEPSO","VULAM","BOG"],
+  A574: ["GILGA","OSUNA","TIPGA","RHC","ATEDI","TIGRO","ENTIP","STA","BAQ","CTG","UGSAT","BOGAL"],
+  B553: ["RHC","URIBI"],
+  B690: ["SPP","UGEVA","ANSON"],
+  G426: ["TOKUT","VAPUK","TCO","ENSOL"],
+  G431: ["ENPUT","CUC","TORAT","UBMUN","IVRIK","EJA","AKSOK","ILSEV","GEPSO"],
+  G439: ["TILSO","TOREP","MOXAS"],
+  G445: ["SPP","DAGAS","AGUJA","KOPGI","CTG","BAQ","TIGRO","ATEDI","RHC"],
+  G448: ["SPP","LEVOR"],
+  G675: ["CLO","ISOPA","OBDOX","ANKAS","MER","SEKTA","GAVEK","IPI","DUBKU"],
+  R505: ["SPP","DURAM"],
+  R564: ["GIR","OREGA","DODGI","MANGA","CLO","DAKOP","XOKIG","TCO","ANGEL"],
+  R567: ["CLO","PPN","KUDGA","FLA","REPEG","SASTO","VAKIM","PLG","ROLUS","ARPEN","AROTI","MEXAS","LET"],
+  R640: ["EDROD","ERIKO","OPLIS","TIPGA","URIBI"],
+  V702: ["PDA","UMBET","MDU","TIDSA","AUC"],
+  V706: ["ESBOM","TQS","POVPI","MIBIM","LIVEL"],
+  V707: ["TQS","KORNU","ILPID"],
+  V709: ["BUV","GEVBA","PAL","SAVGA","RENOS"],
+  V711: ["MUGOP","PUDSU","PAL","EDSID","VULAM"],
+  V712: ["MQU","TOLOD","PAL","PQ900","PQ901","VUNRO","EJA"],
+  W10: ["CTG","UGREB","SUBLO","MGN","ISLUN","TESIR","ORELU","EJA"],
+  W12: ["BAQ","DARNI","MUDIN","ELB","DEXOX","LOKOV","NEDOR","EJA"],
+  W14: ["ISNOX","PEI","MZL","TIRTO","NIRSO"],
+  W16: ["SOA","KAMIS","LOTOA","GIR","USANA","NVA","GAXAP","FLA","GEBUT","MER","TUNGI","TCO"],
+  W17: ["ASIKO","ETALO","ULQ","SIPAR","EKARA","GIR","ARSUP","ABL","BOG","SOA","MAKTO","EGEPI","VVC","KOTER","TIPVA","UGAXI","BACUE","NIBRO","MTU","ALBAK","PABON","MIKOX","DALOK","LET"],
+  W19: ["VUP","UGOSA","ELB","DIMIL","CUC"],
+  W22: ["SOA","BOGUS","LIXAG","TOMEX","NVA","VUKTU","KUDGA"],
+  W23: ["SOA","GEPKI","ABL","MQU","MUGOP","AKSER","LOLUS","BUTAL","MTR"],
+  W31: ["KILER","KAKUD","BAQ","UMKIR","EDVAR","UGOSA"],
+  W34: ["LUCHA","CUC","ESNUT","PIE","MOGOS","PUGSO","MAVDA","TITNA","EYP","ANGUV"],
+  W35: ["MGN","EGISA","LOKOV","IVRIK","PIE"],
+  W36: ["DAKMO","EVSOS","PULOX","NIRSO","VASIL","ABL","IBG","SATPI"],
+  W37: ["MTR","AKPEK","BUTBA","NENES","DABID","ARTUX","PULOX","VULRI","MOMGA","AKSIM","PEI","AXM"],
+  W39: ["EVRAK","BUTIK"],
+  W41: ["BAQ","EGOKU","UMPUR","VUP"],
+  W42: ["SOA","SILEG","ARSUP","IBG","TOLIM","AXM","IRIGI"],
+  W45: ["VVC","VIDAL","ANLAV"],
+  W47: ["VVC","UBNOT"],
+  W48: ["PPN","MER"],
+  W50: ["MIBIM","PLG"],
+  W51: ["BUV","NESNI","MAVDA","TITNA","EYP","VUGED","PANID","PDA"],
+  W53: ["NIRSO","ISVON","VOVRA","UIB"],
+  W60: ["AUC","OSILU","EYP","ALSIK","BUTIK"],
+  W65: ["BUTAL","LATIS","MRN","ISVAT","MQU"],
+  W70: ["IPI","EGOBI","TCO"],
+  W81: ["BAQ","UGSOL","AKPAM","MTR"],
+  W82: ["BUV","DOPLO","NAXUP","KIKAS"],
+  W83: ["AKPEK","RNG"],
+  W84: ["ESMOD","RENAV","ULQ"],
+  W86: ["GIR","MUGBU","NIGMO","ISKED","TITGU","VUROR","MER"],
+  W88: ["EYP","KOTMI","ISLID","MTU"],
+  UA552: ["FALLA","SPP"],
+  UG444: ["SELAN","UBLAX","MAKBU","ELB","LOKOV","EJA","VVC","ULQ","LIVOB","TOLIM","ABL","BOG","BUV","KOVBU","PIE","CUC","ENPUT","BAQ","VOVLU","MGN","SERVO","BIVIG","MRN","ERIKO","SATMI","BAQ","CZU","MTR","STA","EDVAR","ELB","DIBAM","MUPIR","PIE","ZIP"],
+  UW10: ["CTG","UGREB","SUBLO","MGN","DIBAM","MUPIR","YACAR","GIKPU","BUV"],
+  UW23: ["MTR","BUTAL"],
+  UW26: ["CUC","EJA","DIPRA","MRN","RNG"],
+  UW44: ["KIKAS","PUKEN","BUV"],
+  UW45: ["EYP","BUV"],
+  UW51: ["PDA","EYP","MAVDA","BUV"],
+  UW88: ["EYP","ISLID","MTU"],
+  UW89: ["VVC","BUTAN","MTU"],
+  UW90: ["BUSMO","ASIKO","CLO","ESARO","FLA","SIDOV","PLG"],
+  UW91: ["EJA","AKSOK","ILSEV"]
+};
+
+// Valida el string de ruta token por token. Un token puede ser DCT (vuelo directo), un punto
+// significativo válido, o el designador de una aerovía real (AIRWAYS). Cuando aparece una
+// aerovía, se exige que el punto anterior Y el siguiente pertenezcan a esa misma aerovía —
+// así "BOG G431 BAQ" se rechaza porque BAQ no está en G431, igual que rechazaría un controlador
+// real una ruta por una aerovía que no pasa por ese punto.
+function checkRouteTokens(routeStr) {
+  if (!routeStr) return [];
+  const tokens = routeStr.trim().toUpperCase().split(/\s+/);
+  const invalidTokens = [];
+  let lastPoint = null;
+  let pendingAirway = null;
+  for (let token of tokens) {
+    if (token === "DCT") { pendingAirway = null; continue; }
+    if (AIRWAYS[token]) { pendingAirway = token; continue; }
+    if (VALID_ROUTE_POINTS.includes(token)) {
+      if (pendingAirway) {
+        const seq = AIRWAYS[pendingAirway];
+        if (!lastPoint || !seq.includes(lastPoint) || !seq.includes(token)) {
+          invalidTokens.push(`${pendingAirway}(${lastPoint || '?'}-${token} no pertenece a esa aerovía)`);
+        }
+      }
+      lastPoint = token;
+      pendingAirway = null;
+      continue;
+    }
+    invalidTokens.push(token);
+  }
+  return invalidTokens;
+}
+
+/* ===================== CÁLCULO FÍSICO DE ETA (HAVERSINE) ===================== */
+// Fuente: aeropuertos.json (coordenadas ARP en formato DMS, convertidas a decimal).
+// Solo los aeropuertos con ARP publicado entran aquí (se pueden ubicar en el mapa).
+const AIRPORTS = {
+  // Aeródromos No Controlados con ARP publicado en AIP Colombia AD 2, AIRAC A 73-26
+  // (eAIP Colombia, Aerocivil) — coordenadas y elevación tomadas el 2026-08-16
+  // directamente de la ficha AD 2.2 de cada aeródromo, no adivinadas ni interpoladas.
+  'SKAG': { lat: 8.24633, lon: -73.57955 }, // Aguachica — Hacaritama
+  'SKAP': { lat: 4.07607, lon: -73.56273 }, // Apiay — CT. Luis F. Gómez Niño
+  'SKAR': { lat: 4.45164, lon: -75.76639 }, // Armenia — El Edén
+  'SKAS': { lat: 0.50571, lon: -76.50071 }, // Puerto Asís — Tres de Mayo
+  'SKBG': { lat: 7.12638, lon: -73.18473 }, // Bucaramanga — Palonegro
+  'SKBO': { lat: 4.7016, lon: -74.14694 }, // Bogotá — El Dorado
+  'SKBQ': { lat: 10.88946, lon: -74.78068 }, // Barranquilla — Ernesto Cortissoz
+  'SKBS': { lat: 6.20311, lon: -77.39497 }, // Bahía Solano — José Celestino Mutis
+  'SKBU': { lat: 3.81957, lon: -76.98991 }, // Buenaventura — Gerardo Tobar López
+  'SKCC': { lat: 7.92739, lon: -72.51159 }, // Cúcuta — Camilo Daza
+  'SKCG': { lat: 10.44168, lon: -75.51292 }, // Cartagena — Rafael Núñez
+  'SKCL': { lat: 3.54311, lon: -76.38169 }, // Cali — Alfonso Bonilla Aragón
+  'SKCO': { lat: 1.81441, lon: -78.74925 }, // Tumaco — La Florida
+  'SKCZ': { lat: 9.3326, lon: -75.28522 }, // Corozal — Las Brujas
+  'SKEB': { lat: 7.59579, lon: -74.809 }, // El Bagre — El Tomín
+  'SKEJ': { lat: 7.0238, lon: -73.8072 }, // Barrancabermeja — Yariguíes
+  'SKFL': { lat: 1.58926, lon: -75.56443 }, // Florencia — Gustavo Artunduaga Paredes
+  'SKGB': { lat: 3.45853, lon: -76.49725 }, // Guabito — Marco Fidel Suárez
+  'SKGI': { lat: 4.27535, lon: -74.79609 }, // Girardot — Santiago Vila
+  'SKGO': { lat: 4.75757, lon: -75.95601 }, // Cartago — Santa Ana
+  'SKGP': { lat: 2.57003, lon: -77.89799 }, // Guapi — Juan Casiano
+  'SKGY': { lat: 4.8125, lon: -74.06508 }, // Chía — Flaminio Suárez Camacho
+  'SKHA': { lat: 3.72436, lon: -75.4654 }, // Chaparral — Navas Pardo
+  'SKIB': { lat: 4.42165, lon: -75.13361 }, // Ibagué — Perales
+  'SKIP': { lat: 0.86149, lon: -77.66751 }, // Ipiales — San Luis
+  'SKJC': { lat: 3.9342, lon: -77.36142 }, // Juanchaco — Juanchaco
+  'SKLC': { lat: 7.81175, lon: -76.71644 }, // Carepa — Antonio Roldán Betancourt
+  'SKLG': { lat: -0.18198, lon: -74.77099 }, // Puerto Leguízamo — Puerto Leguízamo
+  'SKLT': { lat: -4.19191, lon: -69.9422 }, // Leticia — Alfredo Vásquez Cobo
+  'SKLM': { lat: 11.23258, lon: -72.48928 }, // Maicao — Jorge Isaac
+  'SKMD': { lat: 6.22048, lon: -75.59043 }, // Medellín — Olaya Herrera
+  'SKMG': { lat: 9.28488, lon: -74.84646 }, // Magangué — Baracoa
+  'SKML': { lat: 7.97201, lon: -75.43266 }, // Montelíbano — El Pindo
+  'SKMO': { lat: 3.75066, lon: -71.45594 }, // Puerto Gaitán — Morelia
+  'SKMP': { lat: 9.25847, lon: -74.43833 }, // Mompós — San Bernardo
+  'SKMR': { lat: 8.82286, lon: -75.82517 }, // Montería — Los Garzones
+  'SKMU': { lat: 1.25355, lon: -70.23406 }, // Mitú — Fabio A. León Bentley
+  'SKMZ': { lat: 5.03005, lon: -75.46545 }, // Manizales — La Nubia
+  'SKNA': { lat: 2.17353, lon: -73.78618 }, // La Macarena — El Refugio
+  'SKNQ': { lat: 5.71124, lon: -77.26099 }, // Nuquí — Reyes Murillo
+  'SKNV': { lat: 2.95029, lon: -75.29402 }, // Neiva — Benito Salas
+  'SKOC': { lat: 8.31511, lon: -73.35842 }, // Ocaña — Aguas Claras
+  'SKPA': { lat: 5.76496, lon: -73.10531 }, // Paipa — Juan José Rondón
+  'SKPB': { lat: 12.22154, lon: -71.98425 }, // Puerto Bolívar — Puerto Bolívar - Portete
+  'SKPC': { lat: 6.18511, lon: -67.49251 }, // Puerto Carreño — Germán Olano
+  'SKPD': { lat: 3.85426, lon: -67.90647 }, // Inírida — César Gaviria
+  'SKPE': { lat: 4.81257, lon: -75.73996 }, // Pereira — Matecaña
+  'SKPI': { lat: 1.85771, lon: -76.08599 }, // Pitalito — Contador
+  'SKPP': { lat: 2.45435, lon: -76.6098 }, // Popayán — Guillermo León Valencia
+  'SKPQ': { lat: 5.48348, lon: -74.65738 }, // Palanquero — CT. Germán Olano
+  'SKPS': { lat: 1.39647, lon: -77.29101 }, // Pasto — Antonio Nariño
+  'SKPV': { lat: 13.35716, lon: -81.35792 }, // Providencia — El Embrujo
+  'SKRG': { lat: 6.16446, lon: -75.423 }, // Rionegro — José María Córdova
+  'SKRH': { lat: 11.52617, lon: -72.92668 }, // Riohacha — Almirante Padilla
+  'SKSA': { lat: 6.95037, lon: -71.8562 }, // Saravena — Colonizadores
+  'SKSG': { lat: 6.59064, lon: -73.12903 }, // San Gil — Los Pozos
+  'SKSJ': { lat: 2.57933, lon: -72.63939 }, // San José del Guaviare — Jorge E. González T.
+  'SKSM': { lat: 11.11969, lon: -74.23064 }, // Santa Marta — Simón Bolívar
+  'SKSP': { lat: 12.58366, lon: -81.71134 }, // San Andrés — Gustavo Rojas Pinilla
+  'SKSV': { lat: 2.15228, lon: -74.76648 }, // San Vicente del Caguán — San Vicente del Caguán
+  'SKTL': { lat: 9.50963, lon: -75.58603 }, // Tolú — Golfo de Morrosquillo
+  'SKTM': { lat: 6.45101, lon: -71.76005 }, // Tame — Gustavo Vargas
+  'SKTQ': { lat: 0.74591, lon: -75.23406 }, // Tres Esquinas — CT. Ernesto Esguerra Cubides
+  'SKUA': { lat: 5.52889, lon: -68.67688 }, // Marandúa — CR. Luis Arturo Rodríguez Meneses
+  'SKUC': { lat: 7.06891, lon: -70.73696 }, // Arauca — Santiago Pérez Quiroz
+  'SKUI': { lat: 5.6908, lon: -76.64122 }, // Quibdó — El Caraño
+  'SKUL': { lat: 4.09449, lon: -76.22392 }, // Tuluá — Farfán Heriberto Gil Martínez
+  'SKQU': { lat: 5.21261, lon: -74.88371 }, // Mariquita — José Celestino Mutis
+  'SKVG': { lat: 0.98117, lon: -76.60381 }, // Villa Garzón — Villa Garzón
+  'SKVP': { lat: 10.43513, lon: -73.2494 }, // Valledupar — Alfonso López Pumarejo
+  'SKVV': { lat: 4.16906, lon: -73.61279 }, // Villavicencio — Vanguardia
+  'SKYP': { lat: 5.31914, lon: -72.38423 }, // Yopal — El Alcaraván
+  'SQHK': { lat: 4.56491, lon: -72.05904 }, // Casanare — Hatico
+  'SQUJ': { lat: 5.72586, lon: -72.10058 }, // Tablón de Támara — Tablón de Támara
+};
+
+// Nombre de ciudad/aeropuerto para cada ICAO de AIRPORTS (usado en la ficha emergente del mapa).
+const AIRPORT_NAMES = {
+  'SKAG': { ciudad: 'Aguachica', aeropuerto: 'Hacaritama' },
+  'SKAP': { ciudad: 'Apiay', aeropuerto: 'CT. Luis F. Gómez Niño' },
+  'SKAR': { ciudad: 'Armenia', aeropuerto: 'El Edén' },
+  'SKAS': { ciudad: 'Puerto Asís', aeropuerto: 'Tres de Mayo' },
+  'SKBG': { ciudad: 'Bucaramanga', aeropuerto: 'Palonegro' },
+  'SKBO': { ciudad: 'Bogotá', aeropuerto: 'El Dorado' },
+  'SKBQ': { ciudad: 'Barranquilla', aeropuerto: 'Ernesto Cortissoz' },
+  'SKBS': { ciudad: 'Bahía Solano', aeropuerto: 'José Celestino Mutis' },
+  'SKBU': { ciudad: 'Buenaventura', aeropuerto: 'Gerardo Tobar López' },
+  'SKCC': { ciudad: 'Cúcuta', aeropuerto: 'Camilo Daza' },
+  'SKCG': { ciudad: 'Cartagena', aeropuerto: 'Rafael Núñez' },
+  'SKCL': { ciudad: 'Cali', aeropuerto: 'Alfonso Bonilla Aragón' },
+  'SKCO': { ciudad: 'Tumaco', aeropuerto: 'La Florida' },
+  'SKCZ': { ciudad: 'Corozal', aeropuerto: 'Las Brujas' },
+  'SKEB': { ciudad: 'El Bagre', aeropuerto: 'El Tomín' },
+  'SKEJ': { ciudad: 'Barrancabermeja', aeropuerto: 'Yariguíes' },
+  'SKFL': { ciudad: 'Florencia', aeropuerto: 'Gustavo Artunduaga Paredes' },
+  'SKGB': { ciudad: 'Guabito', aeropuerto: 'Marco Fidel Suárez' },
+  'SKGI': { ciudad: 'Girardot', aeropuerto: 'Santiago Vila' },
+  'SKGO': { ciudad: 'Cartago', aeropuerto: 'Santa Ana' },
+  'SKGP': { ciudad: 'Guapi', aeropuerto: 'Juan Casiano' },
+  'SKGY': { ciudad: 'Chía', aeropuerto: 'Flaminio Suárez Camacho' },
+  'SKHA': { ciudad: 'Chaparral', aeropuerto: 'Navas Pardo' },
+  'SKIB': { ciudad: 'Ibagué', aeropuerto: 'Perales' },
+  'SKIP': { ciudad: 'Ipiales', aeropuerto: 'San Luis' },
+  'SKJC': { ciudad: 'Juanchaco', aeropuerto: 'Juanchaco' },
+  'SKLC': { ciudad: 'Carepa', aeropuerto: 'Antonio Roldán Betancourt' },
+  'SKLG': { ciudad: 'Puerto Leguízamo', aeropuerto: 'Puerto Leguízamo' },
+  'SKLT': { ciudad: 'Leticia', aeropuerto: 'Alfredo Vásquez Cobo' },
+  'SKLM': { ciudad: 'Maicao', aeropuerto: 'Jorge Isaac' },
+  'SKMD': { ciudad: 'Medellín', aeropuerto: 'Olaya Herrera' },
+  'SKMG': { ciudad: 'Magangué', aeropuerto: 'Baracoa' },
+  'SKML': { ciudad: 'Montelíbano', aeropuerto: 'El Pindo' },
+  'SKMO': { ciudad: 'Puerto Gaitán', aeropuerto: 'Morelia' },
+  'SKMP': { ciudad: 'Mompós', aeropuerto: 'San Bernardo' },
+  'SKMR': { ciudad: 'Montería', aeropuerto: 'Los Garzones' },
+  'SKMU': { ciudad: 'Mitú', aeropuerto: 'Fabio A. León Bentley' },
+  'SKMZ': { ciudad: 'Manizales', aeropuerto: 'La Nubia' },
+  'SKNA': { ciudad: 'La Macarena', aeropuerto: 'El Refugio' },
+  'SKNQ': { ciudad: 'Nuquí', aeropuerto: 'Reyes Murillo' },
+  'SKNV': { ciudad: 'Neiva', aeropuerto: 'Benito Salas' },
+  'SKOC': { ciudad: 'Ocaña', aeropuerto: 'Aguas Claras' },
+  'SKPA': { ciudad: 'Paipa', aeropuerto: 'Juan José Rondón' },
+  'SKPB': { ciudad: 'Puerto Bolívar', aeropuerto: 'Puerto Bolívar - Portete' },
+  'SKPC': { ciudad: 'Puerto Carreño', aeropuerto: 'Germán Olano' },
+  'SKPD': { ciudad: 'Inírida', aeropuerto: 'César Gaviria' },
+  'SKPE': { ciudad: 'Pereira', aeropuerto: 'Matecaña' },
+  'SKPI': { ciudad: 'Pitalito', aeropuerto: 'Contador' },
+  'SKPP': { ciudad: 'Popayán', aeropuerto: 'Guillermo León Valencia' },
+  'SKPQ': { ciudad: 'Palanquero', aeropuerto: 'CT. Germán Olano' },
+  'SKPS': { ciudad: 'Pasto', aeropuerto: 'Antonio Nariño' },
+  'SKPV': { ciudad: 'Providencia', aeropuerto: 'El Embrujo' },
+  'SKRG': { ciudad: 'Rionegro', aeropuerto: 'José María Córdova' },
+  'SKRH': { ciudad: 'Riohacha', aeropuerto: 'Almirante Padilla' },
+  'SKSA': { ciudad: 'Saravena', aeropuerto: 'Colonizadores' },
+  'SKSG': { ciudad: 'San Gil', aeropuerto: 'Los Pozos' },
+  'SKSJ': { ciudad: 'San José del Guaviare', aeropuerto: 'Jorge E. González T.' },
+  'SKSM': { ciudad: 'Santa Marta', aeropuerto: 'Simón Bolívar' },
+  'SKSP': { ciudad: 'San Andrés', aeropuerto: 'Gustavo Rojas Pinilla' },
+  'SKSV': { ciudad: 'San Vicente del Caguán', aeropuerto: 'San Vicente del Caguán' },
+  'SKTL': { ciudad: 'Tolú', aeropuerto: 'Golfo de Morrosquillo' },
+  'SKTM': { ciudad: 'Tame', aeropuerto: 'Gustavo Vargas' },
+  'SKTQ': { ciudad: 'Tres Esquinas', aeropuerto: 'CT. Ernesto Esguerra Cubides' },
+  'SKUA': { ciudad: 'Marandúa', aeropuerto: 'CR. Luis Arturo Rodríguez Meneses' },
+  'SKUC': { ciudad: 'Arauca', aeropuerto: 'Santiago Pérez Quiroz' },
+  'SKUI': { ciudad: 'Quibdó', aeropuerto: 'El Caraño' },
+  'SKUL': { ciudad: 'Tuluá', aeropuerto: 'Farfán Heriberto Gil Martínez' },
+  'SKQU': { ciudad: 'Mariquita', aeropuerto: 'José Celestino Mutis' },
+  'SKVG': { ciudad: 'Villa Garzón', aeropuerto: 'Villa Garzón' },
+  'SKVP': { ciudad: 'Valledupar', aeropuerto: 'Alfonso López Pumarejo' },
+  'SKVV': { ciudad: 'Villavicencio', aeropuerto: 'Vanguardia' },
+  'SKYP': { ciudad: 'Yopal', aeropuerto: 'El Alcaraván' },
+  'SQHK': { ciudad: 'Casanare', aeropuerto: 'Hatico' },
+  'SQUJ': { ciudad: 'Tablón de Támara', aeropuerto: 'Tablón de Támara' },
+};
+
+// Pistas (designador, longitud/ancho en metros, superficie) y elevación de referencia (FT),
+// según AIP Colombia AD 2, AIRAC A 73-26 vigente desde 09 JUL 2026 (eAIP Colombia, Aerocivil).
+// Elevación = punto de referencia del aeródromo (AD 2.2), AMSL. superficie: 'NOT PUBLISHED' en
+// SKGI/SKMD significa que el AIP publica "No" en vez de un tipo de superficie en AD 2.12 para
+// este AIRAC (son pistas pavimentadas conocidas, pero no se adivina el dato no publicado).
+// SKCC se completó como 'PAVIMENTADA' el 2026-08-16 tras contrastar contra
+// aviationweather.gov/api/data/airport (surface:"H"), que además confirmó dimensiones
+// idénticas (1925×45 y 2244×45 m) a las ya cargadas — ver BasesDeDatos/aviationweather_raw.json.
+// Los 28 aeródromos "No Controlados" (SKAG…SQUJ) se agregaron el 2026-08-16 tomando
+// pistas y elevación directamente de su propia ficha AD 2.2 / AD 2.12 en el eAIP (antes
+// solo tenían ciudad/nombre en AIRPORTS_SIN_COORD, sin ARP y por tanto invisibles en el mapa).
+// surface: 'NOT PUBLISHED' en SKEB/SKHA/SKMO reproduce que el AIP pone "No" en la celda de
+// superficie de AD 2.12 en vez de un tipo — no se adivina asfalto solo porque tengan PCN.
+// SQHK no tiene tabla AD 2.12 publicada: se cargó su ARP/elevación con runways: [] (ficha
+// vacía en el popup) en vez de inventar una pista.
+const AIRPORT_DETAILS = {
+  'SKAG': { elevFt: 554,  runways: [ { id: '12/30', lengthM: 1200, widthM: 18, surface: 'ASPHALT' } ] },
+  'SKAP': { elevFt: 1213, runways: [ { id: '10/28', lengthM: 2506, widthM: 50, surface: 'ASPHALT' } ] },
+  'SKAR': { elevFt: 3976, runways: [ { id: '02/20', lengthM: 2320, widthM: 36, surface: 'ASPHALT' } ] },
+  'SKAS': { elevFt: 813,  runways: [ { id: '01/19', lengthM: 1460, widthM: 20, surface: 'ASPHALT' } ] },
+  'SKBG': { elevFt: 3901, runways: [ { id: '17/35', lengthM: 2102, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKBO': { elevFt: 8358, runways: [ { id: '14L/32R', lengthM: 3800, widthM: 45, surface: 'ASPHALT' }, { id: '14R/32L', lengthM: 3800, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKBQ': { elevFt: 95,   runways: [ { id: '05/23', lengthM: 3001, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKBS': { elevFt: 79,   runways: [ { id: '18/36', lengthM: 1200, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKBU': { elevFt: 44,   runways: [ { id: '09/27', lengthM: 1200, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKCC': { elevFt: 1089, runways: [ { id: '03/21', lengthM: 1925, widthM: 45, surface: 'PAVIMENTADA' }, { id: '16/34', lengthM: 2244, widthM: 45, surface: 'PAVIMENTADA' } ] },
+  'SKCG': { elevFt: 7,    runways: [ { id: '01/19', lengthM: 2390, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKCL': { elevFt: 3162, runways: [ { id: '02/20', lengthM: 3000, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKCO': { elevFt: 20,   runways: [ { id: '06/24', lengthM: 1600, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKCZ': { elevFt: 525,  runways: [ { id: '03/21', lengthM: 1445, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKEB': { elevFt: 177,  runways: [ { id: '01/19', lengthM: 1182, widthM: 15, surface: 'NOT PUBLISHED' } ] },
+  'SKEJ': { elevFt: 414,  runways: [ { id: '04/22', lengthM: 1607, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKFL': { elevFt: 792,  runways: [ { id: '12/30', lengthM: 1340, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKGB': { elevFt: 3148, runways: [ { id: '07/25', lengthM: 1890, widthM: 29.5, surface: 'ASPHALT' } ] },
+  'SKGI': { elevFt: 902,  runways: [ { id: '02/20', lengthM: 1600, widthM: 28, surface: 'NOT PUBLISHED' } ] },
+  'SKGO': { elevFt: 2981, runways: [ { id: '01/19', lengthM: 2025, widthM: 40, surface: 'ASPHALT' } ] },
+  'SKGP': { elevFt: 32,   runways: [ { id: '02/20', lengthM: 1300, widthM: 16, surface: 'ASPHALT' } ] },
+  'SKGY': { elevFt: 8389, runways: [ { id: '11/29', lengthM: 1720, widthM: 20, surface: 'ASPHALT' } ] },
+  'SKHA': { elevFt: 2729, runways: [ { id: '09/27', lengthM: 1200, widthM: 15, surface: 'NOT PUBLISHED' } ] },
+  'SKIB': { elevFt: 3041, runways: [ { id: '14/32', lengthM: 1800, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKIP': { elevFt: 9760, runways: [ { id: '08/26', lengthM: 2500, widthM: 36, surface: 'ASPHALT' } ] },
+  'SKJC': { elevFt: 55,   runways: [ { id: '18/36', lengthM: 1200, widthM: 20, surface: 'ASPHALT' } ] },
+  'SKLC': { elevFt: 52,   runways: [ { id: '15/33', lengthM: 1964, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKLG': { elevFt: 626,  runways: [ { id: '12/30', lengthM: 1199, widthM: 15, surface: 'ASPHALT' } ] },
+  'SKLT': { elevFt: 271,  runways: [ { id: '03/21', lengthM: 2010, widthM: 40, surface: 'ASPHALT' } ] },
+  'SKLM': { elevFt: 328,  runways: [ { id: '10/28', lengthM: 1700, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKMD': { elevFt: 4922, runways: [ { id: '02/20', lengthM: 1800, widthM: 35, surface: 'NOT PUBLISHED' } ] },
+  'SKMG': { elevFt: 195,  runways: [ { id: '11/29', lengthM: 1410, widthM: 20, surface: 'ASPHALT' } ] },
+  'SKML': { elevFt: 157,  runways: [ { id: '18/36', lengthM: 1060, widthM: 26, surface: 'ASPHALT' } ] },
+  'SKMO': { elevFt: 648,  runways: [ { id: '18/36', lengthM: 1280, widthM: 23, surface: 'NOT PUBLISHED' } ] },
+  'SKMP': { elevFt: 72,   runways: [ { id: '02/20', lengthM: 1201, widthM: 23, surface: 'ASPHALT' } ] },
+  'SKMR': { elevFt: 41,   runways: [ { id: '14/32', lengthM: 2298, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKMU': { elevFt: 557,  runways: [ { id: '02/20', lengthM: 1754, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKMZ': { elevFt: 6860, runways: [ { id: '10/28', lengthM: 1400, widthM: 15, surface: 'ASPHALT' } ] },
+  'SKNA': { elevFt: 790,  runways: [ { id: '17/35', lengthM: 1581, widthM: 16, surface: 'ASPHALT' } ] },
+  'SKNQ': { elevFt: 16,   runways: [ { id: '05/23', lengthM: 1340, widthM: 23, surface: 'ASPHALT' } ] },
+  'SKNV': { elevFt: 1482, runways: [ { id: '02/20', lengthM: 1688, widthM: 40, surface: 'ASPHALT' } ] },
+  'SKOC': { elevFt: 3839, runways: [ { id: '01/19', lengthM: 1200, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKPA': { elevFt: 8174, runways: [ { id: '05/23', lengthM: 1540, widthM: 23, surface: 'ASPHALT' } ] },
+  'SKPB': { elevFt: 93,   runways: [ { id: '09/27', lengthM: 1600, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKPC': { elevFt: 177,  runways: [ { id: '07/25', lengthM: 1800, widthM: 20, surface: 'ASPHALT' } ] },
+  'SKPD': { elevFt: 325,  runways: [ { id: '18/36', lengthM: 1930, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKPE': { elevFt: 4413, runways: [ { id: '08/26', lengthM: 1915, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKPI': { elevFt: 4221, runways: [ { id: '07/25', lengthM: 1500, widthM: 19, surface: 'ASPHALT' } ] },
+  'SKPP': { elevFt: 5687, runways: [ { id: '08/26', lengthM: 1910, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKPQ': { elevFt: 566,  runways: [ { id: '01/19', lengthM: 3037, widthM: 50, surface: 'ASPHALT' } ] },
+  'SKPS': { elevFt: 5958, runways: [ { id: '02/20', lengthM: 2175, widthM: 39, surface: 'ASPHALT' } ] },
+  'SKPV': { elevFt: 16,   runways: [ { id: '17/35', lengthM: 1290, widthM: 18, surface: 'ASPHALT' } ] },
+  'SKQU': { elevFt: 1531, runways: [ { id: '01/19', lengthM: 1790, widthM: 50, surface: 'ASPHALT' } ] },
+  'SKRG': { elevFt: 7024, runways: [ { id: '01/19', lengthM: 3440, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKRH': { elevFt: 50,   runways: [ { id: '10/28', lengthM: 1900, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKSA': { elevFt: 672,  runways: [ { id: '16/34', lengthM: 1200, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKSG': { elevFt: 5579, runways: [ { id: '18/36', lengthM: 1280, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKSJ': { elevFt: 613,  runways: [ { id: '01/19', lengthM: 1419, widthM: 20, surface: 'ASPHALT' } ] },
+  'SKSM': { elevFt: 22,   runways: [ { id: '01/19', lengthM: 1700, widthM: 40, surface: 'ASPHALT' } ] },
+  'SKSP': { elevFt: 18,   runways: [ { id: '06/24', lengthM: 2375, widthM: 45, surface: 'ASPHALT' } ] },
+  'SKSV': { elevFt: 879,  runways: [ { id: '14/32', lengthM: 1380, widthM: 23, surface: 'ASPHALT' } ] },
+  'SKTL': { elevFt: 7,    runways: [ { id: '17/35', lengthM: 1350, widthM: 16, surface: 'ASPHALT' } ] },
+  'SKTM': { elevFt: 1241, runways: [ { id: '07/25', lengthM: 2000, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKTQ': { elevFt: 650,  runways: [ { id: '07/25', lengthM: 1900, widthM: 24, surface: 'ASPHALT' } ] },
+  'SKUA': { elevFt: 340,  runways: [ { id: '04/22', lengthM: 1369, widthM: 28, surface: 'GRAVEL' }, { id: '08/26', lengthM: 1832, widthM: 42, surface: 'ASPHALT' } ] },
+  'SKUC': { elevFt: 423,  runways: [ { id: '11/29', lengthM: 2100, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKUI': { elevFt: 184,  runways: [ { id: '13/31', lengthM: 1800, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKUL': { elevFt: 3132, runways: [ { id: '02/20', lengthM: 1198, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKVG': { elevFt: 1240, runways: [ { id: '17/35', lengthM: 1485, widthM: 14, surface: 'ASPHALT' } ] },
+  'SKVP': { elevFt: 485,  runways: [ { id: '02/20', lengthM: 2100, widthM: 35, surface: 'ASPHALT' } ] },
+  'SKVV': { elevFt: 1381, runways: [ { id: '05/23', lengthM: 1940, widthM: 30, surface: 'ASPHALT' } ] },
+  'SKYP': { elevFt: 1025, runways: [ { id: '05/23', lengthM: 2245, widthM: 36, surface: 'ASPHALT' } ] },
+  'SQHK': { elevFt: 497,  runways: [] },
+  'SQUJ': { elevFt: 1621, runways: [ { id: '01/19', lengthM: 1317, widthM: 30, surface: 'GRASS' } ] },
+};
+
+// Nota: algunas claves de este objeto empiezan por "SQ" en vez de "SK"
+// (ej. SQHK, SQUJ). No es un error de tecleo: son identificadores
+// nacionales colombianos para aeródromos sin designador OACI formal.
+// No "corregirlos" a SK sin verificar primero contra AIP Colombia.
+
+// Un DEP/DEST es válido si aparece en AIRPORTS. Hasta el 2026-08-16 existía un segundo
+// objeto, AIRPORTS_SIN_COORD, para aeródromos reconocidos sin ARP publicado; sus 28
+// entradas ya tienen coordenadas (tomadas del eAIP) y se fusionaron en AIRPORTS arriba.
+function isKnownAirport(code){
+  code = (code || '').trim().toUpperCase();
+  return !!AIRPORTS[code];
+}
+
+/* ===================== ZONAS PROHIBIDAS / RESTRINGIDAS / PELIGROSAS (ENR 5.1) ===================== */
+// Fuente: AIP Colombia ENR 5.1, AIRAC A 73-26 vigente desde 09 JUL 2026 (eAIP Colombia,
+// Aerocivil) — releído directamente del servidor eAIP el 08 AGO 2026. El AIP publica
+// identificador, nombre y límites verticales de cada zona, pero NO un polígono lateral en
+// esa tabla: el texto reglamentario remite el trazado lateral a RAC 5-1.3 (documento aparte,
+// no incluido en el eAIP) y a las cartas de radionavegación (gráficas, no coordenadas en
+// texto). Por eso aquí se grafica cada zona como un círculo de 5 NM de radio (ILUSTRATIVO,
+// no el trazado oficial) centrado en el aeródromo/VOR/punto significativo más cercano ya
+// presente en AIRPORTS/VOR_STATIONS/WAYPOINTS. Solo se listan las zonas cuya ubicación se
+// pudo anclar así — el AIP publica más zonas (SKR5, SKR6 La Macarena, SKR16 Coveñas, SKR18
+// Juanchaco, SKR25 Matuntugo, SKR26, SKR33 Tunja, SKR44/45 regionales, SKP29/32 Apiay, etc.)
+// que no aparecen aquí por no tener un punto de referencia confiable en esta base simplificada.
+const RESTRICTED_ZONES = [
+  { id:'SKD36', name:'CHÍA', kind:'D', lowerFt:0,    upperFt:10000, lat:4.8125,   lon:-74.06508 },
+  { id:'SKD37', name:'BARRANCABERMEJA', kind:'D', lowerFt:0, upperFt:4500,  lat:7.0238,   lon:-73.8072 },
+  { id:'SKD41', name:'MANIZALES', kind:'D', lowerFt:0,    upperFt:20000, lat:5.03005,  lon:-75.46545 },
+  { id:'SKD43', name:'FLORENCIA', kind:'D', lowerFt:0,    upperFt:6500,  lat:1.58926,  lon:-75.56443 },
+  { id:'SKD46', name:'MELGAR', kind:'D', lowerFt:0,   upperFt:8000,  lat:4.25583,  lon:-74.64056 },
+  { id:'SKP28', name:'TRES ESQUINAS', kind:'P', lowerFt:0, upperFt:9000,  lat:0.74222,  lon:-75.23361 },
+  { id:'SKP30', name:'TOLEMAIDA', kind:'P', lowerFt:0, upperFt:8500,  lat:4.25583,  lon:-74.64056 },
+  { id:'SKP31', name:'PALANQUERO', kind:'P', lowerFt:0, upperFt:14000, lat:5.48722,  lon:-74.66056 },
+  { id:'SKP35', name:'CHÍA', kind:'P', lowerFt:0,    upperFt:12000, lat:4.8125,   lon:-74.06508 },
+  { id:'SKP48', name:'MARANDÚA', kind:'P', lowerFt:0, upperFt:12500, lat:5.53306,  lon:-68.67333 },
+  { id:'SKR1',  name:'BARRANQUILLA', kind:'R', lowerFt:500,  upperFt:3500,  lat:10.88946, lon:-74.78068 },
+  { id:'SKR7',  name:'VILLAVICENCIO', kind:'R', lowerFt:9000, upperFt:19000, lat:4.16906, lon:-73.61279 },
+  { id:'SKR8',  name:'RIOHACHA', kind:'R', lowerFt:0,    upperFt:7000,  lat:11.52617, lon:-72.92668 },
+  { id:'SKR9',  name:'MELGAR', kind:'R', lowerFt:0,    upperFt:11500, lat:4.25583,  lon:-74.64056 },
+  { id:'SKR10', name:'PALANQUERO', kind:'R', lowerFt:0, upperFt:60000, upperLabel:'UNL', lat:5.48722, lon:-74.66056 },
+  { id:'SKR11', name:'BARRANQUILLA', kind:'R', lowerFt:9000, upperFt:19000, lat:10.88946, lon:-74.78068 },
+  { id:'SKR17', name:'CARTAGENA', kind:'R', lowerFt:0,    upperFt:2000,  lat:10.44168, lon:-75.51292 },
+  { id:'SKR19', name:'MEDELLÍN', kind:'R', lowerFt:0,    upperFt:7500,  lat:6.22048,  lon:-75.59043 },
+  { id:'SKR23', name:'BARRANQUILLA', kind:'R', lowerFt:5000, upperFt:18000, lat:10.88946, lon:-74.78068 },
+  { id:'SKR24', name:'BARRANQUILLA', kind:'R', lowerFt:10000, upperFt:18000, lat:10.88946, lon:-74.78068 },
+  { id:'SKR27', name:'TRES ESQUINAS', kind:'R', lowerFt:0, upperFt:9000,  lat:0.74222,  lon:-75.23361 },
+  { id:'SKR39', name:'GIRARDOT', kind:'R', lowerFt:0,    upperFt:2500,  lat:4.27535,  lon:-74.79609 },
+  { id:'SKR40', name:'BOGOTÁ', kind:'R', lowerFt:0,    upperFt:18500, lat:4.7016,   lon:-74.14694 },
+  { id:'SKR47', name:'RIOHACHA', kind:'R', lowerFt:0,   upperFt:6500,  lat:11.52617, lon:-72.92668 },
+  { id:'SKR49', name:'TIBÚ', kind:'R', lowerFt:0,      upperFt:2000,  lat:8.6125,   lon:-72.69611 },
+  { id:'SKR50', name:'CÚCUTA', kind:'R', lowerFt:0,    upperFt:18000, lat:7.92739,  lon:-72.51159 },
+];
+const ZONE_RADIUS_NM = 5;
+function zoneKindLabel(kind){ return kind === 'D' ? 'PELIGROSA' : kind === 'P' ? 'PROHIBIDA' : 'RESTRINGIDA'; }
+
+function getDistanceNM(lat1, lon1, lat2, lon2) {
+  const R = 3440.065; 
+  const dLat = (lat2 - lat1) * Math.PI / 180, dLon = (lon2 - lon1) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+  return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+// Convierte SPEED ICAO (Nnnnn / Knnnn / Mnnn) a nudos.
+function parseSpeedKnots(speedStr) {
+  let speedKnots = 250;
+  if (speedStr) {
+    const val = parseInt(speedStr.substring(1), 10);
+    if (speedStr.startsWith('N')) speedKnots = val;
+    else if (speedStr.startsWith('K')) speedKnots = val * 0.539957;
+    else if (speedStr.startsWith('M')) speedKnots = val * 5.73;
+  }
+  return speedKnots;
+}
+// Convierte LEVEL ICAO (Fnnn / Annn) a pies.
+function parseLevelFt(levelStr) {
+  let altitudeFt = 0;
+  if (levelStr) {
+    const lvlVal = parseInt(levelStr.substring(1), 10);
+    if (levelStr.startsWith('F') || levelStr.startsWith('A')) altitudeFt = lvlVal * 100;
+  }
+  return altitudeFt;
+}
+// Etiqueta legible de velocidad para los data blocks (Mach si es Mnnn, nudos en el resto).
+function speedLabel(speedStr) {
+  if (!speedStr) return '---KT';
+  const val = parseInt(speedStr.substring(1), 10);
+  if (isNaN(val)) return '---KT';
+  if (speedStr.toUpperCase().startsWith('M')) return 'M' + (val / 100).toFixed(2);
+  return Math.round(parseSpeedKnots(speedStr)) + 'KT';
+}
+
+function calculateRealisticETA(dep, dest, speedStr, levelStr) {
+  const origin = AIRPORTS[(dep || '').toUpperCase()];
+  const destination = AIRPORTS[(dest || '').toUpperCase()];
+  if (!origin || !destination) return 45; // Default genérico si no están en base de datos
+  const distanceNM = getDistanceNM(origin.lat, origin.lon, destination.lat, destination.lon);
+
+  const speedKnots = parseSpeedKnots(speedStr);
+  const altitudeFt = parseLevelFt(levelStr);
+
+  let flightMinutes = Math.round((distanceNM / speedKnots) * 60);
+  flightMinutes += altitudeFt > 0 ? Math.round((altitudeFt / 10000) * 3.5) + 5 : 15;
+  return flightMinutes;
+}
+
+function addMinutesToHHMM(hhmm, mins){
+  if(!/^\d{4}$/.test(hhmm||'')) return '';
+  const h = parseInt(hhmm.slice(0,2),10), m = parseInt(hhmm.slice(2,4),10);
+  let total = ((h*60 + m + mins) % 1440 + 1440) % 1440;
+  return pad(Math.floor(total/60)) + pad(total%60);
+}
+
+/* ===================== VOR/DME (ENR 4.1) Y FIXES (ENR 4.4) ===================== */
+// Fuente: AIP Colombia, AIRAC vigente al momento de carga.
+const VOR_STATIONS = {
+  'ABL': { lat: 4.78389, lon: -74.7675 },
+  'AUC': { lat: 7.06722, lon: -70.73278 },
+  'AXM': { lat: 4.46, lon: -75.76556 },
+  'BAQ': { lat: 10.79528, lon: -74.86028 },
+  'BOG': { lat: 4.84667, lon: -74.32333 },
+  'BUN': { lat: 3.82528, lon: -76.99528 },
+  'BUV': { lat: 5.53222, lon: -73.85861 },
+  'CJN': { lat: 11.23139, lon: -72.49306 },
+  'CLO': { lat: 3.40083, lon: -76.40639 },
+  'CTG': { lat: 10.20833, lon: -75.50611 },
+  'CUC': { lat: 7.93333, lon: -72.51361 },
+  'CZU': { lat: 9.33583, lon: -75.2825 },
+  'EJA': { lat: 7.02861, lon: -73.80556 },
+  'ELB': { lat: 9.04528, lon: -73.96722 },
+  'EYP': { lat: 5.27611, lon: -72.42667 },
+  'FLA': { lat: 1.58778, lon: -75.56944 },
+  'GIR': { lat: 4.19222, lon: -74.86556 },
+  'IBG': { lat: 4.39778, lon: -75.10611 },
+  'IPI': { lat: 0.86222, lon: -77.67306 },
+  'LCE': { lat: 7.81889, lon: -76.72222 },
+  'LET': { lat: -4.18778, lon: -69.93944 },
+  'MDU': { lat: 5.53306, lon: -68.67333 },
+  'MER': { lat: 1.78889, lon: -77.15139 },
+  'MGN': { lat: 9.28722, lon: -74.84694 },
+  'MQU': { lat: 5.205, lon: -74.92111 },
+  'MRN': { lat: 6.17639, lon: -75.32389 },
+  'MTR': { lat: 8.83389, lon: -75.82972 },
+  'MTU': { lat: 1.24194, lon: -70.23694 },
+  'MZL': { lat: 5.05389, lon: -75.52889 },
+  'NVA': { lat: 3.06194, lon: -75.25583 },
+  'PAL': { lat: 5.48722, lon: -74.66056 },
+  'PDA': { lat: 3.85278, lon: -67.90389 },
+  'PEI': { lat: 4.78167, lon: -75.83611 },
+  'PIE': { lat: 6.88389, lon: -73.09194 },
+  'PLG': { lat: -0.17861, lon: -74.77556 },
+  'PPN': { lat: 2.44889, lon: -76.61417 },
+  'PTC': { lat: 6.18139, lon: -67.49556 },
+  'RHC': { lat: 11.5275, lon: -72.9175 },
+  'RNG': { lat: 5.98056, lon: -75.41833 },
+  'SJE': { lat: 2.5325, lon: -72.63972 },
+  'SOA': { lat: 4.60306, lon: -74.27306 },
+  'SPP': { lat: 12.5825, lon: -81.70528 },
+  'STA': { lat: 10.9625, lon: -74.24056 },
+  'SVC': { lat: 2.15722, lon: -74.77361 },
+  'TCO': { lat: 1.81472, lon: -78.74806 },
+  'TME': { lat: 6.45306, lon: -71.75389 },
+  'TOL': { lat: 4.25583, lon: -74.64056 },
+  'TQS': { lat: 0.74222, lon: -75.23361 },
+  'UIB': { lat: 5.69222, lon: -76.64139 },
+  'ULQ': { lat: 4.09222, lon: -76.22333 },
+  'VUP': { lat: 10.44472, lon: -73.24917 },
+  'VVC': { lat: 4.06667, lon: -73.38222 },
+  'ZIP': { lat: 5.01806, lon: -73.98667 },
+};
+const WAYPOINTS = {
+  'AGUJA': { lat: 10.95861, lon: -77.41667 },
+  'AKNIL': { lat: 10.3875, lon: -72.95472 },
+  'AKPAM': { lat: 9.49333, lon: -75.49139 },
+  'AKPEK': { lat: 7.9875, lon: -75.81639 },
+  'AKROB': { lat: 5.38028, lon: -73.42694 },
+  'AKSER': { lat: 6.39722, lon: -75.16361 },
+  'AKSIM': { lat: 5.14111, lon: -75.825 },
+  'AKSOK': { lat: 6.46306, lon: -73.91139 },
+  'AKTAB': { lat: 1.41472, lon: -79.49056 },
+  'ALBAK': { lat: -1.18639, lon: -70.10444 },
+  'ALBEL': { lat: 5.49111, lon: -76.22528 },
+  'ALGUK': { lat: 12.57889, lon: -74.9625 },
+  'ALPON': { lat: 11.46833, lon: -77.41667 },
+  'ALSIK': { lat: 5.04278, lon: -72.73111 },
+  'AMAYA': { lat: 6.16333, lon: -68.15833 },
+  'AMBAS': { lat: 12.81667, lon: -71.85 },
+  'AMUBI': { lat: 11.605, lon: -82.71861 },
+  'AMVOR': { lat: 5.27444, lon: -69.5 },
+  'ANGEL': { lat: 1.41667, lon: -79.16389 },
+  'ANGUV': { lat: 4.73583, lon: -72.32694 },
+  'ANKAS': { lat: 2.445, lon: -76.84778 },
+  'ANKIP': { lat: 0.57417, lon: -76.74083 },
+  'ANLAV': { lat: 4.72306, lon: -73.31194 },
+  'ANLUK': { lat: 0.66778, lon: -69.67861 },
+  'ANPIX': { lat: 4.60361, lon: -74.30361 },
+  'ANRAX': { lat: 1.41667, lon: -81.21667 },
+  'ANRON': { lat: 8.23, lon: -76.46806 },
+  'ANSON': { lat: 10.70722, lon: -82.63583 },
+  'ANSUG': { lat: 1.29694, lon: -75.05333 },
+  'ARMOL': { lat: 9.60222, lon: -74.52333 },
+  'ARMUM': { lat: 5.52778, lon: -76.30194 },
+  'ARORO': { lat: 7.73472, lon: -77.39139 },
+  'AROTI': { lat: -3.66278, lon: -70.58444 },
+  'ARPEN': { lat: -2.38861, lon: -72.12 },
+  'ARSUP': { lat: 4.46778, lon: -74.82 },
+  'ARTID': { lat: 0.99944, lon: -72.52194 },
+  'ARTUX': { lat: 5.88806, lon: -75.81194 },
+  'ARUXA': { lat: -3.48222, lon: -69.795 },
+  'ASAPA': { lat: -3.02111, lon: -69.71444 },
+  'ASBIX': { lat: 6.25778, lon: -72.73167 },
+  'ASEPI': { lat: 5.72944, lon: -79.33833 },
+  'ASGAR': { lat: 0.90694, lon: -76.70694 },
+  'ASIKO': { lat: 4.24139, lon: -76.88944 },
+  'ASKAT': { lat: -1.38389, lon: -70.95667 },
+  'ATABA': { lat: 4.49139, lon: -67.81861 },
+  'ATANA': { lat: 6.00056, lon: -74.83056 },
+  'ATEDI': { lat: 11.54833, lon: -73.55444 },
+  'BACUE': { lat: 1.875, lon: -70.93944 },
+  'BITIX': { lat: 10.57056, lon: -77.41667 },
+  'BIVIG': { lat: 7.02083, lon: -75.195 },
+  'BIXOX': { lat: 11.56111, lon: -81.12139 },
+  'BOBKA': { lat: 15.0, lon: -75.21333 },
+  'BODAT': { lat: -3.88167, lon: -70.05417 },
+  'BODED': { lat: 11.78278, lon: -80.835 },
+  'BOGAL': { lat: 9.56833, lon: -77.41667 },
+  'BOGUS': { lat: 4.29972, lon: -74.46583 },
+  'BOKAN': { lat: 0.80861, lon: -77.88056 },
+  'BOKUS': { lat: 8.1975, lon: -76.37861 },
+  'BOLAV': { lat: 11.55139, lon: -79.14583 },
+  'BOLOM': { lat: 0.28222, lon: -76.69472 },
+  'BURPA': { lat: 3.20972, lon: -77.43806 },
+  'BUSMO': { lat: 6.71806, lon: -78.33306 },
+  'BUTAB': { lat: -4.12722, lon: -69.51 },
+  'BUTAL': { lat: 7.85361, lon: -75.45722 },
+  'BUTAN': { lat: 2.55944, lon: -71.70111 },
+  'BUTBA': { lat: 6.83694, lon: -75.81417 },
+  'BUTES': { lat: 11.265, lon: -76.57833 },
+  'BUTIK': { lat: 4.84194, lon: -72.97722 },
+  'BUTRO': { lat: 7.02083, lon: -74.43639 },
+  'BUTUM': { lat: 11.77722, lon: -75.95028 },
+  'BUXEG': { lat: 11.23056, lon: -72.4925 },
+  'BUXIV': { lat: 2.755, lon: -74.33722 },
+  'BUXOS': { lat: 5.16806, lon: -79.66639 },
+  'CEIFA': { lat: 4.09333, lon: -73.86583 },
+  'COLBY': { lat: 15.0, lon: -78.53333 },
+  'DABAX': { lat: 1.04667, lon: -74.13194 },
+  'DABID': { lat: 5.9975, lon: -75.81222 },
+  'DADIL': { lat: -2.41806, lon: -70.58333 },
+  'DADKA': { lat: 3.1425, lon: -72.53222 },
+  'DADVO': { lat: 2.44889, lon: -75.95861 },
+  'DAGAN': { lat: 7.98583, lon: -74.06972 },
+  'DAGAS': { lat: 11.63444, lon: -79.13306 },
+  'DAGIK': { lat: 11.42028, lon: -78.80917 },
+  'DAGLU': { lat: 9.21306, lon: -74.57667 },
+  'DAGMI': { lat: 10.77806, lon: -74.03639 },
+  'DAGUR': { lat: 4.45278, lon: -75.46333 },
+  'DAKMO': { lat: 7.46139, lon: -77.80972 },
+  'DAKOP': { lat: 2.81278, lon: -77.27611 },
+  'DALOK': { lat: -3.86167, lon: -69.95889 },
+  'DANSA': { lat: 4.19111, lon: -73.94528 },
+  'DARNI': { lat: 10.15444, lon: -74.53139 },
+  'DEXOX': { lat: 8.53889, lon: -73.92639 },
+  'DIBAM': { lat: 8.19611, lon: -73.61889 },
+  'DILAR': { lat: 10.66806, lon: -74.11222 },
+  'DIMIL': { lat: 8.41278, lon: -73.13861 },
+  'DIMOL': { lat: 7.83639, lon: -74.41139 },
+  'DIPRA': { lat: 6.61389, lon: -74.54611 },
+  'DOBLI': { lat: 1.99361, lon: -74.17361 },
+  'DODGI': { lat: 3.70639, lon: -75.8125 },
+  'DOPLO': { lat: 5.84167, lon: -73.46583 },
+  'DOSGO': { lat: 5.19639, lon: -76.28889 },
+  'DOSPU': { lat: 9.50028, lon: -74.9575 },
+  'DOTRO': { lat: 11.22056, lon: -74.05167 },
+  'DUBKU': { lat: 0.61806, lon: -77.90028 },
+  'DUBRA': { lat: 1.35556, lon: -71.94444 },
+  'DURAM': { lat: 12.285, lon: -82.77 },
+  'EDMOL': { lat: 13.565, lon: -73.73472 },
+  'EDNAD': { lat: 2.28639, lon: -72.99694 },
+  'EDPES': { lat: 3.32611, lon: -76.13833 },
+  'EDPIB': { lat: 1.82083, lon: -75.24333 },
+  'EDPUL': { lat: 5.28194, lon: -75.18722 },
+  'EDRAN': { lat: 4.9075, lon: -74.68056 },
+  'EDRES': { lat: 11.62083, lon: -74.68833 },
+  'EDROD': { lat: 15.0, lon: -74.72972 },
+  'EDSID': { lat: 5.35694, lon: -74.47361 },
+  'EDVAR': { lat: 10.09722, lon: -74.01333 },
+  'EDVIL': { lat: 2.84083, lon: -74.21972 },
+  'EDVOP': { lat: 7.91972, lon: -72.47361 },
+  'EGDUK': { lat: 1.70333, lon: -69.77778 },
+  'EGEPI': { lat: 4.23944, lon: -73.66833 },
+  'EGISA': { lat: 8.84833, lon: -74.50583 },
+  'EGOBI': { lat: 1.19361, lon: -78.04722 },
+  'EGOKU': { lat: 10.65222, lon: -74.34944 },
+  'EKARA': { lat: 4.14472, lon: -75.49667 },
+  'EKENA': { lat: 13.575, lon: -78.13167 },
+  'EKEVO': { lat: 2.66, lon: -74.79611 },
+  'EKISI': { lat: 11.33417, lon: -72.97361 },
+  'EKOLO': { lat: 6.95, lon: -72.115 },
+  'EKUTO': { lat: 1.3675, lon: -74.32861 },
+  'ELABU': { lat: 4.33167, lon: -73.52389 },
+  'ENPUT': { lat: 8.20639, lon: -72.37361 },
+  'ENSOL': { lat: 1.33056, lon: -78.68833 },
+  'ENTIP': { lat: 11.15278, lon: -74.18139 },
+  'EPLAG': { lat: -4.13, lon: -69.58 },
+  'ERIKO': { lat: 14.16694, lon: -74.15028 },
+  'ESARO': { lat: 2.865, lon: -76.12806 },
+  'ESBOM': { lat: 1.00389, lon: -74.71222 },
+  'ESDEB': { lat: 8.79389, lon: -74.81694 },
+  'ESEDA': { lat: 9.02167, lon: -77.41667 },
+  'ESKOR': { lat: 11.37472, lon: -76.99972 },
+  'ESMOD': { lat: 3.93444, lon: -77.36083 },
+  'ESNUT': { lat: 7.505, lon: -72.75139 },
+  'ETALO': { lat: 4.17861, lon: -76.61306 },
+  'EVNOM': { lat: 5.86111, lon: -77.30278 },
+  'EVPIP': { lat: 11.93944, lon: -74.69417 },
+  'EVRAK': { lat: 4.85083, lon: -73.60306 },
+  'EVRET': { lat: 4.51639, lon: -82.91361 },
+  'EVRUP': { lat: 4.61028, lon: -71.65056 },
+  'EVSOS': { lat: 6.07139, lon: -76.22528 },
+  'FALLA': { lat: 13.43333, lon: -82.66667 },
+  'FLOCK': { lat: 11.13583, lon: -72.37861 },
+  'GARCI': { lat: 6.86111, lon: -69.97028 },
+  'GAVAD': { lat: 2.47833, lon: -76.91278 },
+  'GAVEK': { lat: 1.26889, lon: -77.38222 },
+  'GAVUT': { lat: 1.41667, lon: -78.99417 },
+  'GAXAL': { lat: 11.2875, lon: -75.81444 },
+  'GAXAP': { lat: 1.90444, lon: -75.50222 },
+  'GEBUT': { lat: 1.62528, lon: -75.86722 },
+  'GEDEP': { lat: 5.71056, lon: -77.26194 },
+  'GEKAR': { lat: 8.40278, lon: -73.16333 },
+  'GEKIM': { lat: 9.50361, lon: -75.32528 },
+  'GELER': { lat: 3.77222, lon: -70.65667 },
+  'GELMO': { lat: 9.61778, lon: -76.55111 },
+  'GEMAN': { lat: 11.46083, lon: -73.57111 },
+  'GENGU': { lat: 5.79056, lon: -76.22528 },
+  'GENTO': { lat: 2.59194, lon: -76.61111 },
+  'GEPKI': { lat: 4.72667, lon: -74.61056 },
+  'GEPSO': { lat: 5.41972, lon: -74.10611 },
+  'GERNA': { lat: 7.63167, lon: -74.86111 },
+  'GESTU': { lat: 5.48694, lon: -73.51278 },
+  'GEVBA': { lat: 5.51361, lon: -74.1875 },
+  'GIBTU': { lat: 2.57361, lon: -77.89417 },
+  'GIKBA': { lat: 11.75722, lon: -72.3025 },
+  'GIKPU': { lat: 6.02417, lon: -73.75722 },
+  'GILGA': { lat: 12.12889, lon: -71.10639 },
+  'ICAER': { lat: 4.075, lon: -74.86056 },
+  'ILKUG': { lat: 2.38222, lon: -76.14639 },
+  'ILMUX': { lat: -2.46194, lon: -72.84889 },
+  'ILNAG': { lat: 9.02028, lon: -74.35944 },
+  'ILPID': { lat: 0.19639, lon: -74.08444 },
+  'ILSEV': { lat: 6.01583, lon: -73.995 },
+  'ILTEN': { lat: -0.04139, lon: -71.99972 },
+  'ILTUR': { lat: 6.83917, lon: -78.21389 },
+  'ILVIR': { lat: 3.84222, lon: -71.29306 },
+  'IMBIS': { lat: 3.31278, lon: -73.93139 },
+  'IRASO': { lat: 4.51722, lon: -81.60694 },
+  'IRAXU': { lat: 9.50389, lon: -75.66444 },
+  'IRIGI': { lat: 4.45278, lon: -76.02 },
+  'IRONU': { lat: 11.22861, lon: -73.00444 },
+  'IROTI': { lat: 8.23417, lon: -73.51194 },
+  'ISADI': { lat: 3.20333, lon: -75.73361 },
+  'ISIMO': { lat: 10.16194, lon: -77.41667 },
+  'ISKED': { lat: 2.63639, lon: -76.34611 },
+  'ISKUN': { lat: 3.03306, lon: -77.38889 },
+  'ISLAG': { lat: 9.69111, lon: -73.70389 },
+  'ISLID': { lat: 3.84806, lon: -71.65111 },
+  'ISLUN': { lat: 8.33611, lon: -74.40667 },
+  'ISNIM': { lat: 6.11361, lon: -74.68056 },
+  'ISNOX': { lat: 4.47278, lon: -75.55667 },
+  'ISOPA': { lat: 3.03194, lon: -76.57667 },
+  'ISORI': { lat: -0.03139, lon: -71.44389 },
+  'ISOTO': { lat: 9.92639, lon: -74.61444 },
+  'ISRAP': { lat: 6.84694, lon: -76.685 },
+  'ISROD': { lat: 6.21528, lon: -72.12389 },
+  'ISVAT': { lat: 5.69472, lon: -75.125 },
+  'ISVON': { lat: 5.40417, lon: -75.61889 },
+  'ITEKU': { lat: 3.90111, lon: -69.07 },
+  'IVRIK': { lat: 7.32056, lon: -73.39 },
+  'IVROS': { lat: 7.56806, lon: -77.73306 },
+  'KABOS': { lat: 3.95639, lon: -76.61361 },
+  'KAGEM': { lat: 9.42361, lon: -73.90472 },
+  'KAKOL': { lat: 8.54222, lon: -77.41167 },
+  'KAKUD': { lat: 11.67306, lon: -75.27556 },
+  'KALEV': { lat: 0.38083, lon: -74.775 },
+  'KALOR': { lat: -4.09583, lon: -70.76694 },
+  'KAMIS': { lat: 4.365, lon: -74.61639 },
+  'KASOR': { lat: 15.0, lon: -77.69528 },
+  'KEXAN': { lat: 4.66028, lon: -70.34806 },
+  'KIBEX': { lat: 4.00306, lon: -71.65083 },
+  'KIKAS': { lat: 7.01639, lon: -71.96694 },
+  'KIKUM': { lat: 4.50806, lon: -76.24694 },
+  'KILER': { lat: 15.0, lon: -76.88028 },
+  'KODSI': { lat: 3.58222, lon: -68.93556 },
+  'KONKO': { lat: 2.64722, lon: -76.45389 },
+  'KONSO': { lat: 9.81306, lon: -72.97278 },
+  'KOPGI': { lat: 10.54972, lon: -76.36972 },
+  'KORBA': { lat: 7.02083, lon: -75.44 },
+  'KORNU': { lat: 0.49194, lon: -74.70667 },
+  'KOSDO': { lat: 11.22472, lon: -73.59528 },
+  'KOTER': { lat: 3.71417, lon: -72.97722 },
+  'KOTIN': { lat: 6.53333, lon: -76.22528 },
+  'KOTMI': { lat: 4.77778, lon: -72.15583 },
+  'KOVAB': { lat: 12.33722, lon: -75.26222 },
+  'KOVBU': { lat: 5.9675, lon: -73.61222 },
+  'KOVIP': { lat: 10.83444, lon: -77.09778 },
+  'KUBEK': { lat: 8.02556, lon: -77.21833 },
+  'KUBIV': { lat: 3.87722, lon: -77.16917 },
+  'KUBTU': { lat: 5.58556, lon: -68.0 },
+  'KUDGA': { lat: 1.82528, lon: -75.85778 },
+  'KUDUT': { lat: 1.41667, lon: -79.62417 },
+  'LATIS': { lat: 7.02083, lon: -75.39083 },
+  'LEVOR': { lat: 15.0, lon: -81.58833 },
+  'LIVEL': { lat: 0.50056, lon: -76.50222 },
+  'LIVOB': { lat: 4.21194, lon: -75.91333 },
+  'LIXAG': { lat: 3.86889, lon: -74.74139 },
+  'LLIVO': { lat: 7.25694, lon: -73.24139 },
+  'LOBUL': { lat: 4.68889, lon: -74.2 },
+  'LODUN': { lat: 3.53333, lon: -82.01667 },
+  'LOKOS': { lat: -0.14417, lon: -71.23556 },
+  'LOKOV': { lat: 8.04611, lon: -73.88694 },
+  'LOLUD': { lat: 9.96444, lon: -74.94333 },
+  'LOLUS': { lat: 7.02111, lon: -75.28944 },
+  'LONAK': { lat: 7.36056, lon: -73.89667 },
+  'LONAX': { lat: 3.93361, lon: -72.13972 },
+  'LOTOA': { lat: 4.3175, lon: -74.68472 },
+  'LOURA': { lat: 6.69167, lon: -73.71778 },
+  'LUCHA': { lat: 8.13639, lon: -72.35528 },
+  'LUTVI': { lat: 5.64139, lon: -69.5 },
+  'LUVTO': { lat: 11.1075, lon: -76.00333 },
+  'MAKBU': { lat: 10.77083, lon: -73.74361 },
+  'MAKTO': { lat: 4.40778, lon: -73.94806 },
+  'MANGA': { lat: 3.56111, lon: -76.09611 },
+  'MAPSA': { lat: 7.56556, lon: -76.08167 },
+  'MARTU': { lat: 0.29056, lon: -71.74528 },
+  'MATRO': { lat: 5.14111, lon: -75.71056 },
+  'MAVDA': { lat: 5.67694, lon: -72.96778 },
+  'METAS': { lat: 6.2825, lon: -67.86028 },
+  'MEVUB': { lat: 9.57361, lon: -76.13167 },
+  'MEXAS': { lat: -3.98222, lon: -70.19806 },
+  'MEXIG': { lat: 5.77472, lon: -72.81472 },
+  'MIBIM': { lat: 0.56667, lon: -76.15639 },
+  'MIKOX': { lat: -3.35889, lon: -69.98611 },
+  'MOGOS': { lat: 6.47306, lon: -73.05083 },
+  'MOMGA': { lat: 5.29667, lon: -75.82306 },
+  'MONVI': { lat: 2.98694, lon: -76.19111 },
+  'MORGI': { lat: 11.65611, lon: -75.08417 },
+  'MORMO': { lat: 3.86889, lon: -74.85111 },
+  'MOXAS': { lat: 1.41667, lon: -79.885 },
+  'MUBMI': { lat: 7.10722, lon: -77.98861 },
+  'MUBOD': { lat: 1.75611, lon: -73.76583 },
+  'MUDAG': { lat: 12.19111, lon: -72.14583 },
+  'MUDIN': { lat: 9.78, lon: -74.34056 },
+  'MUGBU': { lat: 3.86889, lon: -75.17333 },
+  'MUGOP': { lat: 5.84528, lon: -75.0525 },
+  'MUPIR': { lat: 7.69222, lon: -73.41333 },
+  'NAXIX': { lat: 0.68889, lon: -76.6675 },
+  'NAXUP': { lat: 6.4275, lon: -72.72028 },
+  'NEDOR': { lat: 7.38639, lon: -73.83417 },
+  'NEKEB': { lat: 3.805, lon: -76.29917 },
+  'NENES': { lat: 6.25083, lon: -75.81278 },
+  'NENUB': { lat: 4.08417, lon: -69.0475 },
+  'NEONO': { lat: 4.51667, lon: -82.0 },
+  'NESGU': { lat: 12.04444, lon: -72.59417 },
+  'NESMO': { lat: 12.27444, lon: -76.09194 },
+  'NESNI': { lat: 5.58111, lon: -73.56056 },
+  'NETKU': { lat: 6.91833, lon: -72.48056 },
+  'NEVPA': { lat: 15.0, lon: -75.65833 },
+  'NEVSU': { lat: 6.20306, lon: -77.395 },
+  'NIBRO': { lat: 1.63083, lon: -70.66833 },
+  'NIGMO': { lat: 3.58639, lon: -75.44194 },
+  'NIRBU': { lat: 1.67528, lon: -75.30194 },
+  'NIRSO': { lat: 5.34167, lon: -75.39806 },
+  'OBDOX': { lat: 2.52111, lon: -76.81278 },
+  'OBKIL': { lat: 0.505, lon: -70.03778 },
+  'OBLUL': { lat: 7.02083, lon: -74.70944 },
+  'OGLUT': { lat: 4.52833, lon: -82.39639 },
+  'OGNAS': { lat: 3.20222, lon: -73.14972 },
+  'OGTEX': { lat: 6.22222, lon: -75.58889 },
+  'OPLIS': { lat: 12.26333, lon: -72.84278 },
+  'OPLOS': { lat: 13.50167, lon: -78.78333 },
+  'OPMEL': { lat: 6.73667, lon: -75.95306 },
+  'OPNIR': { lat: 7.95028, lon: -74.16167 },
+  'OPNOX': { lat: 1.41667, lon: -82.04167 },
+  'OPROG': { lat: 6.57806, lon: -73.26583 },
+  'OPRUS': { lat: 6.47306, lon: -69.70028 },
+  'OPSAL': { lat: 5.84556, lon: -76.22528 },
+  'OPTIL': { lat: 2.60472, lon: -75.0125 },
+  'ORBAB': { lat: 0.82861, lon: -74.79639 },
+  'OREGA': { lat: 3.86861, lon: -75.49667 },
+  'ORELU': { lat: 7.33917, lon: -73.94806 },
+  'ORIBO': { lat: 2.29472, lon: -70.90278 },
+  'OROSA': { lat: 14.31167, lon: -74.0 },
+  'OSILU': { lat: 6.035, lon: -71.71028 },
+  'OSUBO': { lat: 13.18306, lon: -75.16528 },
+  'OSUNA': { lat: 11.94667, lon: -71.66139 },
+  'OTAMO': { lat: 15.0, lon: -75.97 },
+  'OVTUD': { lat: 5.90361, lon: -68.0 },
+  'PABON': { lat: -2.71194, lon: -70.02139 },
+  'PADAR': { lat: 1.41056, lon: -75.72139 },
+  'PADUD': { lat: 6.97806, lon: -73.56056 },
+  'PALUG': { lat: 4.02944, lon: -73.0275 },
+  'PAMAG': { lat: 5.73389, lon: -70.00417 },
+  'PAMBA': { lat: 0.71444, lon: -77.19528 },
+  'PANID': { lat: 4.04389, lon: -68.50472 },
+  'PANOR': { lat: 4.81222, lon: -72.79389 },
+  'PAPAD': { lat: 4.19139, lon: -74.48222 },
+  'PAPEM': { lat: -3.17806, lon: -70.30472 },
+  'PEJES': { lat: 6.21528, lon: -72.4575 },
+  'PELRA': { lat: 14.25111, lon: -82.45 },
+  'PORDA': { lat: 5.62972, lon: -75.61056 },
+  'POTBA': { lat: -1.96139, lon: -70.84306 },
+  'POVKA': { lat: 4.19444, lon: -72.97722 },
+  'POVPI': { lat: 0.63361, lon: -75.80639 },
+  'POVSO': { lat: 3.93889, lon: -74.215 },
+  'PQ900': { lat: 5.70583, lon: -74.53944 },
+  'PQ901': { lat: 6.07056, lon: -74.33722 },
+  'PUDSU': { lat: 5.62889, lon: -74.81083 },
+  'PUGIG': { lat: 1.07389, lon: -74.75361 },
+  'PUGSO': { lat: 5.99389, lon: -73.00056 },
+  'PUKAM': { lat: 6.12278, lon: -77.00417 },
+  'PUKEN': { lat: 6.29139, lon: -72.89556 },
+  'PULOX': { lat: 5.71139, lon: -75.81667 },
+  'PULTU': { lat: 0.06667, lon: -75.58 },
+  'PUNUG': { lat: 6.23083, lon: -76.47139 },
+  'PUPAS': { lat: -2.335, lon: -70.68222 },
+  'PUPLA': { lat: 1.45194, lon: -76.18167 },
+  'RAXIX': { lat: 3.93556, lon: -68.31222 },
+  'RAXOG': { lat: 7.94222, lon: -75.69417 },
+  'REBIM': { lat: 11.89, lon: -71.435 },
+  'REDEV': { lat: 3.87, lon: -68.32028 },
+  'REKAD': { lat: 4.51667, lon: -81.08333 },
+  'REMEX': { lat: -3.21611, lon: -70.32972 },
+  'REMIB': { lat: 6.215, lon: -71.88778 },
+  'REMUK': { lat: 7.22194, lon: -76.2975 },
+  'RENAV': { lat: 3.99083, lon: -76.94778 },
+  'RENOS': { lat: 5.59611, lon: -75.1725 },
+  'REPEG': { lat: 1.15222, lon: -75.23389 },
+  'ROKIN': { lat: 11.78333, lon: -77.41667 },
+  'ROKUL': { lat: -3.40806, lon: -70.22556 },
+  'ROLUS': { lat: -1.13139, lon: -73.62667 },
+  'ROPOL': { lat: 13.63472, lon: -77.41667 },
+  'ROPOR': { lat: 3.76667, lon: -73.60083 },
+  'SALGU': { lat: 4.15528, lon: -73.78222 },
+  'SASNU': { lat: 8.71833, lon: -74.08778 },
+  'SASTO': { lat: 0.85056, lon: -75.00139 },
+  'SATMI': { lat: 13.04083, lon: -74.38944 },
+  'SATPI': { lat: 4.28972, lon: -75.20111 },
+  'SAVGA': { lat: 5.525, lon: -74.83889 },
+  'SEBNU': { lat: 4.05194, lon: -72.97722 },
+  'SEKLU': { lat: 3.86389, lon: -71.49667 },
+  'SEKTA': { lat: 1.39806, lon: -77.28972 },
+  'SELAN': { lat: 13.88417, lon: -73.33333 },
+  'SEMDO': { lat: 9.48139, lon: -73.18444 },
+  'SERVO': { lat: 7.71556, lon: -75.08972 },
+  'SIBOS': { lat: 4.26583, lon: -76.00306 },
+  'SIDOV': { lat: 1.155, lon: -75.375 },
+  'SIDUN': { lat: 5.93, lon: -68.9125 },
+  'SIGIR': { lat: 3.74556, lon: -76.60361 },
+  'SIGUN': { lat: 7.38722, lon: -77.84028 },
+  'SILEG': { lat: 4.51694, lon: -74.62167 },
+  'SIMAT': { lat: -0.06694, lon: -72.92 },
+  'SINID': { lat: 15.0, lon: -76.09861 },
+  'SIPAR': { lat: 4.11472, lon: -75.89444 },
+  'SIPIT': { lat: 7.02389, lon: -71.25056 },
+  'SIPOK': { lat: 12.93528, lon: -75.41944 },
+  'SIRUG': { lat: 5.1275, lon: -73.32917 },
+  'SISAK': { lat: 3.59, lon: -73.45778 },
+  'SPRIN': { lat: -4.59972, lon: -69.79389 },
+  'SUBLO': { lat: 9.50083, lon: -74.99944 },
+  'SUDSA': { lat: 15.0, lon: -77.19889 },
+  'SUMGU': { lat: -0.02028, lon: -75.06889 },
+  'SUPNU': { lat: 5.22194, lon: -72.75972 },
+  'SURIX': { lat: -3.89139, lon: -72.48944 },
+  'TEDOG': { lat: -1.50306, lon: -70.59361 },
+  'TEDON': { lat: 7.02083, lon: -75.56444 },
+  'TEDUL': { lat: 5.07389, lon: -76.67611 },
+  'TESIR': { lat: 7.925, lon: -74.21722 },
+  'TIBUS': { lat: 8.6125, lon: -72.69611 },
+  'TIDSA': { lat: 5.74306, lon: -68.95528 },
+  'TIGRO': { lat: 11.56389, lon: -74.06333 },
+  'TILSO': { lat: 4.53167, lon: -81.76639 },
+  'TIMRO': { lat: 11.80111, lon: -78.69972 },
+  'TINPA': { lat: 4.50417, lon: -80.51472 },
+  'TIPGA': { lat: 11.68361, lon: -72.45222 },
+  'TIPVA': { lat: 3.20222, lon: -72.41222 },
+  'TIRTO': { lat: 5.13583, lon: -75.49194 },
+  'TISLU': { lat: 1.13528, lon: -76.19361 },
+  'TITGU': { lat: 2.36556, lon: -76.60306 },
+  'TITNA': { lat: 5.58917, lon: -72.84861 },
+  'TOBSU': { lat: 5.43333, lon: -71.65083 },
+  'TODAD': { lat: 9.49833, lon: -74.77028 },
+  'TODUK': { lat: 9.87722, lon: -76.09333 },
+  'TOKUT': { lat: 5.93972, lon: -79.22472 },
+  'TOLIM': { lat: 4.37583, lon: -75.49667 },
+  'TOLOD': { lat: 5.32667, lon: -74.81194 },
+  'TOMEK': { lat: 15.0, lon: -74.96111 },
+  'TOMEX': { lat: 3.70806, lon: -74.84389 },
+  'TOPIG': { lat: 6.25778, lon: -67.56028 },
+  'TORAT': { lat: 7.66944, lon: -72.89222 },
+  'TOREP': { lat: 2.81944, lon: -80.73139 },
+  'TOROL': { lat: 4.26583, lon: -76.125 },
+  'TUNGI': { lat: 1.80361, lon: -78.08 },
+  'UBLAX': { lat: 11.19806, lon: -73.68778 },
+  'UBMUN': { lat: 7.38806, lon: -73.29389 },
+  'UBNOT': { lat: 4.57639, lon: -72.97722 },
+  'UBRID': { lat: 3.20222, lon: -72.96361 },
+  'UBSUX': { lat: 12.685, lon: -76.73667 },
+  'UGALU': { lat: 7.6825, lon: -74.74944 },
+  'UGAXI': { lat: 2.75694, lon: -71.92083 },
+  'UGEVA': { lat: 11.53444, lon: -82.23667 },
+  'UGOSA': { lat: 9.73778, lon: -73.59056 },
+  'UGREB': { lat: 9.73611, lon: -75.16722 },
+  'UGSAT': { lat: 9.91, lon: -76.37306 },
+  'UGSOL': { lat: 9.72194, lon: -75.38139 },
+  'UGUPI': { lat: 1.41667, lon: -79.83333 },
+  'UGVIX': { lat: 3.38444, lon: -72.18528 },
+  'UKDUS': { lat: 6.23861, lon: -76.22167 },
+  'UKLOS': { lat: 5.26, lon: -79.59972 },
+  'UKMEN': { lat: 1.41667, lon: -80.6 },
+  'UMBET': { lat: 4.79889, lon: -68.33722 },
+  'UMGOS': { lat: 3.31667, lon: -80.78278 },
+  'UMKAG': { lat: 6.96444, lon: -73.48861 },
+  'UMKIR': { lat: 10.43972, lon: -74.42722 },
+  'UMPEX': { lat: 7.505, lon: -72.49972 },
+  'UMPUR': { lat: 10.55833, lon: -74.02861 },
+  'URIBI': { lat: 11.25639, lon: -72.15833 },
+  'USANA': { lat: 3.86861, lon: -74.97639 },
+  'USEKO': { lat: 6.15917, lon: -68.55194 },
+  'USVUS': { lat: 8.25639, lon: -74.92389 },
+  'UTGUL': { lat: 1.10472, lon: -74.77417 },
+  'UTKIV': { lat: 10.74278, lon: -72.69611 },
+  'UTNUS': { lat: 6.97167, lon: -71.86472 },
+  'VAKIM': { lat: 0.28111, lon: -74.87639 },
+  'VAMOS': { lat: 1.41667, lon: -80.025 },
+  'VAPUK': { lat: 3.28889, lon: -78.91694 },
+  'VARON': { lat: 11.0375, lon: -75.74444 },
+  'VASIL': { lat: 5.15556, lon: -75.1875 },
+  'VIDAL': { lat: 4.31667, lon: -73.35556 },
+  'VOVGO': { lat: 6.90667, lon: -72.68806 },
+  'VOVLU': { lat: 9.49917, lon: -74.84889 },
+  'VOVRA': { lat: 5.57528, lon: -76.22528 },
+  'VUGED': { lat: 5.04778, lon: -71.69278 },
+  'VUGUM': { lat: 1.06255, lon: -78.27671 },
+  'VUKRA': { lat: 9.50306, lon: -75.23444 },
+  'VUKTU': { lat: 1.99778, lon: -75.77361 },
+  'VULAM': { lat: 5.29222, lon: -74.38583 },
+  'VULNO': { lat: 8.32194, lon: -73.34389 },
+  'VULRI': { lat: 5.60111, lon: -75.81944 },
+  'VUMAL': { lat: 3.2675, lon: -79.60889 },
+  'VUMBA': { lat: 10.78417, lon: -74.30139 },
+  'VUMLO': { lat: 5.03972, lon: -67.79167 },
+  'VUNRO': { lat: 6.75056, lon: -73.95972 },
+  'VURMU': { lat: 1.4, lon: -70.53028 },
+  'VUROR': { lat: 1.95778, lon: -76.99 },
+  'VUSRU': { lat: 3.62861, lon: -76.72667 },
+  'VUTKI': { lat: 5.74861, lon: -75.60639 },
+  'XOGEN': { lat: 7.79389, lon: -74.50028 },
+  'XOKIG': { lat: 2.45583, lon: -77.80333 },
+  'XUXOR': { lat: 11.89694, lon: -72.48806 },
+  'YACAR': { lat: 6.48139, lon: -73.66306 },
+};
+
+function findPoint(code){
+  code = (code||'').toUpperCase();
+  return AIRPORTS[code] || VOR_STATIONS[code] || WAYPOINTS[code] || null;
+}
+
+/* ===================== MAPA DE RUTAS (LEAFLET) + SIMULACIÓN DE VUELO ===================== */
+let flightMap = null;
+const mapLayers = {};      // flightId -> {line, planeMarker, depMarker, destMarker}
+const airportMarkers = []; // referencias para poder retintar al cambiar de tema
+const vorMarkers = [];
+const zoneMarkers = [];
+const SIM_ACCEL = 60;      // 1 segundo real = 60 segundos simulados (1 min). Cambia esto para ajustar velocidad.
+
+const baseLayers = {};     // 'osm' | 'sat' | 'topo' -> L.tileLayer, solo una activa a la vez
+let currentBaseLayer = null;
+let goesLayer = null;      // capa satelital GOES-East (NASA GIBS), se crea perezosamente al activarla
+let goesVisible = false;
+let airportLabelsVisible = false; // etiquetas ICAO de aeropuertos: por defecto solo al pasar el mouse
+
+// Arma el HTML de la ficha emergente de un aeropuerto (pistas + elevación, AIP AD 2 / AD 2.12).
+// El METAR se agrega aparte, de forma asíncrona, por popupopenMetarHandler() más abajo:
+// el marcador de "Cargando…" que queda aquí se reemplaza cuando llega la respuesta del proxy.
+function airportPopupHtml(code){
+  const meta = AIRPORT_NAMES[code];
+  const info = AIRPORT_DETAILS[code];
+  let html = `<div class="ap-popup"><div class="ap-title">${code}${meta ? ' — ' + meta.ciudad + ' · ' + meta.aeropuerto : ''}</div>`;
+  if(info){
+    html += `<div class="ap-elev">Elevación ARP: ${info.elevFt} FT AMSL</div>`;
+    html += `<table><tr><th>Pista</th><th>Long × Anc (m)</th><th>Superficie</th></tr>`;
+    info.runways.forEach(r=>{
+      html += `<tr><td>${r.id}</td><td>${r.lengthM} × ${r.widthM}</td><td>${r.surface}</td></tr>`;
+    });
+    html += `</table>`;
+  } else {
+    html += `<div class="ap-elev">Sin datos de pista/elevación disponibles.</div>`;
+  }
+  html += `<div class="ap-metar-block"><div class="ap-metar-label">METAR más reciente</div><div class="ap-metar ap-metar-loading">Cargando…</div></div>`;
+  html += `</div>`;
+  return html;
+}
+
+// Caché en memoria (por icao) del último METAR ya mostrado en un popup: si el usuario
+// cierra y vuelve a abrir el mismo aeródromo en menos de un minuto no repetimos la llamada
+// de red (el proxy /.netlify/functions/metar ya cachea 60s en el servidor; esto evita hasta
+// esa vuelta a Netlify).
+const metarPopupCache = new Map(); // icao -> { html, expira }
+const METAR_POPUP_TTL_MS = 60 * 1000;
+
+function formatMetarObsTime(epochSeconds){
+  if(!epochSeconds) return '';
+  const d = new Date(epochSeconds * 1000);
+  return `${String(d.getUTCDate()).padStart(2,'0')} ${String(d.getUTCHours()).padStart(2,'0')}:${String(d.getUTCMinutes()).padStart(2,'0')}Z`;
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+// Pide el último METAR de un aeródromo al proxy propio (mismo endpoint que usa metar-taf.html,
+// que a su vez consulta aviationweather.gov desde el servidor de Netlify — sin CORS).
+async function fetchMetarParaPopup(icao){
+  const cacheado = metarPopupCache.get(icao);
+  if(cacheado && cacheado.expira > Date.now()) return cacheado;
+
+  const controller = new AbortController();
+  const timer = setTimeout(()=> controller.abort(), 8000);
+  let resultado;
+  try{
+    const res = await fetch(`/.netlify/functions/metar?icao=${icao}&type=metar&hours=3`, { signal: controller.signal, cache:'no-store' });
+    const data = await res.json();
+    if(!res.ok || (data && data.error)) throw new Error((data && data.error) || 'network');
+    if(!Array.isArray(data) || !data.length) throw new Error('notfound');
+    const ultimo = data[0]; // aviationweather.gov entrega el reporte más reciente primero
+    // Fuente externa (aviationweather.gov): se escapa antes de insertarlo en el
+    // popup, que se pinta con innerHTML.
+    const raw = escapeHtml((ultimo.rawOb || '').trim() || '—');
+    const hora = formatMetarObsTime(ultimo.obsTime);
+    resultado = {
+      html: `<div class="ap-metar-raw">${raw}</div>${hora ? `<div class="ap-metar-time">Observado: ${hora}</div>` : ''}`,
+      esError: false,
+    };
+  }catch(err){
+    const timedOut = err && err.name === 'AbortError';
+    const msg = timedOut ? 'Tiempo de espera agotado consultando METAR.'
+      : err.message === 'notfound' ? 'Esta estación no reporta METAR (aeródromo sin observación automática).'
+      : 'No se pudo obtener el METAR en este momento.';
+    resultado = { html: `<div class="ap-metar-error">${msg}</div>`, esError: true };
+  }finally{
+    clearTimeout(timer);
+  }
+  // No cacheamos errores/timeouts: queremos que el próximo click reintente en vez de
+  // quedarse pegado a un mensaje de error hasta que expire el TTL.
+  if(!resultado.esError) metarPopupCache.set(icao, { html: resultado.html, expira: Date.now() + METAR_POPUP_TTL_MS });
+  return resultado;
+}
+
+// Se dispara cada vez que se abre un popup de aeródromo: rellena el bloque de METAR
+// que airportPopupHtml() dejó en estado "Cargando…".
+async function popupopenMetarHandler(e){
+  const code = e.popup._source && e.popup._source.__apCode;
+  if(!code) return;
+  const contentNode = e.popup.getElement ? e.popup.getElement() : e.popup._contentNode;
+  const contenedor = contentNode && contentNode.querySelector('.ap-metar');
+  if(!contenedor) return;
+  const { html } = await fetchMetarParaPopup(code);
+  // El usuario pudo haber cerrado el popup mientras esperábamos la respuesta;
+  // si el nodo ya no está en el documento, no tocamos nada.
+  if(!contenedor.isConnected) return;
+  contenedor.classList.remove('ap-metar-loading');
+  contenedor.innerHTML = html;
+  e.popup.update();
+}
+
+// Alterna las etiquetas ICAO permanentes de los aeropuertos (visibles siempre vs. solo al pasar el mouse).
+function toggleAirportLabels(){
+  airportLabelsVisible = !airportLabelsVisible;
+  airportMarkers.forEach(m=>{
+    const code = m.__apCode;
+    m.unbindTooltip();
+    m.bindTooltip(code, { permanent: airportLabelsVisible, direction:'top', offset:[0,-5], className:'airport-label' });
+    if(airportLabelsVisible) m.openTooltip();
+  });
+  const btn = document.getElementById('btnToggleLabels');
+  if(btn){
+    btn.textContent = airportLabelsVisible ? 'Etiquetas: visibles' : 'Etiquetas: ocultas';
+    btn.classList.toggle('highlight', airportLabelsVisible);
+  }
+}
+
+// Cambia el mapa base (calles OSM / satélite / topográfico), estilo selector de ArcGIS Online.
+function setBasemap(key){
+  if(!flightMap || !baseLayers[key]) return;
+  if(currentBaseLayer) flightMap.removeLayer(currentBaseLayer);
+  currentBaseLayer = baseLayers[key];
+  currentBaseLayer.addTo(flightMap);
+  currentBaseLayer.bringToBack();
+}
+
+// Activa/desactiva la superposición de nubosidad en tiempo real del satélite GOES-East (ABI GeoColor),
+// servida por NASA GIBS (mosaico global reproyectado, incluye el disco completo sobre Colombia).
+function toggleGoesLayer(){
+  if(!flightMap) return;
+  goesVisible = !goesVisible;
+  if(goesVisible){
+    if(!goesLayer){
+      goesLayer = L.tileLayer(
+        'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/GOES-East_ABI_GeoColor/default/GoogleMapsCompatible_Level7/{z}/{y}/{x}.png',
+        { attribution:'Satélite: NASA GIBS / NOAA GOES-East ABI GeoColor', maxNativeZoom:6, maxZoom:12, opacity:.7 }
+      );
+    }
+    goesLayer.addTo(flightMap);
+  } else if(goesLayer){
+    flightMap.removeLayer(goesLayer);
+  }
+  const btn = document.getElementById('btnToggleGoes');
+  if(btn){
+    btn.textContent = goesVisible ? 'Satélite GOES: encendido' : 'Satélite GOES: apagado';
+    btn.classList.toggle('highlight', goesVisible);
+  }
+}
+
+// Estilo base de una zona ENR 5.1 (prohibida/restringida/peligrosa), centralizado aquí para
+// que initMap(), el mouseout del hover y refreshMapTheme() nunca queden desincronizados.
+function zoneStyle(z){
+  const color = z.kind === 'P' ? PAL.danger : PAL.warn;
+  return {
+    color, fillColor: color, weight: 1.5, fillOpacity: .08,
+    dashArray: z.kind === 'D' ? '6,5' : null,
+    className: 'zone-path',
+  };
+}
+
+// Muestra/oculta las zonas prohibidas/restringidas/peligrosas (ENR 5.1). Algunas comparten
+// coordenadas con un aeródromo (p. ej. SKD36/SKP35 sobre Chía) y su círculo de 5 NM puede tapar
+// el punto — este botón las quita del mapa sin afectar la detección de infracción de zona
+// (fpZoneBustCheck sigue leyendo RESTRICTED_ZONES directamente, no zoneMarkers).
+let zonesVisible = true;
+function toggleZones(){
+  if(!flightMap) return;
+  zonesVisible = !zonesVisible;
+  zoneMarkers.forEach(m=>{
+    if(zonesVisible) m.addTo(flightMap); else flightMap.removeLayer(m);
+  });
+  const zbtn = document.getElementById('btnToggleZones');
+  if(zbtn){
+    zbtn.textContent = zonesVisible ? 'Zonas ENR 5.1: visibles' : 'Zonas ENR 5.1: ocultas';
+    zbtn.classList.toggle('highlight', !zonesVisible);
+  }
+}
+
+function initMap(){
+  flightMap = L.map('flightMap', { zoomControl:true }).setView([6.5, -74.5], 6);
+
+  baseLayers.osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 12
+  });
+  baseLayers.sat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics', maxZoom: 12
+  });
+  baseLayers.topo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles &copy; Esri — Source: Esri, Garmin, USGS, NPS', maxZoom: 12
+  });
+  currentBaseLayer = baseLayers.osm.addTo(flightMap);
+
+  // Cada vez que se abre CUALQUIER popup (de aeropuerto o de otra capa) intentamos rellenar
+  // su bloque de METAR; popupopenMetarHandler() sale de inmediato si el popup no es de un
+  // aeródromo (m.__apCode no está definido), así que es seguro colgarlo a nivel de mapa.
+  flightMap.on('popupopen', popupopenMetarHandler);
+
+  // Pintar zonas prohibidas/restringidas/peligrosas (ENR 5.1) ANTES que los aeródromos: así,
+  // aunque una zona de 5 NM caiga justo sobre un aeropuerto (p. ej. SKD36/SKP35 en Chía), el
+  // punto del aeródromo queda dibujado encima y sigue siendo clicable — el toggle de abajo
+  // (btnToggleZones) las quita del todo para quien prefiera despejar el mapa por completo.
+  RESTRICTED_ZONES.forEach(z=>{
+    const tipHtml = `<span class="zone-tip-badge" style="background:${zoneStyle(z).color}">${zoneKindLabel(z.kind)}</span>
+      <div class="zone-tip-name">${z.id} — ${z.name}</div>
+      <div class="zone-tip-alt">${z.lowerFt===0?'GND':z.lowerFt+' FT'} – ${z.upperLabel || z.upperFt+' FT'}</div>`;
+    const m = L.circle([z.lat, z.lon], { radius: ZONE_RADIUS_NM * 1852, ...zoneStyle(z) })
+      .bindTooltip(tipHtml, { className:'fp-tooltip zone-tooltip', sticky:true })
+      .on('mouseover', function(){ this.setStyle({ weight:2.5, fillOpacity:.24 }); this.bringToFront(); })
+      .on('mouseout', function(){ this.setStyle(zoneStyle(z)); })
+      .addTo(flightMap);
+    zoneMarkers.push(m);
+  });
+
+  // Pintar todos los aeropuertos conocidos como referencia fija (color de la paleta del portal, tono ámbar/caución).
+  // Click abre una ficha con sus pistas y elevación (AIP AD 2); hover muestra el código ICAO.
+  Object.keys(AIRPORTS).forEach(code=>{
+    const p = AIRPORTS[code];
+    const m = L.circleMarker([p.lat, p.lon], { radius:4, color:PAL.warn, fillColor:PAL.warn, fillOpacity:1 })
+      .bindTooltip(code, { permanent: airportLabelsVisible, direction:'top', offset:[0,-5], className:'airport-label' })
+      .bindPopup(airportPopupHtml(code))
+      .addTo(flightMap);
+    m.__apCode = code;
+    airportMarkers.push(m);
+  });
+
+  // Pintar las estaciones VOR/DME como referencia (triángulos pequeños)
+  Object.keys(VOR_STATIONS).forEach(code=>{
+    const p = VOR_STATIONS[code];
+    const m = L.circleMarker([p.lat, p.lon], { radius:3, color:PAL.textMuted, fillColor:PAL.textMuted, fillOpacity:.6, weight:1 })
+      .bindTooltip(code, { permanent:false, className:'fp-tooltip' })
+      .addTo(flightMap);
+    vorMarkers.push(m);
+  });
+}
+
+// Al cambiar de tema (claro/oscuro), retinta el mapa con los colores actuales del portal.
+function refreshMapTheme(){
+  PAL = getPalette();
+  airportMarkers.forEach(m => m.setStyle({ color: PAL.warn, fillColor: PAL.warn }));
+  vorMarkers.forEach(m => m.setStyle({ color: PAL.textMuted, fillColor: PAL.textMuted }));
+  zoneMarkers.forEach((m,i) => m.setStyle(zoneStyle(RESTRICTED_ZONES[i])));
+  flightPlans.forEach(fp=>{
+    const layer = mapLayers[fp.flightId];
+    if(!layer || fp.collided) return;
+    layer.line.setStyle({ color: PAL.accent });
+  });
+}
+
+// Convierte el string de ruta (ej "DCT ZIP DCT BUV DCT", o "EJA G431 ILSEV" por aerovía) +
+// dep/dest en una lista ordenada de puntos {code, lat, lon}. Cuando el tramo va por una aerovía
+// real (AIRWAYS), inserta también los fixes intermedios publicados en esa aerovía entre el
+// punto de entrada y el de salida, para que la línea en el mapa siga el trazado real y no un
+// atajo recto como si fuera DCT.
+function buildRoutePoints(fp){
+  const pts = [];
+  const dep = findPoint(fp.dep); if(dep) pts.push({code:fp.dep, ...dep});
+  let pendingAirway = null;
+  (fp.route||'').trim().split(/\s+/).forEach(tok=>{
+    if(!tok || tok === 'DCT'){ pendingAirway = null; return; }
+    if(AIRWAYS[tok]){ pendingAirway = tok; return; }
+    const p = findPoint(tok);
+    if(!p) return;
+    if(pendingAirway && pts.length){
+      const seq = AIRWAYS[pendingAirway];
+      const iFrom = seq.indexOf(pts[pts.length-1].code), iTo = seq.indexOf(tok);
+      if(iFrom !== -1 && iTo !== -1 && iFrom !== iTo){
+        const step = iFrom < iTo ? 1 : -1;
+        for(let i=iFrom+step; i!==iTo; i+=step){
+          const mid = findPoint(seq[i]);
+          if(mid) pts.push({code:seq[i], ...mid});
+        }
+      }
+    }
+    pts.push({code:tok, ...p});
+    pendingAirway = null;
+  });
+  const dest = findPoint(fp.dest); if(dest) pts.push({code:fp.dest, ...dest});
+  return pts;
+}
+
+function segDistances(pts){
+  const dist = [0];
+  for(let i=1;i<pts.length;i++){
+    dist.push(dist[i-1] + getDistanceNM(pts[i-1].lat, pts[i-1].lon, pts[i].lat, pts[i].lon));
+  }
+  return dist; // dist[i] = distancia acumulada NM hasta el punto i
+}
+
+// Interpola lat/lon a lo largo de la ruta según fracción (0..1) de distancia total
+function interpolateAlongRoute(pts, cumDist, fraction){
+  const total = cumDist[cumDist.length-1];
+  if(total <= 0 || pts.length < 2) return { lat: pts[0]?.lat, lon: pts[0]?.lon, bearing: 0 };
+  const target = fraction * total;
+  let i = 1;
+  while(i < cumDist.length && cumDist[i] < target) i++;
+  i = Math.min(i, cumDist.length-1);
+  const a = pts[i-1], b = pts[i];
+  const segLen = cumDist[i] - cumDist[i-1];
+  const segFrac = segLen > 0 ? (target - cumDist[i-1]) / segLen : 0;
+  const lat = a.lat + (b.lat - a.lat) * segFrac;
+  const lon = a.lon + (b.lon - a.lon) * segFrac;
+  const bearing = Math.atan2(
+    Math.sin((b.lon-a.lon)*Math.PI/180) * Math.cos(b.lat*Math.PI/180),
+    Math.cos(a.lat*Math.PI/180)*Math.sin(b.lat*Math.PI/180) - Math.sin(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.cos((b.lon-a.lon)*Math.PI/180)
+  ) * 180/Math.PI;
+  return { lat, lon, bearing };
+}
+
+function planeDivIcon(bearing, colorClass){
+  return L.divIcon({
+    className: '',
+    html: `<div class="plane-icon ${colorClass}" style="transform:rotate(${bearing}deg); font-size:20px; line-height:20px;">✈</div>`,
+    iconSize:[20,20], iconAnchor:[10,10]
+  });
+}
+
+// Contenido del data block (velocidad/altitud) que acompaña a cada aeronave en el mapa.
+function planeTooltipHtml(fp){
+  const color = fp.conflict ? PAL.danger : PAL.text;
+  const weight = fp.conflict ? 'font-weight:bold;' : '';
+  return `<div style="font-weight:bold;">${fp.flightId}${fp.conflict ? ' ⚠' : ''}</div>`
+       + `<div style="color:${color};${weight}">${speedLabel(fp.speed)} · ${fp.level || 'F---'}</div>`;
+}
+
+function updatePlaneTooltip(fp){
+  const layer = mapLayers[fp.flightId];
+  if(layer) layer.planeMarker.setTooltipContent(planeTooltipHtml(fp));
+}
+
+// Crea o actualiza en el mapa la línea de ruta y el avión de un plan de vuelo
+function syncFlightOnMap(fp){
+  if(!flightMap) return;
+  const pts = buildRoutePoints(fp);
+  if(pts.length < 2) return; // sin suficientes coordenadas conocidas todavía
+
+  if(!fp._sim) fp._sim = { startReal: performance.now(), totalMin: calculateRealisticETA(fp.dep, fp.dest, fp.speed, fp.level) };
+
+  let layer = mapLayers[fp.flightId];
+  const latlngs = pts.map(p=>[p.lat, p.lon]);
+  if(!layer){
+    const line = L.polyline(latlngs, { color:PAL.accent, weight:2, dashArray:'4,4' }).addTo(flightMap);
+    const planeMarker = L.marker(latlngs[0], { icon: planeDivIcon(0,'') })
+      .bindTooltip(planeTooltipHtml(fp), { permanent:true, direction:'right', className:'fp-tooltip' })
+      .addTo(flightMap);
+    planeMarker.on('click', ()=> openAtcEditModal(fp.flightId));
+    layer = mapLayers[fp.flightId] = { line, planeMarker };
+  } else {
+    layer.line.setLatLngs(latlngs);
+  }
+  return { pts, cumDist: segDistances(pts) };
+}
+
+// Desplaza un punto lat/lon una distancia (NM) en un rumbo dado (aprox. plano, suficiente a esta escala).
+function offsetLatLon(lat, lon, bearingDeg, distNM){
+  const br = bearingDeg * Math.PI / 180;
+  const dLat = (distNM / 60) * Math.cos(br);
+  const dLon = (distNM / 60) * Math.sin(br) / Math.cos(lat * Math.PI / 180);
+  return { lat: lat + dLat, lon: lon + dLon };
+}
+
+// Vector aproximado (NM este/norte) entre dos puntos, válido para las distancias cortas de esta simulación.
+function latLonToNMVector(fromLat, fromLon, toLat, toLon){
+  const avgLatRad = ((fromLat + toLat) / 2) * Math.PI / 180;
+  return { dx: (toLon - fromLon) * 60 * Math.cos(avgLatRad), dy: (toLat - fromLat) * 60 };
+}
+
+function lerpLatLon(p0, p1, t){
+  return { lat: p0.lat + (p1.lat - p0.lat) * t, lon: p0.lon + (p1.lon - p0.lon) * t };
+}
+
+// Las aeronaves se muestrean 1 vez por segundo pero pueden avanzar varias NM entre muestras (SIM_ACCEL),
+// así que un choque real puede ocurrir *entre* dos muestras. Esta función asume movimiento lineal entre
+// la posición anterior y la actual de cada aeronave y calcula la distancia mínima real durante ese tramo,
+// junto con el instante (0..1) en el que ocurre — para no perder el momento exacto del cruce.
+function closestApproachNM(a0, a1, b0, b1){
+  const d0 = latLonToNMVector(b0.lat, b0.lon, a0.lat, a0.lon);
+  const vA = latLonToNMVector(a0.lat, a0.lon, a1.lat, a1.lon);
+  const vB = latLonToNMVector(b0.lat, b0.lon, b1.lat, b1.lon);
+  const dv = { dx: vA.dx - vB.dx, dy: vA.dy - vB.dy };
+  const denom = dv.dx*dv.dx + dv.dy*dv.dy;
+  let t = denom > 1e-9 ? -(d0.dx*dv.dx + d0.dy*dv.dy) / denom : 0;
+  t = Math.max(0, Math.min(1, t));
+  const dx = d0.dx + t*dv.dx, dy = d0.dy + t*dv.dy;
+  return { dist: Math.sqrt(dx*dx + dy*dy), t };
+}
+
+const CONFLICT_LATERAL_NM = 8;
+const CONFLICT_VERTICAL_FT = 1000;
+const COLLISION_LATERAL_NM = 2;
+const COLLISION_VERTICAL_FT = 500;
+
+/* ===================== STCA — ALERTA SONORA (Short Term Conflict Alert) ===================== */
+// Los navegadores bloquean el audio hasta el primer gesto del usuario (autoplay policy);
+// el AudioContext se crea/reanuda en el primer click del documento (ver DOMContentLoaded).
+let audioCtx = null;
+function getAudioCtx(){
+  if(!audioCtx){
+    try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+    catch(e){ return null; }
+  }
+  if(audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+  return audioCtx;
+}
+function playSTCABeep(){
+  const ctx = getAudioCtx();
+  if(!ctx || ctx.state !== 'running') return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'square';
+  osc.frequency.value = 940;
+  gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + 0.02);
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.18);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.2);
+}
+// Alarma repetida mientras exista al menos un conflicto activo (como el STCA real, que no calla
+// hasta que ATC resuelve la separación).
+setInterval(()=>{
+  if(flightPlans.some(fp => fp.conflict && !fp.collided)) playSTCABeep();
+}, 5000);
+
+function tickSimulation(){
+  const positions = [];
+  Object.values(flightPlans).forEach(fp=>{
+    if(fp.collided || !fp.departed) return;
+    const built = syncFlightOnMap(fp);
+    if(!built) return;
+    const { pts, cumDist } = built;
+    const elapsedSimMin = ((performance.now() - fp._sim.startReal)/1000) * (SIM_ACCEL/60);
+    const fraction = Math.min(1, fp._sim.totalMin > 0 ? elapsedSimMin / fp._sim.totalMin : 1);
+    let { lat, lon, bearing } = interpolateAlongRoute(pts, cumDist, fraction);
+
+    // Desvío lateral simulado por instrucción ATC de rumbo (crece con el tiempo transcurrido desde la orden).
+    if(lat != null && fp.atcOffsetDeg){
+      const devSimMin = ((performance.now() - (fp.offsetSetAt || performance.now())) / 1000) * (SIM_ACCEL/60);
+      const speedKt = parseSpeedKnots(fp.speed);
+      const devNM = (devSimMin/60) * speedKt * Math.sin(fp.atcOffsetDeg * Math.PI/180);
+      const off = offsetLatLon(lat, lon, bearing + 90, devNM);
+      lat = off.lat; lon = off.lon;
+    }
+
+    const layer = mapLayers[fp.flightId];
+    if(layer && lat != null){
+      layer.planeMarker.setLatLng([lat, lon]);
+      layer.planeMarker.setIcon(planeDivIcon(bearing, ''));
+      fp._prevPos = fp._pos || { lat, lon };
+      fp._pos = { lat, lon };
+      fp._altFt = parseLevelFt(fp.level);
+      fp._bearing = bearing;
+      positions.push(fp);
+    }
+  });
+  checkConflicts(positions);
+  checkZoneIncursions(positions);
+}
+setInterval(tickSimulation, 1000);
+
+// Revisa todos los pares de aeronaves activas: marca conflicto (separación insuficiente) o colisión (contacto real).
+function checkConflicts(positions){
+  const inConflict = new Set();
+  for(let i=0;i<positions.length;i++){
+    for(let j=i+1;j<positions.length;j++){
+      const a = positions[i], b = positions[j];
+      if(a.collided || b.collided) continue;
+      const altDiff = Math.abs(a._altFt - b._altFt);
+      const approach = closestApproachNM(a._prevPos, a._pos, b._prevPos, b._pos);
+      if(approach.dist <= COLLISION_LATERAL_NM && altDiff <= COLLISION_VERTICAL_FT){
+        handleCollision(a, b, approach.t);
+        continue;
+      }
+      const distNM = getDistanceNM(a._pos.lat, a._pos.lon, b._pos.lat, b._pos.lon);
+      if(distNM <= CONFLICT_LATERAL_NM && altDiff <= CONFLICT_VERTICAL_FT){
+        inConflict.add(a.flightId); inConflict.add(b.flightId);
+        a.conflictWith = b.flightId; b.conflictWith = a.flightId;
+      }
+    }
+  }
+  let changed = false;
+  let newlyConflicted = false;
+  positions.forEach(fp=>{
+    if(fp.collided) return;
+    const wasConflict = !!fp.conflict;
+    fp.conflict = inConflict.has(fp.flightId);
+    if(fp.conflict !== wasConflict) changed = true;
+    if(fp.conflict && !wasConflict) newlyConflicted = true;
+    updatePlaneTooltip(fp);
+  });
+  if(newlyConflicted) playSTCABeep();
+  if(changed) renderSidebar();
+}
+
+// Revisa si alguna aeronave activa está dentro del radio Y de la banda vertical de una zona
+// prohibida/restringida/peligrosa (RESTRICTED_ZONES). Marca fp.zoneBust, resalta el ícono en
+// el mapa y deja constancia en el historial la primera vez que entra (no repite el aviso cada
+// segundo mientras siga adentro).
+function checkZoneIncursions(positions){
+  positions.forEach(fp=>{
+    if(fp.collided) return;
+    const hit = RESTRICTED_ZONES.find(z=>
+      fp._altFt >= z.lowerFt && fp._altFt <= z.upperFt &&
+      getDistanceNM(fp._pos.lat, fp._pos.lon, z.lat, z.lon) <= ZONE_RADIUS_NM
+    );
+    const wasBust = !!fp.zoneBust;
+    fp.zoneBust = hit ? hit.id : null;
+    if(hit && !wasBust){
+      fp.history.push({ ts: nowStampHeader(), text: `ALERTA: ingresó a zona ${zoneKindLabel(hit.kind)} ${hit.id} ${hit.name} (${hit.lowerFt===0?'GND':hit.lowerFt+'FT'}/${hit.upperLabel || hit.upperFt+'FT'}).`, source:'ATC' });
+      if(currentFP && currentFP.flightId === fp.flightId) renderHistoryWindow(fp.flightId);
+    }
+    const layer = mapLayers[fp.flightId];
+    if(layer) layer.planeMarker.setIcon(planeDivIcon(fp._bearing || 0, fp.zoneBust ? 'zonebust' : ''));
+  });
+}
+
+function collisionDivIcon(){
+  return L.divIcon({
+    className: '',
+    html: `<div class="plane-icon collision" style="font-size:22px; line-height:22px;">✈</div>`,
+    iconSize:[22,22], iconAnchor:[11,11]
+  });
+}
+
+// Congela ambas aeronaves en el punto de cruce, las marca en rojo y deja el aviso "COLISIÓN" —
+// ya no se mueven más porque tickSimulation ignora las aeronaves con fp.collided = true.
+function handleCollision(a, b, t){
+  if(a.collided || b.collided) return;
+  const collisionPt = lerpLatLon(a._prevPos, a._pos, t);
+  [a, b].forEach(fp=>{
+    const other = fp === a ? b : a;
+    fp.collided = true; fp.conflict = false; fp.status = 'COLISIÓN';
+    fp.history.push({ ts: nowStampHeader(), text: `COLISIÓN con ${other.flightId} en vuelo. Aeronave inmovilizada en el punto de impacto.`, source:'ATC' });
+    const layer = mapLayers[fp.flightId];
+    if(layer){
+      layer.planeMarker.setLatLng([collisionPt.lat, collisionPt.lon]);
+      layer.planeMarker.setIcon(collisionDivIcon());
+      layer.planeMarker.setTooltipContent(`<div style="font-weight:bold; color:${PAL.danger};">${fp.flightId} — COLISIÓN ⚠</div>`);
+      layer.line.setStyle({ color:PAL.danger, weight:3, dashArray:null, opacity:.7 });
+    }
+  });
+  renderSidebar();
+  if(currentFP && (currentFP.flightId===a.flightId || currentFP.flightId===b.flightId)) renderHistoryWindow(currentFP.flightId);
+}
+
+/* ===================== EDICIÓN RÁPIDA ATC (evitar colisión) ===================== */
+let atcEditFlightId = null;
+
+function openAtcEditModal(flightId){
+  const fp = flightPlans.find(p=>p.flightId===flightId);
+  if(!fp || fp.collided) return;
+  atcEditFlightId = flightId;
+  document.getElementById('atcEditFlightId').textContent = fp.flightId + (fp.conflict ? ' — EN CONFLICTO CON ' + (fp.conflictWith || '?') : '');
+  const note = document.getElementById('atcEditConflictNote');
+  if(fp.conflict){ note.style.display='block'; note.textContent = 'Separación insuficiente. Emite una instrucción de nivel o rumbo para evitar la colisión.'; }
+  else note.style.display='none';
+  document.getElementById('atcEditLevel').value = fp.level || '';
+  document.getElementById('atcEditHeading').value = fp.atcOffsetDeg || 0;
+  document.getElementById('atcEditFlash').style.display='none';
+  openWindow('win-atcedit');
+}
+
+function applyAtcEdit(){
+  const fp = flightPlans.find(p=>p.flightId===atcEditFlightId);
+  const el = document.getElementById('atcEditFlash');
+  if(!fp) return;
+  const lvl = document.getElementById('atcEditLevel').value.trim().toUpperCase();
+  const hdg = parseFloat(document.getElementById('atcEditHeading').value);
+
+  if(lvl && !/^[FA]\d{3,4}$/.test(lvl)){
+    el.className='msg-flash err'; el.style.display='block'; el.textContent='Nivel inválido. Formato: F360 / A045.'; return;
+  }
+  if(isNaN(hdg) || hdg < -90 || hdg > 90){
+    el.className='msg-flash err'; el.style.display='block'; el.textContent='Desvío inválido. Usa un valor entre -90° y 90°.'; return;
+  }
+
+  const changedLevel = lvl && lvl !== fp.level;
+  const changedHeading = hdg !== (fp.atcOffsetDeg || 0);
+  if(changedLevel) fp.level = lvl;
+  if(changedHeading){ fp.atcOffsetDeg = hdg; fp.offsetSetAt = performance.now(); }
+
+  if(changedLevel || changedHeading){
+    const parts = [];
+    if(changedLevel) parts.push('NIVEL ' + lvl);
+    if(changedHeading) parts.push('DESVÍO DE RUMBO ' + hdg + '°');
+    fp.history.push({ ts: nowStampHeader(), text: 'INSTRUCCIÓN ATC — ' + parts.join(' / '), source:'ATC' });
+    if(currentFP && currentFP.flightId === fp.flightId) renderHistoryWindow(fp.flightId);
+  }
+
+  updatePlaneTooltip(fp);
+  closeWindow('win-atcedit');
+}
+
+/* ===================== ESTADO Y UTILIDADES ===================== */
+let flightPlans = []; let queue = []; let currentFP = null; let currentMode = 'CREATE'; let idSeq = 1;
+const COMPULSORY_IDS = ['f_flightId','f_acType','f_dep','f_dest','f_route','f_eobt','f_speed','f_level'];
+
+/* ===================== MATRIZ DE PARAMETRIZACIÓN FPL (RAC 215 / OACI) ===================== */
+// R (reglas de vuelo) y FT (tipo de vuelo): un solo carácter de estas listas.
+const RULES_VALID = ['I','V','Y','Z'];
+const FLIGHTTYPE_VALID = ['S','N','G','M','X'];
+// NAV/COM (casilla 10a): "N" o "S" solos, o combinación de estos códigos (1 o 2 caracteres).
+const NAVCOM_SINGLE = ['N','S'];
+const NAVCOM_ONE = ['A','B','C','D','F','G','H','I','K','L','O','R','T','U','V','W','X','Y','Z'];
+const NAVCOM_TWO = ['E1','E2','E3','J1','J2','J3','J4','J5','J6','J7','M1','M2','M3','P1','P2','P3','P4','P5','P6','P7','P8','P9'];
+// SURVEILLANCE EQUIPMENT (casilla 10b): "N" solo, o combinación de hasta 20 caracteres.
+const SURV_SINGLE = ['N'];
+const SURV_ONE = ['A','C','E','H','I','L','P','S','X'];
+const SURV_TWO = ['B1','B2','D1','G1','U1','U2','V1','V2'];
+// Descriptores PBN válidos (FIELD 18, clave PBN/), 1 a 8 descriptores de 2 caracteres.
+const PBN_CODES = ['A1','B1','B2','B3','B4','B5','B6','C1','C2','C3','C4','D1','D2','D3','D4','L1','M1','O1','O2','O3','O4','S1','S2','T1','T2'];
+const EOBD_REGEX = /^\d{2}(0[1-9]|1[0-2])(0[1-9]|[12]\d|3[01])$/;
+const SPEED_REGEX = /^(N\d{4}|K\d{4}|M\d{3})$/;
+const LEVEL_REGEX = /^(F\d{3}|A\d{3}|S\d{4}|M\d{4}|VFR)$/;
+
+// Valida una cadena de códigos combinables (NAV/COM o SURVEILLANCE): un valor "solo" (N/S),
+// o una secuencia de códigos de 1 o 2 caracteres tomados de las listas permitidas.
+function validateCodeCombo(str, singles, ones, twos, maxLen){
+  if(!str) return false;
+  if(singles.includes(str)) return true;
+  if(maxLen && str.length > maxLen) return false;
+  let i = 0;
+  while(i < str.length){
+    if(twos.includes(str.substr(i,2))){ i += 2; continue; }
+    if(ones.includes(str[i])){ i += 1; continue; }
+    return false;
+  }
+  return true;
+}
+
+// Busca PBN/ dentro de FIELD 18 y valida sus descriptores (máx. 8, 2 caracteres c/u).
+function checkPBN(field18){
+  const m = (field18 || '').match(/PBN\/([A-Z0-9]+)/);
+  if(!m) return { present:false };
+  const str = m[1];
+  if(str.length === 0 || str.length % 2 !== 0 || str.length > 16) return { present:true, valid:false, invalid:[str] };
+  const codes = [];
+  for(let i=0;i<str.length;i+=2) codes.push(str.substr(i,2));
+  const invalid = codes.filter(c=>!PBN_CODES.includes(c));
+  return { present:true, valid: invalid.length===0, invalid, codes };
+}
+
+function pad(n){ return n.toString().padStart(2,'0'); }
+function nowStampHeader(){
+  const d = new Date();
+  return `FPL/${pad(d.getDate())}-${pad(d.getMonth()+1)}-${pad(d.getFullYear()%100)} ${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+}
+function nowHHMM(){ const d = new Date(); return `${pad(d.getHours())}${pad(d.getMinutes())}`; }
+function nowHHMMZulu(){ const d = new Date(); return `${pad(d.getUTCHours())}${pad(d.getUTCMinutes())}`; }
+function todayYYMMDD(){ const d = new Date(); return `${pad(d.getFullYear()%100)}${pad(d.getMonth()+1)}${pad(d.getDate())}`; }
+
+/* ===================== VENTANAS Y AYUDA ===================== */
+function openWindow(id){ const w = document.getElementById(id); w.classList.add('open'); bringToFront(w); if(id==='win-map' && flightMap) setTimeout(()=>flightMap.invalidateSize(), 50); }
+function closeWindow(id){ document.getElementById(id).classList.remove('open'); }
+function closeAll(){ document.querySelectorAll('.sim-window').forEach(w=>w.classList.remove('open')); }
+function bringToFront(w){ document.querySelectorAll('.sim-window').forEach(el=>el.style.zIndex=5); w.style.zIndex = 10; }
+function toggleHelp(open){ document.getElementById('helpOverlay').classList.toggle('open', open); }
+
+(function enableDrag(){
+  const area = document.getElementById('windowsArea');
+  document.querySelectorAll('.sim-window').forEach(win=>{
+    const head = win.querySelector('.win-head');
+    let sx,sy,ox,oy,dragging=false;
+    head.addEventListener('mousedown', e=>{
+      if(e.target.classList.contains('win-close')) return;
+      dragging = true; bringToFront(win);
+      sx = e.clientX; sy = e.clientY; ox = win.offsetLeft; oy = win.offsetTop; e.preventDefault();
+    });
+    window.addEventListener('mousemove', e=>{
+      if(!dragging) return;
+      const maxLeft = Math.max(0, area.clientWidth - head.offsetWidth);
+      const maxTop = Math.max(0, area.clientHeight - head.offsetHeight);
+      let newLeft = ox + (e.clientX-sx); let newTop = oy + (e.clientY-sy);
+      newLeft = Math.min(Math.max(newLeft, 0), maxLeft);
+      newTop = Math.min(Math.max(newTop, 0), maxTop);
+      win.style.left = newLeft + 'px'; win.style.top = newTop + 'px';
+    });
+    window.addEventListener('mouseup', ()=> dragging=false);
+    win.addEventListener('mousedown', ()=> bringToFront(win));
+  });
+})();
+
+/* ===================== FP OPERATION ===================== */
+const ALL_FIELD_IDS = ['f_flightId','f_radio','f_no','f_acType','f_wake','f_dep','f_dest','f_navcom','f_rvsm',
+  'f_surv','f_cssr','f_r','f_ft','f_sid','f_route','f_star','f_eobd','f_eobt','f_msg','f_ctot','f_atfcm','f_atd',
+  'f_eta','f_speed','f_level','f_fix','f_estTime','f_estLevel','f_rcoord','f_scoord','f_altad','f_field18',
+  'f_eat','f_freetext','f_cfl','f_ecl','f_s','f_reg','f_sts','f_modes','f_origroute'];
+const ALWAYS_DISABLED = ['f_msg','f_ctot','f_atfcm','f_atd','f_fix','f_estTime','f_estLevel','f_rcoord','f_scoord','f_eat','f_origroute'];
+
+function clearFormFields(){
+  ALL_FIELD_IDS.forEach(id=>{ const el = document.getElementById(id); el.value = ''; el.classList.remove('f-invalid','f-ok'); });
+  document.getElementById('f_no').value = '01';
+}
+
+function setMode(mode){
+  currentMode = mode;
+  document.getElementById('mode_view').classList.toggle('active', mode==='VIEW');
+  document.getElementById('mode_create').classList.toggle('active', mode==='CREATE');
+  document.getElementById('compulsoryTag').style.display = (mode==='CREATE') ? 'block' : 'none';
+  ALL_FIELD_IDS.forEach(id=>{ document.getElementById(id).disabled = (mode==='VIEW') || ALWAYS_DISABLED.includes(id); });
+  COMPULSORY_IDS.forEach(id=>{ document.getElementById(id).classList.toggle('f-compulsory', mode==='CREATE'); });
+  document.getElementById('fpFlash').style.display='none';
+}
+
+function updateDepartButton(fp){
+  const btn = document.getElementById('fpDepartBtn');
+  btn.style.display = (fp && !fp.departed && !fp.collided) ? 'inline-block' : 'none';
+}
+
+function openFPOperationCreate(){ currentFP = null; clearFormFields(); document.getElementById('f_eobd').value = todayYYMMDD(); setMode('CREATE'); updateDepartButton(null); openWindow('win-fpop'); }
+
+function fillFormFromFP(fp){
+  ['flightId','radio','no','acType','wake','dep','dest','navcom','rvsm','surv','cssr','rules','type','sid','route','star','eobd','eobt','eta','speed','level','altn','field18','freetext','cfl','ecl','sfield','reg','sts','modes'].forEach(k=>{
+    const el = document.getElementById('f_' + (k==='rules'?'r':k==='type'?'ft':k==='altn'?'altad':k==='sfield'?'s':k));
+    if(el) el.value = fp[k] || '';
+  });
+  document.getElementById('f_msg').value = 'FPL'; document.getElementById('f_origroute').value = fp.route;
+}
+
+function openFPOperationView(fp){ currentFP = fp; fillFormFromFP(fp); setMode('VIEW'); updateDepartButton(fp); openWindow('win-fpop'); }
+function fpCancel(){ document.getElementById('fpFlash').style.display='none'; if(currentFP) openFPOperationView(currentFP); else closeWindow('win-fpop'); }
+function fpClear(){ clearFormFields(); document.getElementById('fpFlash').style.display='none'; }
+function flashFP(kind, text){ const el = document.getElementById('fpFlash'); el.className = 'msg-flash ' + kind; el.style.display='block'; el.textContent = text; }
+
+function fpUpdate(){
+  if(currentMode !== 'CREATE') return flashFP('err','Solo puedes usar UPDATE en modo CREATE.');
+  const v = id => document.getElementById(id).value.trim().toUpperCase();
+  let ok = true; const errors = [];
+  const checks = { f_flightId: /^[A-Z0-9]{3,7}$/, f_dep: /^[A-Z]{4}$/, f_dest: /^[A-Z]{4}$/, f_route: /^.{3,}$/, f_eobt: /^([01][0-9]|2[0-3])[0-5][0-9]$/, f_speed: SPEED_REGEX, f_level: LEVEL_REGEX };
+  const labels = { f_flightId:'FLIGHT ID', f_dep:'DEP', f_dest:'DEST', f_route:'FIR ROUTE', f_eobt:'EOBT', f_speed:'SPEED', f_level:'LEVEL' };
+
+  COMPULSORY_IDS.filter(id=>id!=='f_acType').forEach(id=>{
+    if(!v(id) || !checks[id].test(v(id))){
+      ok = false; document.getElementById(id).classList.add('f-invalid'); errors.push(labels[id]);
+      setTimeout(()=>document.getElementById(id).classList.remove('f-invalid'), 600);
+    }
+  });
+
+  const acInfo = acTypeInfo(v('f_acType'));
+  if(!acInfo){ ok = false; document.getElementById('f_acType').classList.add('f-invalid'); errors.push('A/C TYPE'); }
+  else if(v('f_wake') !== acInfo.wtc){ ok = false; document.getElementById('f_wake').classList.add('f-invalid'); errors.push('W (Estela)'); }
+
+  const invRoutes = checkRouteTokens(v('f_route'));
+  if(invRoutes.length > 0){
+    ok = false; document.getElementById('f_route').classList.add('f-invalid'); errors.push('Ruta (' + invRoutes.join(', ') + ')');
+    setTimeout(()=>document.getElementById('f_route').classList.remove('f-invalid'), 600);
+  }
+
+  // DEP/DEST deben existir en la base de aeropuertos (solo si ya pasaron el formato AAAA)
+  ['f_dep','f_dest'].forEach(id=>{
+    const code = v(id);
+    if(checks[id].test(code) && !isKnownAirport(code)){
+      ok = false; document.getElementById(id).classList.add('f-invalid');
+      errors.push(labels[id] + ' (' + code + ' no existe en la base de datos)');
+      setTimeout(()=>document.getElementById(id).classList.remove('f-invalid'), 600);
+    }
+  });
+
+  // Casillas no obligatorias, pero con formato/lista exigidos por la matriz de parametrización
+  const noVal = v('f_no') || '01';
+  if(!/^\d{1,2}$/.test(noVal)){ ok = false; document.getElementById('f_no').classList.add('f-invalid'); errors.push('NO'); }
+
+  const eobdVal = v('f_eobd');
+  if(eobdVal && !EOBD_REGEX.test(eobdVal)){ ok = false; document.getElementById('f_eobd').classList.add('f-invalid'); errors.push('EOBD'); }
+
+  const rulesVal = v('f_r') || 'I';
+  if(!RULES_VALID.includes(rulesVal)){ ok = false; document.getElementById('f_r').classList.add('f-invalid'); errors.push('R (Reglas de vuelo)'); }
+
+  const ftVal = v('f_ft') || 'G';
+  if(!FLIGHTTYPE_VALID.includes(ftVal)){ ok = false; document.getElementById('f_ft').classList.add('f-invalid'); errors.push('FT (Tipo de vuelo)'); }
+
+  const navcomVal = v('f_navcom') || 'S';
+  if(!validateCodeCombo(navcomVal, NAVCOM_SINGLE, NAVCOM_ONE, NAVCOM_TWO)){ ok = false; document.getElementById('f_navcom').classList.add('f-invalid'); errors.push('NAV/COM'); }
+
+  const survVal = v('f_surv') || 'N';
+  if(!validateCodeCombo(survVal, SURV_SINGLE, SURV_ONE, SURV_TWO, 20)){ ok = false; document.getElementById('f_surv').classList.add('f-invalid'); errors.push('SURVEILLANCE EQUIPMENT'); }
+
+  // PBN: obligatorio en FIELD 18 si NAV/COM contiene R; si aparece, sus descriptores deben ser válidos.
+  const field18Val = v('f_field18');
+  const pbnCheck = checkPBN(field18Val);
+  if(navcomVal.includes('R') && !pbnCheck.present){
+    ok = false; document.getElementById('f_field18').classList.add('f-invalid');
+    errors.push('FIELD 18 (falta PBN/, obligatorio porque NAV/COM contiene R)');
+  } else if(pbnCheck.present && !pbnCheck.valid){
+    ok = false; document.getElementById('f_field18').classList.add('f-invalid');
+    errors.push('FIELD 18 PBN inválido (' + pbnCheck.invalid.join(', ') + ')');
+  }
+
+  if(!ok) return flashFP('err', 'Errores en casillas obligatorias: ' + errors.join(' · '));
+
+  const fp = {
+    id: idSeq++, flightId: v('f_flightId'), radio: v('f_radio') || airlineFromFlightId(v('f_flightId')),
+    no: v('f_no')||'01', acType: v('f_acType'), wake: v('f_wake'), dep: v('f_dep'), dest: v('f_dest'),
+    navcom: v('f_navcom')||'S', rvsm: v('f_rvsm'), surv: v('f_surv')||'N', cssr: v('f_cssr'),
+    rules: v('f_r')||'I', type: v('f_ft')||'G', sid: v('f_sid'), route: v('f_route'), star: v('f_star'),
+    eobd: v('f_eobd')||todayYYMMDD(), eobt: v('f_eobt'), speed: v('f_speed'), level: v('f_level'),
+    altn: v('f_altad'), field18: v('f_field18')||'0', status: 'PROGRAMADO', departed: false, history: []
+  };
+  
+  // ETA CON HAVERSINE
+  fp.eta = v('f_eta') || addMinutesToHHMM(fp.eobt, calculateRealisticETA(fp.dep, fp.dest, fp.speed, fp.level));
+  
+  registerFlightPlan(fp, true);
+  flashFP('ok', `Plan ${fp.flightId} creado y transmitido. Consulta FP HISTORY.`);
+  openFPOperationView(fp);
+}
+
+/* ===================== REGISTRO ===================== */
+function buildICAOText(fp){
+  const destLine = fp.eta ? `${fp.dest}${fp.eta}${fp.altn?' '+fp.altn:''}` : `${fp.dest}${fp.altn?' '+fp.altn:''}`;
+  const ssrPart = fp.cssr ? '/' + fp.cssr : '';
+  return `(FPL-${fp.flightId}${ssrPart}-${fp.rules}${fp.type}\n-${fp.no}${fp.acType}/${fp.wake}-${fp.navcom}/${fp.surv}\n-${fp.dep}${fp.eobt}\n-${fp.speed}${fp.level} ${fp.route}\n-${destLine}\n-${fp.field18}\n)`;
+}
+function registerFlightPlan(fp, viaForm){
+  const existing = flightPlans.find(p=>p.flightId===fp.flightId);
+  const entry = { ts: nowStampHeader(), text: buildICAOText(fp), source: viaForm ? 'FP OPERATION' : 'FREE AFTN' };
+  if(existing){ fp.history = existing.history; fp.history.push(entry); flightPlans[flightPlans.indexOf(existing)] = fp; }
+  else { fp.history = [entry]; flightPlans.push(fp); }
+  renderSidebar(); renderHistoryWindow(fp.flightId); openWindow('win-hist');
+}
+
+/* ===================== SIDEBAR / HISTORY ===================== */
+function renderSidebar(){
+  const box = document.getElementById('fpList');
+  box.innerHTML = flightPlans.length ? flightPlans.map(fp=>{
+    let statusHtml;
+    if(fp.collided) statusHtml = '<span class="st collision">COLISIÓN</span>';
+    else if(!fp.departed) statusHtml = `<span class="st queued">⏳ EN ESPERA · EOBT ${fp.eobt}Z</span>`;
+    else if(fp.conflict) statusHtml = '<span class="st conflict">⚠ CONFLICTO</span>';
+    else statusHtml = '<span class="st active">ACTIVO</span>';
+    const takeoffBtn = (!fp.departed && !fp.collided)
+      ? `<button class="fp-takeoff-btn" onclick="event.stopPropagation(); fpDepart('${fp.flightId}')">🛫 DESPEGUE</button>` : '';
+    return `
+    <div class="fp-chip" onclick="openFPOperationView(flightPlans.find(p=>p.id===${fp.id}))">
+      <div class="cs">${fp.flightId}</div><div class="route">${fp.dep} → ${fp.dest} · ${fp.eobt}Z</div>${statusHtml}${takeoffBtn}
+    </div>`;
+  }).join('') : '<div class="side-empty">Sin planes activos.</div>';
+}
+
+/* ===================== DESPEGUE (activación del plan de vuelo) ===================== */
+// Un plan de vuelo queda EN ESPERA hasta que despega, ya sea porque su EOBT coincide
+// con el reloj zulu del portal, o porque el usuario pulsa el botón DESPEGUE manualmente.
+function fpDepart(flightId){
+  const fp = flightPlans.find(p=>p.flightId===flightId);
+  if(!fp || fp.departed || fp.collided) return;
+  fp.departed = true;
+  fp.status = 'ACTIVE';
+  fp._sim = { startReal: performance.now(), totalMin: calculateRealisticETA(fp.dep, fp.dest, fp.speed, fp.level) };
+  fp.history.push({ ts: nowStampHeader(), text: `DESPEGUE — ${fp.flightId} en el aire, salida de ${fp.dep}.`, source:'ATC' });
+  renderSidebar();
+  renderHistoryWindow(fp.flightId);
+  if(currentFP && currentFP.flightId === fp.flightId) updateDepartButton(fp);
+}
+
+function checkScheduledDepartures(){
+  const nowZ = nowHHMMZulu();
+  flightPlans.forEach(fp=>{
+    if(!fp.departed && !fp.collided && fp.eobt === nowZ) fpDepart(fp.flightId);
+  });
+}
+setInterval(checkScheduledDepartures, 1000);
+function renderHistoryWindow(flightId){
+  const fp = flightPlans.find(p=>p.flightId===flightId);
+  document.getElementById('histTitle').textContent = 'FP HISTORY: ' + (flightId||'—');
+  document.getElementById('historyBox').textContent = fp ? fp.history.map(h=>`${h.ts}  [${h.source}]\n${h.text}\n`).join('\n') : 'No hay histórico.';
+}
+function openHistoryFor(flightId){ if(flightId){ renderHistoryWindow(flightId.toUpperCase()); openWindow('win-hist'); } }
+
+/* ===================== FREE AFTN ===================== */
+function aftnFill(){ document.getElementById('aftnFillTime').value = nowHHMM(); }
+setInterval(()=>{ if(document.getElementById('win-aftn').classList.contains('open')) aftnFill(); }, 30000);
+function aftnCancel(){ document.getElementById('aftnFlash').style.display='none'; }
+function aftnClear(){ document.getElementById('aftnFreeText').value=''; document.getElementById('aftnFlash').style.display='none'; }
+function flashAFTN(kind, html){ const el = document.getElementById('aftnFlash'); el.className = 'msg-flash '+kind; el.style.display='block'; el.innerHTML = html; }
+
+function parseICAOText(raw){
+  const errors = []; let text = raw.trim().toUpperCase();
+  if(!text.startsWith('(FPL-') || !text.endsWith(')')) return {ok:false, errors:['El mensaje debe iniciar con (FPL- y terminar con )']};
+  const rawLines = text.slice(5, text.length-1).trim().split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+  if(rawLines.length < 5) return {ok:false, errors:['Faltan líneas obligatorias en el formato.']};
+
+  const fp = { id: idSeq++, eobd: todayYYMMDD(), star:'', sid:'', rvsm:'', cssr:'', cfl:'', ecl:'', sfield:'', reg:'', sts:'', modes:'', freetext:'', status:'PROGRAMADO', departed:false };
+  // El código SSR/transpondedor tras el Flight ID (/A2104, etc.) es opcional: si no se usa,
+  // no lleva slash y la línea queda "FLIGHTID-RULESTYPE" en vez de "FLIGHTID/-RULESTYPE".
+  let m = rawLines[0].match(/^([A-Z0-9]{2,7})(?:\/([A-Z0-9]{1,20}))?-([A-Z])([A-Z])$/);
+  if(!m) errors.push('Línea 1: Formato incorrecto.'); else {
+    fp.flightId = m[1]; fp.cssr = m[2] || ''; fp.rules = m[3]; fp.type = m[4];
+    if(!RULES_VALID.includes(fp.rules)) errors.push(`Línea 1: R (reglas de vuelo) "${fp.rules}" inválido.`);
+    if(!FLIGHTTYPE_VALID.includes(fp.type)) errors.push(`Línea 1: FT (tipo de vuelo) "${fp.type}" inválido.`);
+  }
+
+  m = rawLines[1] && rawLines[1].match(/^-(\d{2})([A-Z0-9]{2,4})\/([A-Z])-([A-Z0-9]+)\/([A-Z0-9]+)$/);
+  if(!m) errors.push('Línea 2: Formato incorrecto.'); else {
+    const acInfo = acTypeInfo(m[2]);
+    if(!acInfo) errors.push(`Línea 2: Designador ${m[2]} inválido.`);
+    else if(m[3] !== acInfo.wtc) errors.push(`Línea 2: Estela de ${m[2]} debe ser ${acInfo.wtc}.`);
+    fp.no = m[1]; fp.acType = m[2]; fp.wake = m[3]; fp.navcom = m[4]; fp.surv = m[5];
+    if(!validateCodeCombo(fp.navcom, NAVCOM_SINGLE, NAVCOM_ONE, NAVCOM_TWO)) errors.push(`Línea 2: NAV/COM "${fp.navcom}" inválido.`);
+    if(!validateCodeCombo(fp.surv, SURV_SINGLE, SURV_ONE, SURV_TWO, 20)) errors.push(`Línea 2: SURVEILLANCE "${fp.surv}" inválido.`);
+  }
+
+  m = rawLines[2] && rawLines[2].match(/^-([A-Z]{4})(\d{4})$/);
+  if(!m) errors.push('Línea 3: Formato incorrecto.'); else {
+    fp.dep = m[1]; fp.eobt = m[2];
+    if(!isKnownAirport(fp.dep)) errors.push(`Línea 3: DEP ${fp.dep} no existe en la base de datos.`);
+  }
+
+  m = rawLines[3] && rawLines[3].match(/^-(N\d{4}|K\d{4}|M\d{3})(F\d{3}|A\d{3}|S\d{4}|M\d{4}|VFR)\s+(.+)$/);
+  if(!m) errors.push('Línea 4: Formato incorrecto (SPEED/LEVEL debe ser Nnnnn/Knnnn/Mnnn + Fnnn/Annn/Snnnn/Mnnnn/VFR).'); else {
+    fp.speed = m[1]; fp.level = m[2]; fp.route = m[3];
+    const inv = checkRouteTokens(fp.route); if(inv.length>0) errors.push('Línea 4 (Ruta): Puntos inválidos ' + inv.join(', '));
+  }
+
+  m = rawLines[4] && rawLines[4].match(/^-([A-Z]{4})(\d{4})?\s*([A-Z]{4}(?:\s[A-Z]{4})*)?$/);
+  if(!m) errors.push('Línea 5: Formato incorrecto.'); else {
+    fp.dest = m[1]; fp.eta = m[2]||''; fp.altn = m[3]||'';
+    if(!isKnownAirport(fp.dest)) errors.push(`Línea 5: DEST ${fp.dest} no existe en la base de datos.`);
+  }
+  fp.field18 = rawLines.length >= 6 ? rawLines.slice(5).join(' ').replace(/^-/,'') : '0';
+
+  // PBN: obligatorio en FIELD 18 si NAV/COM contiene R; si aparece, sus descriptores deben ser válidos.
+  const pbnCheck = checkPBN(fp.field18);
+  if(fp.navcom && fp.navcom.includes('R') && !pbnCheck.present){
+    errors.push('FIELD 18: falta PBN/ (obligatorio porque NAV/COM contiene R).');
+  } else if(pbnCheck.present && !pbnCheck.valid){
+    errors.push('FIELD 18: descriptor(es) PBN inválido(s) → ' + pbnCheck.invalid.join(', '));
+  }
+
+  if(errors.length) return {ok:false, errors};
+  fp.radio = airlineFromFlightId(fp.flightId);
+  if(!fp.eta) fp.eta = addMinutesToHHMM(fp.eobt, calculateRealisticETA(fp.dep, fp.dest, fp.speed, fp.level));
+  return {ok:true, fp};
+}
+
+function aftnTrans(){
+  const raw = document.getElementById('aftnFreeText').value;
+  if(!raw.trim()) return flashAFTN('err', 'El campo está vacío.');
+  const result = parseICAOText(raw); aftnFill();
+  if(!result.ok){
+    queue.push({ id: idSeq++, ts: nowStampHeader(), raw, errors: result.errors });
+    renderQueue(); openWindow('win-queue');
+    return flashAFTN('err', 'MENSAJE ENCOLADO —<br>• ' + result.errors.map(escapeHtml).join('<br>• '));
+  }
+  registerFlightPlan(result.fp, false);
+  flashAFTN('ok', `Plan de vuelo ${result.fp.flightId} aceptado.`);
+}
+
+function renderQueue(){
+  document.getElementById('queueList').innerHTML = queue.length ? queue.slice().reverse().map(q=>`
+    <div class="queue-item"><div class="qcs">ENCOLADO · ${q.ts}</div><div class="qerr">• ${q.errors.map(escapeHtml).join('<br>• ')}</div>
+    <div class="qretry"><button class="wbtn" onclick="retryQueue(${q.id})">REINTENTAR</button></div></div>`).join('') : '<div class="queue-empty">No hay mensajes.</div>';
+}
+function retryQueue(id){
+  const q = queue.find(x=>x.id===id); if(!q) return;
+  document.getElementById('aftnFreeText').value = q.raw; openWindow('win-aftn'); flashAFTN('err', 'Corrige el mensaje.');
+}
+
+/* ===================== ANIMACIÓN DE RADAR CWP ===================== */
+const radarCanvas = document.getElementById('radarScreen');
+const rCtx = radarCanvas.getContext('2d');
+let radarAngle = 0;
+
+function drawRadar() {
+  const w = radarCanvas.width;
+  const h = radarCanvas.height;
+  const cx = w / 2;
+  const cy = h / 2;
+  const radius = w / 2 - 15;
+
+  // Fondo con efecto de estela para el barrido
+  rCtx.fillStyle = 'rgba(5, 7, 10, 0.08)';
+  rCtx.fillRect(0, 0, w, h);
+
+  // Dibujar anillos del radar
+  rCtx.strokeStyle = 'rgba(23, 95, 107, 0.4)';
+  rCtx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    rCtx.beginPath();
+    rCtx.arc(cx, cy, radius * (i / 4), 0, Math.PI * 2);
+    rCtx.stroke();
+  }
+  // Líneas cruzadas
+  rCtx.beginPath();
+  rCtx.moveTo(cx, 15); rCtx.lineTo(cx, h - 15);
+  rCtx.moveTo(15, cy); rCtx.lineTo(w - 15, cy);
+  rCtx.stroke();
+
+  // Animación del haz del radar (Sweep)
+  radarAngle += 0.035;
+  rCtx.beginPath();
+  rCtx.moveTo(cx, cy);
+  rCtx.lineTo(cx + Math.cos(radarAngle) * radius, cy + Math.sin(radarAngle) * radius);
+  rCtx.strokeStyle = PAL.accent;
+  rCtx.lineWidth = 2;
+  rCtx.stroke();
+
+  // Dibujar aeronaves (Blips de planes de vuelo activos)
+  flightPlans.forEach(fp => {
+    if (fp.collided || !fp.departed) return; // en tierra (EN ESPERA) o desaparecido tras la colisión
+    // Inicializar posición de radar si es nuevo
+    if (!fp.radar) {
+      fp.radar = {
+        angle: Math.random() * Math.PI * 2, // Rumbo inicial aleatorio
+        dist: Math.random() * radius * 0.4, // Distancia cerca del centro
+        speed: 0.15 + Math.random() * 0.2    // Velocidad de simulación visual
+      };
+    }
+    
+    // Mover la aeronave alejándose del centro
+    fp.radar.dist += fp.radar.speed;
+    if (fp.radar.dist > radius) {
+      fp.radar.dist = 0; // Reiniciar al centro si sale de pantalla
+      fp.radar.angle = Math.random() * Math.PI * 2;
+    }
+
+    const bx = cx + Math.cos(fp.radar.angle) * fp.radar.dist;
+    const by = cy + Math.sin(fp.radar.angle) * fp.radar.dist;
+
+    // Calcular si el haz del radar pasa por encima para dar destello
+    let tAngle = radarAngle % (Math.PI * 2);
+    if (tAngle < 0) tAngle += Math.PI * 2;
+    let fAngle = fp.radar.angle % (Math.PI * 2);
+    if (fAngle < 0) fAngle += Math.PI * 2;
+    let diff = Math.abs(tAngle - fAngle);
+    if (diff > Math.PI) diff = Math.PI * 2 - diff;
+
+    const blipColor = diff < 0.2 ? '#ffffff' : (fp.conflict ? PAL.danger : PAL.vfr); // Destello blanco
+
+    // Dibujar el punto (Blip)
+    rCtx.fillStyle = blipColor;
+    rCtx.fillRect(bx - 2, by - 2, 4, 4);
+
+    // Etiqueta de datos (Data Block) — en rojo si hay riesgo de colisión con otra aeronave
+    rCtx.fillStyle = fp.conflict ? PAL.danger : PAL.textMuted;
+    rCtx.font = 'bold 11px Courier New';
+    rCtx.fillText(fp.flightId, bx + 8, by - 5);
+    rCtx.fillStyle = fp.conflict ? PAL.danger : PAL.textMuted;
+    rCtx.font = '10px Courier New';
+    rCtx.fillText(`${fp.level || 'F---'} ${speedLabel(fp.speed)}`, bx + 8, by + 7);
+
+    // Línea guía
+    rCtx.beginPath();
+    rCtx.moveTo(bx, by);
+    rCtx.lineTo(bx + 6, by - 5);
+    rCtx.strokeStyle = '#5f7181';
+    rCtx.lineWidth = 1;
+    rCtx.stroke();
+  });
+
+  requestAnimationFrame(drawRadar);
+}
+
+/* ===================== INICIO ===================== */
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('f_eobd').value = todayYYMMDD();
+  populateAcTypeList(); populateCallsignList(); aftnFill(); setMode('CREATE'); renderSidebar(); renderQueue(); openWindow('win-fpop');
+  
+  // Iniciar el Radar
+  drawRadar();
+
+  // Iniciar el Mapa de Rutas
+  initMap();
+
+  // Desbloquea el audio del STCA en el primer click (los navegadores exigen un gesto del
+  // usuario antes de permitir que suene cualquier audio).
+  document.addEventListener('click', ()=> getAudioCtx(), { once:true });
+
+  const flightIdEl = document.getElementById('f_flightId');
+  const radioEl = document.getElementById('f_radio');
+  flightIdEl.addEventListener('input', ()=>{
+    if(currentMode !== 'CREATE') return;
+    const guess = airlineFromFlightId(flightIdEl.value);
+    if(guess){ radioEl.value = guess; radioEl.classList.add('f-ok'); } else radioEl.classList.remove('f-ok');
+  });
+
+  const acTypeEl = document.getElementById('f_acType');
+  const wakeEl = document.getElementById('f_wake');
+  acTypeEl.addEventListener('input', ()=>{
+    if(currentMode !== 'CREATE') return;
+    const info = acTypeInfo(acTypeEl.value);
+    if(info){ wakeEl.value = info.wtc; acTypeEl.classList.replace('f-invalid','f-ok'); wakeEl.classList.add('f-ok'); }
+    else { wakeEl.value = ''; acTypeEl.classList.remove('f-ok'); wakeEl.classList.remove('f-ok'); }
+  });
+});
+</script>
+<script>
+  // ---------- DROPDOWN "MÓDULOS" ----------
+  (function(){
+    const dropdown = document.getElementById('modulosDropdown');
+    if(!dropdown) return;
+    const btn = document.getElementById('modulosBtn');
+    function closeDropdown(){ dropdown.classList.remove('open'); btn.setAttribute('aria-expanded','false'); }
+    function toggleDropdown(){
+      const isOpen = dropdown.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    }
+    btn.addEventListener('click', e => { e.stopPropagation(); toggleDropdown(); });
+    document.addEventListener('click', e => { if(!dropdown.contains(e.target)) closeDropdown(); });
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeDropdown(); });
+  })();
+
+  // ---------- MOBILE NAV DRAWER ----------
+  (function(){
+    const menuBtn        = document.getElementById('menuBtn');
+    const mobileNav      = document.getElementById('mobileNav');
+    const mobileNavClose = document.getElementById('mobileNavClose');
+    const mobileNavBack  = document.getElementById('mobileNavBackdrop');
+    const themeToggleMob = document.getElementById('themeToggleMobile');
+    const themeToggleBtn = document.getElementById('themeToggle');
+    if(!menuBtn || !mobileNav) return;
+
+    function openMobileNav(){
+      mobileNav.classList.add('open');
+      menuBtn.setAttribute('aria-expanded','true');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeMobileNav(){
+      mobileNav.classList.remove('open');
+      menuBtn.setAttribute('aria-expanded','false');
+      document.body.style.overflow = '';
+    }
+    menuBtn.addEventListener('click', openMobileNav);
+    mobileNavClose.addEventListener('click', closeMobileNav);
+    mobileNavBack.addEventListener('click', closeMobileNav);
+    document.addEventListener('keydown', e => { if(e.key === 'Escape') closeMobileNav(); });
+
+    function syncMobileThemeLabel(){
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      themeToggleMob.querySelector('.icon-sun').style.display  = isDark ? 'none'  : 'block';
+      themeToggleMob.querySelector('.icon-moon').style.display = isDark ? 'block' : 'none';
+      themeToggleMob.childNodes[themeToggleMob.childNodes.length-1].textContent =
+        isDark ? ' Modo claro' : ' Modo oscuro';
+    }
+    syncMobileThemeLabel();
+
+    themeToggleMob.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if(isDark){
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('aisTheme', 'light');
+      }else{
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('aisTheme', 'dark');
+      }
+      if(themeToggleBtn) themeToggleBtn.setAttribute('aria-label', isDark ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro');
+      syncMobileThemeLabel();
+    });
+    if(themeToggleBtn) themeToggleBtn.addEventListener('click', syncMobileThemeLabel);
+  })();
+</script>
+<script>
+  // Si el estudiante ya inició sesión, el botón lleva directo a su panel.
+  (async function actualizarBotonSesion(){
+    if (typeof sbClient === 'undefined' || !sbClient) return;
+    const { data } = await sbClient.auth.getSession();
+    if (!data || !data.session) return;
+    const btnDesktop = document.getElementById('navLoginBtn');
+    const btnMobile = document.getElementById('navLoginBtnMobile');
+    if (btnDesktop) { btnDesktop.textContent = 'Mi panel'; btnDesktop.href = 'Panel_estudiante.html'; }
+    if (btnMobile) { btnMobile.firstChild.textContent = 'Mi panel '; btnMobile.href = 'Panel_estudiante.html'; }
+  })();
+</script>
+</body>
+</html>

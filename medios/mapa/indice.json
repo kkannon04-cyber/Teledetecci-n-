@@ -1,0 +1,63 @@
+{
+  "origen": "https://a.tile.opentopomap.org",
+  "atribucion": "© OpenTopoMap (CC-BY-SA) · datos © OpenStreetMap contributors (ODbL)",
+  "caja": {
+    "latMin": -7.73,
+    "latMax": 16.9,
+    "lonMin": -85.25,
+    "lonMax": -63.349999999999994
+  },
+  "zooms": {
+    "4": {
+      "x": [
+        3,
+        6
+      ],
+      "y": [
+        6,
+        9
+      ]
+    },
+    "5": {
+      "x": [
+        7,
+        13
+      ],
+      "y": [
+        13,
+        19
+      ]
+    },
+    "6": {
+      "x": [
+        15,
+        26
+      ],
+      "y": [
+        27,
+        38
+      ]
+    },
+    "7": {
+      "x": [
+        33,
+        43
+      ],
+      "y": [
+        57,
+        68
+      ]
+    },
+    "8": {
+      "x": [
+        67,
+        86
+      ],
+      "y": [
+        115,
+        137
+      ]
+    }
+  },
+  "generado": "2026-09-08T22:56:29.011Z"
+}

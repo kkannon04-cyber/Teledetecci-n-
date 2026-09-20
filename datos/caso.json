@@ -1,0 +1,3147 @@
+{
+  "meta": {
+    "titulo": "Análisis de teledetección aplicada a una ruta aeronáutica",
+    "subtitulo": "SKVV → SKLT · corredor amazónico · 07 SEP 2026 1830Z",
+    "autor": "Cristian Arcila, Ángela Torres y Leonardo Rodríguez",
+    "integrantes": [
+      "Cristian Arcila",
+      "Ángela Torres",
+      "Leonardo Rodríguez"
+    ],
+    "asignatura": "Teledetección",
+    "esEjemplo": false,
+    "notaEjemplo": "",
+    "_procedenciaDatos": {
+      "verificado": "METAR, TAF y SIGMET de la API del Aviation Weather Center (NOAA), consultados PARA LA HORA DEL CASO (071830Z SEP), no para el momento presente. METAR y TAF se piden dos veces: por identificador para los seis aeródromos del caso y por caja para toda la cobertura nacional (52 estaciones METAR y 28 TAF), y se funden sin duplicar. Los SIGMET se piden barriendo la ventana entera hora a hora, de 1730Z a 2200Z, porque tres de los avisos que cruzan la ruta se emitieron con el vuelo ya despegado y una consulta a un solo instante no los habría traído. Coordenadas ARP, elevaciones, pistas, VOR/DME (53 de ENR 4.1, todo el país), fijos de ruta y zonas ENR 5.1 (26, todo el país) del eAIP Colombia (Aerocivil), AIRAC A 73-26 vigente desde 09 JUL 2026, cargados desde la base aeronáutica del Simulador NALA (AD 2.2 / AD 2.12 / ENR 4.1 / ENR 4.4 / ENR 5.1). Declinación magnética de cada punto de la ruta: World Magnetic Model WMM-2025 del NOAA/NCEI, evaluado para el 04 SEP 2026 y reutilizado el 07 SEP 2026: la variación secular en tres días es de milésimas de grado, muy por debajo de la incertidumbre declarada de ±0.33°, así que los rumbos magnéticos no cambian.",
+      "derivado": "PRODUCTOS DERIVADOS DE LA IMAGEN, calculados por el propio proyecto y reproducibles: temperatura de brillo (inversión de la tabla de color ircimss2 publicada por SLIDER, con desambiguación del gris por conectividad), altura de tope de nube (z = z_estación + (T_estación − Tb)/Γ, con Γ = 6,5 °C/km de la Atmósfera Tipo OACI y anclaje en el METAR real más cercano), máscara de nube (Tb más de 10 °C por debajo del METAR de anclaje) y los núcleos convectivos de datos/fenomenos.geojson (umbral −52 °C, mínimo 80 píxeles, corredor 120 NM, seguimiento por centroide a 45 NM entre cuadros, severidad por percentil 5). NO SON OBSERVACIONES: son cálculos sobre el producto renderizado de SLIDER, con 192 escalones de tabla y compresión JPEG de por medio, y cada uno lleva sus límites escritos en la interfaz. Se regeneran con: node herramientas/derivar-fenomenos.mjs",
+      "calculado": "Distancias, rumbos verdaderos y magnéticos, TOC/TOD, elección del nivel de crucero por la tabla semicircular, separación de cada zona a la ruta, cruce de cada SIGMET con la ruta y las puntuaciones de distancia, pista y ayudas: todas salen de fórmulas declaradas (alternos.metodo y nivelesCrucero).",
+      "sinVerificar": "LAS AEROVÍAS A301 Y B689 NO SE PUDIERON CONTRASTAR: los siete puntos de la ruta están publicados (VVC en ENR 4.1; UBRID, DUBRA, ISORI, ASKAT, DADIL y ROKUL en ENR 4.4), pero ninguno de los dos designadores figura en la tabla de aerovías de esta base. El trazado usa las coordenadas reales de los siete puntos; los designadores quedan pendientes de contrastar contra ENR 3.1/3.2 del AIP. Tampoco están publicados aquí el tipo de aproximación (AD 2.19), el horario (AD 2.3) ni los servicios (AD 2.4). Además, 42 de los 53 VOR/DME llegan SIN NOMBRE de estación: la base publica identificador y coordenadas, no el nombre, y ponerlo de memoria sería inventarlo. Los 11 con nombre son los que ya venían contrastados.",
+      "ilustrativo": "Las 26 zonas ENR 5.1 son círculos de 5 NM alrededor del punto de referencia publicado, no el trazado lateral oficial; el AIP publica además otras zonas que esta base no ancla a coordenadas y por eso no aparecen. Los polígonos SIGMET sí son los publicados en el aviso, vértice a vértice."
+    }
+  },
+  "vuelo": {
+    "indicativo": "SAT9721",
+    "aeronave": "ATR 72-600",
+    "categoriaEstela": "M",
+    "velocidadCruceroKt": 250,
+    "nivelCrucero": "FL210",
+    "nivelCruceroFt": 21000,
+    "salidaZ": "2026-09-07T18:30:00Z",
+    "etaZ": "2026-09-07T20:55:00Z",
+    "salidaLocal": "07 SEP 2026, 13:30 hora de Colombia (UTC−5)",
+    "combustibleAlternoMin": 45,
+    "_nota": "Turbohélice regional, que es lo que opera este corredor. El nivel NO se elige a gusto: la ruta va al sureste y la tabla semicircular obliga a nivel IMPAR, así que FL200 no es asignable en este sentido (ver nivelesCrucero). De los impares, FL190 coincide con el techo exacto de la zona restringida SKR7 sobre el propio aeródromo de salida, así que se sube a FL210. Sigue estando muy por debajo de los topes convectivos amazónicos, y esa limitación es parte del análisis. Duración (145 min = 2 h 25 min) calculada sobre la distancia real de la ruta (553.4 NM) a 250 kt —132.8 min de vuelo puro— más 12 min de rodaje, ascenso y aproximación. Salida 1830Z, ETA 2055Z. NO son las 3 h 40 min que se estimaron a ojo: a 250 kt esa duración exigiría una ruta de 917 NM o una velocidad respecto al suelo de 160 kt."
+  },
+  "cobertura": {
+    "nombre": "Colombia completa (continental e insular) + 1.5° de margen",
+    "caja": {
+      "latMin": -5.73,
+      "latMax": 14.9,
+      "lonMin": -83.25,
+      "lonMax": -65.35
+    },
+    "_procedencia": "Unión de dos cajas, ambas con 1.5° de margen: los extremos publicados del territorio colombiano —Punta Gallinas 12°27ʹ46ʺN, Quebrada San Antonio 4°13ʹ30ʺS, Piedra del Cocuy 66°50ʹ54ʺW, Cabo Manglares 79°01ʹ23ʺW, y Providencia y Santa Catalina hasta 13.40°N / 81.75°W— y la caja de la ruta del caso. La unión garantiza que ampliar la cobertura no puede dejar fuera ningún punto de la ruta. No incluye los cayos del norte del archipiélago (Serranilla, Bajo Nuevo), por encima de 15°N.",
+    "usoEnElProyecto": "La usan los tres capturadores: el recorte de las bandas GOES-19, la caja de teselas del mapa base y la caja de la consulta METAR/TAF al Aviation Weather Center. El recorte satelital real sale algo mayor porque la rejilla del satélite no es rectangular en el mapa: ver satelite._recorte.contorno."
+  },
+  "nivelesCrucero": {
+    "regla": "Tabla de niveles de crucero — OACI Anexo 2, Apéndice 3 (adoptada por el RAC 91 de Colombia). Por debajo de FL290 y en vuelo IFR: derrota MAGNÉTICA de 000° a 179° → niveles IMPARES (FL050, 070 … 190, 210, 230, 250, 270); de 180° a 359° → niveles PARES (FL060, 080 … 200, 220, 240, 260, 280).",
+    "aplicacion": "impar",
+    "nivelAsignado": "FL210",
+    "nivelDescartado": {
+      "nivel": "FL190",
+      "motivo": "Es impar y por tanto asignable, pero 19 000 ft es exactamente el techo publicado de la zona restringida SKR7 (VILLAVICENCIO, 9 000–19 000 ft), que cubre el propio aeródromo de salida. Nivelar justo en el límite superior de una zona restringida no deja margen ante la variación de QNH, así que se sube al siguiente impar."
+    },
+    "nivelesNoAsignables": "FL200, FL220 y cualquier otro par: corresponden al sentido contrario (SKLT → SKVV), no a este vuelo.",
+    "declinacion": {
+      "modelo": "WMM-2025 (NOAA/NCEI)",
+      "epoca": "2026-09-04",
+      "incertidumbre": "±0.33°",
+      "url": "https://www.ngdc.noaa.gov/geomag-web/calculators/calculateDeclination",
+      "_nota": "Evaluada para el 04 SEP 2026 y válida para el 07 SEP 2026: en tres días el WMM varía milésimas de grado, dos órdenes de magnitud por debajo de la incertidumbre de ±0.33°. Los rumbos magnéticos y el nivel que salen de ellos no cambian."
+    },
+    "segmentos": [
+      {
+        "desde": "SKVV",
+        "hasta": "VVC",
+        "rumboVerdadero": 114,
+        "declinacion": -9.04,
+        "rumboMagnetico": 123,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      },
+      {
+        "desde": "VVC",
+        "hasta": "UBRID",
+        "rumboVerdadero": 154.2,
+        "declinacion": -9.21,
+        "rumboMagnetico": 163.4,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      },
+      {
+        "desde": "UBRID",
+        "hasta": "DUBRA",
+        "rumboVerdadero": 151.1,
+        "declinacion": -9.64,
+        "rumboMagnetico": 160.7,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      },
+      {
+        "desde": "DUBRA",
+        "hasta": "ISORI",
+        "rumboVerdadero": 160.2,
+        "declinacion": -10,
+        "rumboMagnetico": 170.2,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      },
+      {
+        "desde": "ISORI",
+        "hasta": "ASKAT",
+        "rumboVerdadero": 160.2,
+        "declinacion": -10.22,
+        "rumboMagnetico": 170.4,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      },
+      {
+        "desde": "ASKAT",
+        "hasta": "DADIL",
+        "rumboVerdadero": 160.2,
+        "declinacion": -10.4,
+        "rumboMagnetico": 170.6,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      },
+      {
+        "desde": "DADIL",
+        "hasta": "ROKUL",
+        "rumboVerdadero": 160.2,
+        "declinacion": -10.56,
+        "rumboMagnetico": 170.8,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      },
+      {
+        "desde": "ROKUL",
+        "hasta": "SKLT",
+        "rumboVerdadero": 160.2,
+        "declinacion": -10.69,
+        "rumboMagnetico": 170.9,
+        "semicirculo": "000–179",
+        "paridad": "impar"
+      }
+    ],
+    "margen": "El segmento más cercano al cambio de semicírculo es ROKUL → SKLT con 170.9° magnéticos: quedan 9.1° hasta los 180° que darían la vuelta a la tabla. Ningún tramo se acerca al límite, así que la ruta entera es de niveles impares sin ambigüedad.",
+    "_procedencia": "Rumbos verdaderos calculados por ortodrómica sobre las coordenadas publicadas de cada punto (ENR 4.1 / ENR 4.4). Declinación magnética consultada punto a punto al WMM-2025 del NOAA para el 04 SEP 2026. Rumbo magnético = rumbo verdadero − declinación."
+  },
+  "ventanaTiempo": {
+    "inicioZ": "2026-09-07T17:30:00Z",
+    "finZ": "2026-09-07T22:00:00Z",
+    "pasoMinutos": 10,
+    "horaAnalisisZ": "2026-09-07T18:30:00Z",
+    "_nota": "Una hora antes de la salida (1830Z) y una hora después de la ETA (2055Z). El extremo se cierra en 2200Z y no en 2155Z porque GOES-19 barre el disco completo cada 10 min en punto: 2200Z es el primer cuadro posterior a ETA+1 h. Son 28 cuadros por banda, sin huecos."
+  },
+  "aerodromos": [
+    {
+      "icao": "SKVV",
+      "nombre": "Vanguardia",
+      "ciudad": "Villavicencio",
+      "lat": 4.16906,
+      "lon": -73.61279,
+      "elevFt": 1381,
+      "rol": "origen",
+      "tipoAlterno": null,
+      "pistas": [
+        {
+          "designacion": "05/23",
+          "longitudM": 1940,
+          "longitudFt": 6365,
+          "anchoM": 30,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME VVC (Villavicencio) a 15.1 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Puerta de la Orinoquía, al pie de la cordillera Oriental. Pista de 1 940 m a 1 381 ft. La zona restringida SKR7 cubre el aeródromo entre 9 000 y 19 000 ft: el ascenso la atraviesa entera."
+    },
+    {
+      "icao": "SKLT",
+      "nombre": "Alfredo Vásquez Cobo",
+      "ciudad": "Leticia",
+      "lat": -4.19191,
+      "lon": -69.9422,
+      "elevFt": 271,
+      "rol": "destino",
+      "tipoAlterno": null,
+      "pistas": [
+        {
+          "designacion": "03/21",
+          "longitudM": 2010,
+          "longitudFt": 6594,
+          "anchoM": 40,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME LET (Leticia) a 0.3 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Pista de 2 010 m a 271 ft, la mejor del trayecto. Su problema no es la pista: es que no hay ningún alterno colombiano cerca. Es el único aeródromo del caso con TAF publicado además de la referencia de SKBO."
+    },
+    {
+      "icao": "SKMU",
+      "nombre": "Fabio A. León Bentley",
+      "ciudad": "Mitú",
+      "lat": 1.25355,
+      "lon": -70.23406,
+      "elevFt": 557,
+      "rol": "alterno",
+      "tipoAlterno": "destino",
+      "pistas": [
+        {
+          "designacion": "02/20",
+          "longitudM": 1754,
+          "longitudFt": 5755,
+          "anchoM": 30,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME MTU (Mitú) a 0.7 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Mitú es el alterno colombiano más próximo a Leticia y aun así queda a más de 300 NM. Pista de 1 754 m a 557 ft. Sin TAF."
+    },
+    {
+      "icao": "SKSJ",
+      "nombre": "Jorge E. González T.",
+      "ciudad": "San José del Guaviare",
+      "lat": 2.57933,
+      "lon": -72.63939,
+      "elevFt": 613,
+      "rol": "alterno",
+      "tipoAlterno": "ruta",
+      "pistas": [
+        {
+          "designacion": "01/19",
+          "longitudM": 1419,
+          "longitudFt": 4656,
+          "anchoM": 20,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME SJE (San José del Guaviare) a 2.8 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "San José del Guaviare, sobre la primera parte de la ruta. Pista de 1 419 m, la más corta del caso. Sin TAF."
+    },
+    {
+      "icao": "SKPD",
+      "nombre": "César Gaviria",
+      "ciudad": "Inírida",
+      "lat": 3.85426,
+      "lon": -67.90647,
+      "elevFt": 325,
+      "rol": "alterno",
+      "tipoAlterno": "ruta",
+      "pistas": [
+        {
+          "designacion": "18/36",
+          "longitudM": 1930,
+          "longitudFt": 6332,
+          "anchoM": 30,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME PDA (Inírida) a 0.2 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Inírida, al oriente. Pista de 1 930 m a 325 ft, buena pista, pero desplazada del eje de la ruta. Sin TAF."
+    },
+    {
+      "icao": "SKFL",
+      "nombre": "Gustavo Artunduaga Paredes",
+      "ciudad": "Florencia",
+      "lat": 1.58926,
+      "lon": -75.56443,
+      "elevFt": 792,
+      "rol": "alterno",
+      "tipoAlterno": "ruta",
+      "pistas": [
+        {
+          "designacion": "12/30",
+          "longitudM": 1340,
+          "longitudFt": 4396,
+          "anchoM": 30,
+          "superficie": "ASPHALT"
+        }
+      ],
+      "ayudas": [
+        "VOR/DME FLA (Florencia) a 0.3 NM del ARP"
+      ],
+      "horario": "Pendiente — AIP AD 2.3",
+      "notas": "Florencia, al occidente y ya en el piedemonte. Pista de 1 340 m a 792 ft. Sin TAF."
+    }
+  ],
+  "ruta": {
+    "origen": "SKVV",
+    "destino": "SKLT",
+    "distanciaNM": 553.4,
+    "cadenaATS": "SKVV VVC A301 UBRID B689 DUBRA A301 ISORI A301 ASKAT A301 DADIL A301 ROKUL SKLT",
+    "aerovias": [
+      {
+        "designador": "A301",
+        "desde": "VVC",
+        "hasta": "UBRID",
+        "clase": "inferior",
+        "fuente": "PENDIENTE — no figura en la base AIP cargada",
+        "verificada": false
+      },
+      {
+        "designador": "B689",
+        "desde": "UBRID",
+        "hasta": "DUBRA",
+        "clase": "inferior",
+        "fuente": "PENDIENTE — no figura en la base AIP cargada",
+        "verificada": false
+      },
+      {
+        "designador": "A301",
+        "desde": "DUBRA",
+        "hasta": "ROKUL",
+        "clase": "inferior",
+        "fuente": "PENDIENTE — no figura en la base AIP cargada",
+        "verificada": false
+      }
+    ],
+    "enlaceSkyVector": "https://skyvector.com/?fpl=SKVV%20VVC%20A301%20UBRID%20B689%20DUBRA%20A301%20ISORI%20A301%20ASKAT%20A301%20DADIL%20A301%20ROKUL%20SKLT",
+    "_procedencia": "VVC es VOR/DME de ENR 4.1; UBRID, DUBRA, ISORI, ASKAT, DADIL y ROKUL son fijos de ruta de ENR 4.4. Sus coordenadas son las publicadas y forman una línea prácticamente recta hacia el sureste, coherente con el corredor amazónico. A301 y B689 no aparecen en la base y quedan marcadas como no verificadas. TOC y TOD son calculados.",
+    "perfilVertical": {
+      "tocDesdeOrigenNM": 55,
+      "todAntesDestinoNM": 66,
+      "modelo": "Ascenso: 19 619 ft de SKVV (1 381 ft) a FL210 a 1 100 ft/min de media con 185 kt de velocidad respecto al suelo → 17.8 min → 55 NM. Descenso: 20 729 ft hasta la elevación de SKLT (271 ft) con regla 3:1 (62 NM) más 4 NM de margen de desaceleración → 66 NM, es decir TOD a 487 NM del origen."
+    },
+    "waypoints": [
+      {
+        "nombre": "SKVV",
+        "lat": 4.16906,
+        "lon": -73.61279,
+        "tipo": "aerodromo",
+        "via": "SID",
+        "desdeOrigenNM": 0
+      },
+      {
+        "nombre": "VVC",
+        "lat": 4.06667,
+        "lon": -73.38222,
+        "tipo": "vor",
+        "via": "SID",
+        "desdeOrigenNM": 15
+      },
+      {
+        "nombre": "TOC",
+        "lat": 3.46892,
+        "lon": -73.09266,
+        "tipo": "toc",
+        "via": "calculado",
+        "desdeOrigenNM": 55,
+        "estimado": true
+      },
+      {
+        "nombre": "UBRID",
+        "lat": 3.20222,
+        "lon": -72.96361,
+        "tipo": "waypoint",
+        "via": "A301",
+        "desdeOrigenNM": 73
+      },
+      {
+        "nombre": "DUBRA",
+        "lat": 1.35556,
+        "lon": -71.94444,
+        "tipo": "waypoint",
+        "via": "B689",
+        "desdeOrigenNM": 199
+      },
+      {
+        "nombre": "ISORI",
+        "lat": -0.03139,
+        "lon": -71.44389,
+        "tipo": "waypoint",
+        "via": "A301",
+        "desdeOrigenNM": 288
+      },
+      {
+        "nombre": "ASKAT",
+        "lat": -1.38389,
+        "lon": -70.95667,
+        "tipo": "waypoint",
+        "via": "A301",
+        "desdeOrigenNM": 374
+      },
+      {
+        "nombre": "DADIL",
+        "lat": -2.41806,
+        "lon": -70.58333,
+        "tipo": "waypoint",
+        "via": "A301",
+        "desdeOrigenNM": 440
+      },
+      {
+        "nombre": "TOD",
+        "lat": -3.15744,
+        "lon": -70.3162,
+        "tipo": "tod",
+        "via": "calculado",
+        "desdeOrigenNM": 487,
+        "estimado": true
+      },
+      {
+        "nombre": "ROKUL",
+        "lat": -3.40806,
+        "lon": -70.22556,
+        "tipo": "waypoint",
+        "via": "A301",
+        "desdeOrigenNM": 503
+      },
+      {
+        "nombre": "SKLT",
+        "lat": -4.19191,
+        "lon": -69.9422,
+        "tipo": "aerodromo",
+        "via": "STAR",
+        "desdeOrigenNM": 553
+      }
+    ]
+  },
+  "navegacion": {
+    "_nota": "Radioayudas y zonas del AIP Colombia de TODO EL PAÍS, no solo las del corredor: la cobertura del visor es nacional. 53 VOR/DME de ENR 4.1 y 26 zonas de ENR 5.1, cargados de la base aeronáutica del Simulador NALA (AIRAC A 73-26, vigente desde 09 JUL 2026). El campo distanciaRutaNM dice a cuánto queda cada uno del trazado, y afectaRuta marca las zonas cuyo círculo ilustrativo de 5 NM lo toca. ATENCIÓN: 42 de los 53 VOR llegan SIN NOMBRE (nombre: null): la base publica identificador y coordenadas pero no el nombre de la estación, y ponerlo de memoria sería inventarlo. Los 11 con nombre son los que ya estaban contrastados en el caso anterior. Las zonas siguen siendo círculos ilustrativos de 5 NM alrededor del punto de referencia publicado, no el trazado lateral oficial; el AIP publica además otras zonas (SKR5, SKR6, SKR16, SKR18, SKR25, SKR26, SKR33, SKR44/45, SKP29/32…) que esta base no ancla a coordenadas y por eso no están.",
+    "vor": [
+      {
+        "ident": "ABL",
+        "nombre": null,
+        "lat": 4.78389,
+        "lon": -74.7675,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 78.3
+      },
+      {
+        "ident": "AUC",
+        "nombre": null,
+        "lat": 7.06722,
+        "lon": -70.73278,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 239.9
+      },
+      {
+        "ident": "AXM",
+        "nombre": null,
+        "lat": 4.46,
+        "lon": -75.76556,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 130
+      },
+      {
+        "ident": "BAQ",
+        "nombre": null,
+        "lat": 10.79528,
+        "lon": -74.86028,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 404.5
+      },
+      {
+        "ident": "BOG",
+        "nombre": null,
+        "lat": 4.84667,
+        "lon": -74.32333,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 58.8
+      },
+      {
+        "ident": "BUN",
+        "nombre": null,
+        "lat": 3.82528,
+        "lon": -76.99528,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 203.5
+      },
+      {
+        "ident": "BUV",
+        "nombre": null,
+        "lat": 5.53222,
+        "lon": -73.85861,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 83.1
+      },
+      {
+        "ident": "CJN",
+        "nombre": null,
+        "lat": 11.23139,
+        "lon": -72.49306,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 429
+      },
+      {
+        "ident": "CLO",
+        "nombre": null,
+        "lat": 3.40083,
+        "lon": -76.40639,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 173.4
+      },
+      {
+        "ident": "CTG",
+        "nombre": null,
+        "lat": 10.20833,
+        "lon": -75.50611,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 379.7
+      },
+      {
+        "ident": "CUC",
+        "nombre": null,
+        "lat": 7.93333,
+        "lon": -72.51361,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 235.2
+      },
+      {
+        "ident": "CZU",
+        "nombre": null,
+        "lat": 9.33583,
+        "lon": -75.2825,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 325.7
+      },
+      {
+        "ident": "EJA",
+        "nombre": null,
+        "lat": 7.02861,
+        "lon": -73.80556,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 172
+      },
+      {
+        "ident": "ELB",
+        "nombre": null,
+        "lat": 9.04528,
+        "lon": -73.96722,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 293.3
+      },
+      {
+        "ident": "EYP",
+        "nombre": null,
+        "lat": 5.27611,
+        "lon": -72.42667,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 92.4
+      },
+      {
+        "ident": "FLA",
+        "nombre": "Florencia",
+        "lat": 1.58778,
+        "lon": -75.56944,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 183.3
+      },
+      {
+        "ident": "GIR",
+        "nombre": null,
+        "lat": 4.19222,
+        "lon": -74.86556,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 75
+      },
+      {
+        "ident": "IBG",
+        "nombre": null,
+        "lat": 4.39778,
+        "lon": -75.10611,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 90.4
+      },
+      {
+        "ident": "IPI",
+        "nombre": null,
+        "lat": 0.86222,
+        "lon": -77.67306,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 313.7
+      },
+      {
+        "ident": "LCE",
+        "nombre": null,
+        "lat": 7.81889,
+        "lon": -76.72222,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 287.4
+      },
+      {
+        "ident": "LET",
+        "nombre": "Leticia",
+        "lat": -4.18778,
+        "lon": -69.93944,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 0.2
+      },
+      {
+        "ident": "MDU",
+        "nombre": "Marandúa",
+        "lat": 5.53306,
+        "lon": -68.67333,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 292
+      },
+      {
+        "ident": "MER",
+        "nombre": null,
+        "lat": 1.78889,
+        "lon": -77.15139,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 255.4
+      },
+      {
+        "ident": "MGN",
+        "nombre": null,
+        "lat": 9.28722,
+        "lon": -74.84694,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 315.8
+      },
+      {
+        "ident": "MQU",
+        "nombre": null,
+        "lat": 5.205,
+        "lon": -74.92111,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 100
+      },
+      {
+        "ident": "MRN",
+        "nombre": null,
+        "lat": 6.17639,
+        "lon": -75.32389,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 158.1
+      },
+      {
+        "ident": "MTR",
+        "nombre": null,
+        "lat": 8.83389,
+        "lon": -75.82972,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 309.7
+      },
+      {
+        "ident": "MTU",
+        "nombre": "Mitú",
+        "lat": 1.24194,
+        "lon": -70.23694,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 93.8
+      },
+      {
+        "ident": "MZL",
+        "nombre": null,
+        "lat": 5.05389,
+        "lon": -75.52889,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 126.4
+      },
+      {
+        "ident": "NVA",
+        "nombre": null,
+        "lat": 3.06194,
+        "lon": -75.25583,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 118.7
+      },
+      {
+        "ident": "PAL",
+        "nombre": null,
+        "lat": 5.48722,
+        "lon": -74.66056,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 100.9
+      },
+      {
+        "ident": "PDA",
+        "nombre": "Inírida",
+        "lat": 3.85278,
+        "lon": -67.90389,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 284.1
+      },
+      {
+        "ident": "PEI",
+        "nombre": null,
+        "lat": 4.78167,
+        "lon": -75.83611,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 138
+      },
+      {
+        "ident": "PIE",
+        "nombre": null,
+        "lat": 6.88389,
+        "lon": -73.09194,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 165.8
+      },
+      {
+        "ident": "PLG",
+        "nombre": "Puerto Leguízamo",
+        "lat": -0.17861,
+        "lon": -74.77556,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 190.6
+      },
+      {
+        "ident": "PPN",
+        "nombre": null,
+        "lat": 2.44889,
+        "lon": -76.61417,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 207.1
+      },
+      {
+        "ident": "PTC",
+        "nombre": null,
+        "lat": 6.18139,
+        "lon": -67.49556,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 372.4
+      },
+      {
+        "ident": "RHC",
+        "nombre": null,
+        "lat": 11.5275,
+        "lon": -72.9175,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 443.5
+      },
+      {
+        "ident": "RNG",
+        "nombre": null,
+        "lat": 5.98056,
+        "lon": -75.41833,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 153.3
+      },
+      {
+        "ident": "SJE",
+        "nombre": "San José del Guaviare",
+        "lat": 2.5325,
+        "lon": -72.63972,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 2.4
+      },
+      {
+        "ident": "SOA",
+        "nombre": "Soacha",
+        "lat": 4.60306,
+        "lon": -74.27306,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 47.3
+      },
+      {
+        "ident": "SPP",
+        "nombre": null,
+        "lat": 12.5825,
+        "lon": -81.70528,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 699.5
+      },
+      {
+        "ident": "STA",
+        "nombre": null,
+        "lat": 10.9625,
+        "lon": -74.24056,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 409.3
+      },
+      {
+        "ident": "SVC",
+        "nombre": "San Vicente del Caguán",
+        "lat": 2.15722,
+        "lon": -74.77361,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 125.1
+      },
+      {
+        "ident": "TCO",
+        "nombre": null,
+        "lat": 1.81472,
+        "lon": -78.74806,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 338.2
+      },
+      {
+        "ident": "TME",
+        "nombre": null,
+        "lat": 6.45306,
+        "lon": -71.75389,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 173.2
+      },
+      {
+        "ident": "TOL",
+        "nombre": null,
+        "lat": 4.25583,
+        "lon": -74.64056,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 61.7
+      },
+      {
+        "ident": "TQS",
+        "nombre": "Tres Esquinas",
+        "lat": 0.74222,
+        "lon": -75.23361,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 190.2
+      },
+      {
+        "ident": "UIB",
+        "nombre": null,
+        "lat": 5.69222,
+        "lon": -76.64139,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 203
+      },
+      {
+        "ident": "ULQ",
+        "nombre": null,
+        "lat": 4.09222,
+        "lon": -76.22333,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 156.3
+      },
+      {
+        "ident": "VUP",
+        "nombre": null,
+        "lat": 10.44472,
+        "lon": -73.24917,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 377.2
+      },
+      {
+        "ident": "VVC",
+        "nombre": "Villavicencio",
+        "lat": 4.06667,
+        "lon": -73.38222,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": true,
+        "distanciaRutaNM": 0
+      },
+      {
+        "ident": "ZIP",
+        "nombre": null,
+        "lat": 5.01806,
+        "lon": -73.98667,
+        "tipo": "VOR/DME",
+        "fuente": "AIP ENR 4.1",
+        "enRuta": false,
+        "distanciaRutaNM": 55.6
+      }
+    ],
+    "zonas": [
+      {
+        "id": "SKR7",
+        "nombre": "VILLAVICENCIO",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 9000,
+        "hastaFt": 19000,
+        "hastaEtq": null,
+        "lat": 4.16906,
+        "lon": -73.61279,
+        "radioNM": 5,
+        "distanciaRutaNM": 0,
+        "afectaRuta": true,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR40",
+        "nombre": "BOGOTÁ",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 18500,
+        "hastaEtq": null,
+        "lat": 4.7016,
+        "lon": -74.14694,
+        "radioNM": 5,
+        "distanciaRutaNM": 45.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKD36",
+        "nombre": "CHÍA",
+        "clase": "D",
+        "claseTexto": "Peligrosa",
+        "desdeFt": 0,
+        "hastaFt": 10000,
+        "hastaEtq": null,
+        "lat": 4.8125,
+        "lon": -74.06508,
+        "radioNM": 5,
+        "distanciaRutaNM": 47.1,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKP35",
+        "nombre": "CHÍA",
+        "clase": "P",
+        "claseTexto": "Prohibida",
+        "desdeFt": 0,
+        "hastaFt": 12000,
+        "hastaEtq": null,
+        "lat": 4.8125,
+        "lon": -74.06508,
+        "radioNM": 5,
+        "distanciaRutaNM": 47.1,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKD46",
+        "nombre": "MELGAR",
+        "clase": "D",
+        "claseTexto": "Peligrosa",
+        "desdeFt": 0,
+        "hastaFt": 8000,
+        "hastaEtq": null,
+        "lat": 4.25583,
+        "lon": -74.64056,
+        "radioNM": 5,
+        "distanciaRutaNM": 61.7,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKP30",
+        "nombre": "TOLEMAIDA",
+        "clase": "P",
+        "claseTexto": "Prohibida",
+        "desdeFt": 0,
+        "hastaFt": 8500,
+        "hastaEtq": null,
+        "lat": 4.25583,
+        "lon": -74.64056,
+        "radioNM": 5,
+        "distanciaRutaNM": 61.7,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR9",
+        "nombre": "MELGAR",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 11500,
+        "hastaEtq": null,
+        "lat": 4.25583,
+        "lon": -74.64056,
+        "radioNM": 5,
+        "distanciaRutaNM": 61.7,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR39",
+        "nombre": "GIRARDOT",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 2500,
+        "hastaEtq": null,
+        "lat": 4.27535,
+        "lon": -74.79609,
+        "radioNM": 5,
+        "distanciaRutaNM": 71.1,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKP31",
+        "nombre": "PALANQUERO",
+        "clase": "P",
+        "claseTexto": "Prohibida",
+        "desdeFt": 0,
+        "hastaFt": 14000,
+        "hastaEtq": null,
+        "lat": 5.48722,
+        "lon": -74.66056,
+        "radioNM": 5,
+        "distanciaRutaNM": 100.9,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR10",
+        "nombre": "PALANQUERO",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 60000,
+        "hastaEtq": null,
+        "lat": 5.48722,
+        "lon": -74.66056,
+        "radioNM": 5,
+        "distanciaRutaNM": 100.9,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKD41",
+        "nombre": "MANIZALES",
+        "clase": "D",
+        "claseTexto": "Peligrosa",
+        "desdeFt": 0,
+        "hastaFt": 20000,
+        "hastaEtq": null,
+        "lat": 5.03005,
+        "lon": -75.46545,
+        "radioNM": 5,
+        "distanciaRutaNM": 122.3,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR19",
+        "nombre": "MEDELLÍN",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 7500,
+        "hastaEtq": null,
+        "lat": 6.22048,
+        "lon": -75.59043,
+        "radioNM": 5,
+        "distanciaRutaNM": 170.7,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKD37",
+        "nombre": "BARRANCABERMEJA",
+        "clase": "D",
+        "claseTexto": "Peligrosa",
+        "desdeFt": 0,
+        "hastaFt": 4500,
+        "hastaEtq": null,
+        "lat": 7.0238,
+        "lon": -73.8072,
+        "radioNM": 5,
+        "distanciaRutaNM": 171.7,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKD43",
+        "nombre": "FLORENCIA",
+        "clase": "D",
+        "claseTexto": "Peligrosa",
+        "desdeFt": 0,
+        "hastaFt": 6500,
+        "hastaEtq": null,
+        "lat": 1.58926,
+        "lon": -75.56443,
+        "radioNM": 5,
+        "distanciaRutaNM": 183,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKP28",
+        "nombre": "TRES ESQUINAS",
+        "clase": "P",
+        "claseTexto": "Prohibida",
+        "desdeFt": 0,
+        "hastaFt": 9000,
+        "hastaEtq": null,
+        "lat": 0.74222,
+        "lon": -75.23361,
+        "radioNM": 5,
+        "distanciaRutaNM": 190.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR27",
+        "nombre": "TRES ESQUINAS",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 9000,
+        "hastaEtq": null,
+        "lat": 0.74222,
+        "lon": -75.23361,
+        "radioNM": 5,
+        "distanciaRutaNM": 190.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR50",
+        "nombre": "CÚCUTA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 18000,
+        "hastaEtq": null,
+        "lat": 7.92739,
+        "lon": -72.51159,
+        "radioNM": 5,
+        "distanciaRutaNM": 234.9,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR49",
+        "nombre": "TIBÚ",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 2000,
+        "hastaEtq": null,
+        "lat": 8.6125,
+        "lon": -72.69611,
+        "radioNM": 5,
+        "distanciaRutaNM": 272.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKP48",
+        "nombre": "MARANDÚA",
+        "clase": "P",
+        "claseTexto": "Prohibida",
+        "desdeFt": 0,
+        "hastaFt": 12500,
+        "hastaEtq": null,
+        "lat": 5.53306,
+        "lon": -68.67333,
+        "radioNM": 5,
+        "distanciaRutaNM": 292,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR17",
+        "nombre": "CARTAGENA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 2000,
+        "hastaEtq": null,
+        "lat": 10.44168,
+        "lon": -75.51292,
+        "radioNM": 5,
+        "distanciaRutaNM": 393.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR1",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 500,
+        "hastaFt": 3500,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 409.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR11",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 9000,
+        "hastaFt": 19000,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 409.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR23",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 5000,
+        "hastaFt": 18000,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 409.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR24",
+        "nombre": "BARRANQUILLA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 10000,
+        "hastaFt": 18000,
+        "hastaEtq": null,
+        "lat": 10.88946,
+        "lon": -74.78068,
+        "radioNM": 5,
+        "distanciaRutaNM": 409.2,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR8",
+        "nombre": "RIOHACHA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 7000,
+        "hastaEtq": null,
+        "lat": 11.52617,
+        "lon": -72.92668,
+        "radioNM": 5,
+        "distanciaRutaNM": 443.3,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      },
+      {
+        "id": "SKR47",
+        "nombre": "RIOHACHA",
+        "clase": "R",
+        "claseTexto": "Restringida",
+        "desdeFt": 0,
+        "hastaFt": 6500,
+        "hastaEtq": null,
+        "lat": 11.52617,
+        "lon": -72.92668,
+        "radioNM": 5,
+        "distanciaRutaNM": 443.3,
+        "afectaRuta": false,
+        "fuente": "AIP ENR 5.1"
+      }
+    ]
+  },
+  "satelite": {
+    "plataforma": "GOES-19 (GOES-East)",
+    "sector": "Full Disk, recortado a Colombia entera (continental e insular) más 1.5° de margen",
+    "fuente": "CIRA/RAMMB SLIDER — Colorado State University",
+    "urlFuente": "https://rammb-slider.cira.colostate.edu/",
+    "_recorte": {
+      "caja": {
+        "latMin": -5.73,
+        "latMax": 14.9,
+        "lonMin": -83.25,
+        "lonMax": -65.35
+      },
+      "proyeccion": {
+        "lonSat": -75,
+        "borde": 0.151872,
+        "radioEcuatorial": 6378137,
+        "radioPolar": 6356752.31414,
+        "alturaSatelite": 42164160
+      },
+      "contorno": [
+        [
+          14.9353,
+          -83.6045
+        ],
+        [
+          14.9302,
+          -82.8186
+        ],
+        [
+          14.9255,
+          -82.0351
+        ],
+        [
+          14.9213,
+          -81.2538
+        ],
+        [
+          14.9176,
+          -80.4744
+        ],
+        [
+          14.9145,
+          -79.6965
+        ],
+        [
+          14.9118,
+          -78.9201
+        ],
+        [
+          14.9096,
+          -78.1448
+        ],
+        [
+          14.9079,
+          -77.3705
+        ],
+        [
+          14.9066,
+          -76.5969
+        ],
+        [
+          14.9059,
+          -75.8237
+        ],
+        [
+          14.9056,
+          -75.0508
+        ],
+        [
+          14.9058,
+          -74.2779
+        ],
+        [
+          14.9065,
+          -73.5048
+        ],
+        [
+          14.9077,
+          -72.7312
+        ],
+        [
+          14.9093,
+          -71.957
+        ],
+        [
+          14.9115,
+          -71.1819
+        ],
+        [
+          14.9141,
+          -70.4056
+        ],
+        [
+          14.9172,
+          -69.628
+        ],
+        [
+          14.9208,
+          -68.8487
+        ],
+        [
+          14.9249,
+          -68.0677
+        ],
+        [
+          14.9295,
+          -67.2845
+        ],
+        [
+          14.9346,
+          -66.499
+        ],
+        [
+          14.9402,
+          -65.7109
+        ],
+        [
+          14.9464,
+          -64.9199
+        ],
+        [
+          14.9464,
+          -64.9199
+        ],
+        [
+          14.0508,
+          -64.969
+        ],
+        [
+          13.1608,
+          -65.0145
+        ],
+        [
+          12.2758,
+          -65.0566
+        ],
+        [
+          11.3954,
+          -65.0953
+        ],
+        [
+          10.5193,
+          -65.1307
+        ],
+        [
+          9.6472,
+          -65.1631
+        ],
+        [
+          8.7786,
+          -65.1924
+        ],
+        [
+          7.9132,
+          -65.2187
+        ],
+        [
+          7.0506,
+          -65.2422
+        ],
+        [
+          6.1906,
+          -65.2628
+        ],
+        [
+          5.3328,
+          -65.2806
+        ],
+        [
+          4.4769,
+          -65.2958
+        ],
+        [
+          3.6226,
+          -65.3082
+        ],
+        [
+          2.7695,
+          -65.318
+        ],
+        [
+          1.9175,
+          -65.3252
+        ],
+        [
+          1.066,
+          -65.3297
+        ],
+        [
+          0.215,
+          -65.3317
+        ],
+        [
+          -0.636,
+          -65.331
+        ],
+        [
+          -1.4871,
+          -65.3278
+        ],
+        [
+          -2.3388,
+          -65.322
+        ],
+        [
+          -3.1914,
+          -65.3135
+        ],
+        [
+          -4.045,
+          -65.3024
+        ],
+        [
+          -4.9001,
+          -65.2886
+        ],
+        [
+          -5.7569,
+          -65.2721
+        ],
+        [
+          -5.7569,
+          -65.2721
+        ],
+        [
+          -5.7547,
+          -66.0346
+        ],
+        [
+          -5.7527,
+          -66.7945
+        ],
+        [
+          -5.7508,
+          -67.5521
+        ],
+        [
+          -5.7492,
+          -68.3077
+        ],
+        [
+          -5.7477,
+          -69.0613
+        ],
+        [
+          -5.7464,
+          -69.8133
+        ],
+        [
+          -5.7453,
+          -70.5639
+        ],
+        [
+          -5.7443,
+          -71.3133
+        ],
+        [
+          -5.7435,
+          -72.0616
+        ],
+        [
+          -5.7429,
+          -72.8092
+        ],
+        [
+          -5.7425,
+          -73.5561
+        ],
+        [
+          -5.7423,
+          -74.3027
+        ],
+        [
+          -5.7422,
+          -75.0491
+        ],
+        [
+          -5.7423,
+          -75.7954
+        ],
+        [
+          -5.7426,
+          -76.542
+        ],
+        [
+          -5.743,
+          -77.2891
+        ],
+        [
+          -5.7436,
+          -78.0367
+        ],
+        [
+          -5.7444,
+          -78.7852
+        ],
+        [
+          -5.7454,
+          -79.5347
+        ],
+        [
+          -5.7465,
+          -80.2854
+        ],
+        [
+          -5.7479,
+          -81.0377
+        ],
+        [
+          -5.7494,
+          -81.7915
+        ],
+        [
+          -5.7511,
+          -82.5473
+        ],
+        [
+          -5.7529,
+          -83.3052
+        ],
+        [
+          -5.7529,
+          -83.3052
+        ],
+        [
+          -4.8967,
+          -83.2912
+        ],
+        [
+          -4.0422,
+          -83.2795
+        ],
+        [
+          -3.1892,
+          -83.2701
+        ],
+        [
+          -2.3372,
+          -83.2629
+        ],
+        [
+          -1.4861,
+          -83.2579
+        ],
+        [
+          -0.6355,
+          -83.2552
+        ],
+        [
+          0.2149,
+          -83.2546
+        ],
+        [
+          1.0653,
+          -83.2563
+        ],
+        [
+          1.9161,
+          -83.2602
+        ],
+        [
+          2.7676,
+          -83.2662
+        ],
+        [
+          3.6201,
+          -83.2746
+        ],
+        [
+          4.4738,
+          -83.2851
+        ],
+        [
+          5.3292,
+          -83.298
+        ],
+        [
+          6.1864,
+          -83.3132
+        ],
+        [
+          7.0457,
+          -83.3307
+        ],
+        [
+          7.9077,
+          -83.3506
+        ],
+        [
+          8.7724,
+          -83.373
+        ],
+        [
+          9.6404,
+          -83.3979
+        ],
+        [
+          10.5119,
+          -83.4254
+        ],
+        [
+          11.3873,
+          -83.4555
+        ],
+        [
+          12.2669,
+          -83.4884
+        ],
+        [
+          13.1512,
+          -83.5241
+        ],
+        [
+          14.0405,
+          -83.5627
+        ],
+        [
+          14.9353,
+          -83.6045
+        ]
+      ],
+      "cobertura": "Colombia completa (continental e insular) más margen, no solo el corredor de la ruta.",
+      "nota": "Recorte calculado con la proyección geoestacionaria del GOES-R PUG y verificado contra NASA GIBS: ver medios/satelite/verificacion.md. Todas las bandas comparten el mismo contorno geográfico."
+    },
+    "bandas": [
+      {
+        "id": "band_01",
+        "nombre": "Azul visible",
+        "canal": "Banda 1",
+        "longitudOnda": "0.47 µm",
+        "resolucion": "1 km",
+        "para": "Aerosoles, bruma y humo. Es la banda más sensible a la dispersión atmosférica.",
+        "leer": "La bruma y el humo aparecen como un velo lechoso que en la banda 2 apenas se nota. Compararla con la 2 separa lo que es aerosol de lo que es nube. Solo sirve de día.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_01/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_01/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_01/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_01/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_01/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_01/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_01/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_01/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_01/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_01/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_01/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_01/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_01/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_01/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_01/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_01/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_01/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:20:00Z",
+              "archivo": "medios/satelite/band_01/2020z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_01/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_01/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_01/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_01/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_01/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_01/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_01/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_01/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_01/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_01/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 4,
+          "lado": 10848,
+          "x0": 4512,
+          "y0": 3808,
+          "ancho": 1978,
+          "alto": 2248
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_01",
+        "_procedencia": "Teselas de SLIDER a zoom 4 (1 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      },
+      {
+        "id": "band_02",
+        "nombre": "Rojo visible",
+        "canal": "Banda 2",
+        "longitudOnda": "0.64 µm",
+        "resolucion": "0.5 km",
+        "para": "Textura y estructura de la nube a la máxima resolución del instrumento: torres convectivas, sombras del yunque, líneas de turbulencia.",
+        "leer": "Blanco intenso con textura granulada y abultada = desarrollo vertical activo. La sombra que proyecta el yunque dice hacia dónde crece la célula. Solo sirve de día.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_02/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_02/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_02/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_02/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_02/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_02/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_02/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_02/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_02/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_02/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_02/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_02/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_02/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_02/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_02/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_02/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_02/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:20:00Z",
+              "archivo": "medios/satelite/band_02/2020z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_02/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_02/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_02/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_02/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_02/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_02/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_02/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_02/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_02/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_02/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 5,
+          "lado": 21696,
+          "x0": 9024,
+          "y0": 7616,
+          "ancho": 3956,
+          "alto": 4496
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_02",
+        "_procedencia": "Teselas de SLIDER a zoom 5 (0.5 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      },
+      {
+        "id": "band_04",
+        "nombre": "Cirros",
+        "canal": "Banda 4",
+        "longitudOnda": "1.37 µm",
+        "resolucion": "2 km",
+        "para": "Cirros finos y altos, incluidos los que el visible confunde con bruma y los que el infrarrojo apenas insinúa.",
+        "leer": "A 1.37 µm el vapor de agua de los niveles bajos absorbe casi toda la radiación solar, así que el suelo y la nube baja salen NEGROS: lo único que aparece brillante es el hielo por encima de unos 6 km. Un velo claro sobre fondo negro es cirro, y el cirro que se extiende sobre la ruta es el yunque de una célula que ya está descargando. Solo sirve de día.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_04/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_04/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_04/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_04/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_04/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_04/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_04/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_04/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_04/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_04/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_04/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_04/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_04/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_04/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_04/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_04/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_04/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_04/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_04/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_04/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_04/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_04/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_04/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_04/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_04/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_04/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_04/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 3,
+          "lado": 5424,
+          "x0": 2256,
+          "y0": 1904,
+          "ancho": 989,
+          "alto": 1124
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_04",
+        "_procedencia": "Teselas de SLIDER a zoom 3 (2 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      },
+      {
+        "id": "band_05",
+        "nombre": "Nieve y hielo",
+        "canal": "Banda 5",
+        "longitudOnda": "1.6 µm",
+        "resolucion": "1 km",
+        "para": "Separa la nube de agua líquida de la nube de hielo. Es la banda del engelamiento.",
+        "leer": "Al revés que el visible: el hielo absorbe a 1.6 µm y sale OSCURO, mientras que la gota de agua sobreenfriada sale clara. Lo que se ve claro aquí y frío en la banda 13 es lo que engela.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_05/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_05/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_05/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_05/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_05/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_05/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_05/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_05/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_05/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_05/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_05/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_05/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_05/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_05/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_05/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_05/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_05/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:20:00Z",
+              "archivo": "medios/satelite/band_05/2020z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_05/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_05/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_05/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_05/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_05/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_05/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_05/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_05/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_05/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_05/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 4,
+          "lado": 10848,
+          "x0": 4512,
+          "y0": 3808,
+          "ancho": 1978,
+          "alto": 2248
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_05",
+        "_procedencia": "Teselas de SLIDER a zoom 4 (1 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      },
+      {
+        "id": "band_07",
+        "nombre": "Ventana de onda corta",
+        "canal": "Banda 7",
+        "longitudOnda": "3.9 µm",
+        "resolucion": "2 km",
+        "para": "Niebla y estratos bajos de madrugada, focos de calor, y —restada de la banda 13— el producto clásico de nube baja nocturna.",
+        "leer": "De noche los estratos bajos contrastan con el suelo porque emiten distinto a 3.9 y a 10.3 µm. De día mezcla emisión térmica y reflexión solar: las nubes de gota pequeña se ven brillantes.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_07/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_07/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_07/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_07/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_07/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_07/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_07/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_07/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_07/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_07/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_07/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_07/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_07/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_07/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_07/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_07/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_07/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:20:00Z",
+              "archivo": "medios/satelite/band_07/2020z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_07/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_07/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_07/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_07/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_07/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_07/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_07/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_07/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_07/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_07/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 3,
+          "lado": 5424,
+          "x0": 2256,
+          "y0": 1904,
+          "ancho": 989,
+          "alto": 1124
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_07",
+        "_procedencia": "Teselas de SLIDER a zoom 3 (2 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      },
+      {
+        "id": "band_09",
+        "nombre": "Vapor de agua, nivel medio",
+        "canal": "Banda 9",
+        "longitudOnda": "6.9 µm",
+        "resolucion": "2 km",
+        "para": "Humedad y circulación de la troposfera media, hacia 400–500 hPa. No llega a ver el suelo: ve la capa que este avión tiene por encima.",
+        "leer": "Oscuro = aire seco y descendente; claro = aire húmedo o nube alta. Lo que importa aquí no son las manchas sino los BORDES: un límite marcado entre zona clara y zona oscura es un cortante de viento, y ahí es donde aparece la turbulencia en aire claro. Funciona de día y de noche.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_09/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_09/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_09/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_09/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_09/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_09/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_09/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_09/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_09/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_09/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_09/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_09/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_09/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_09/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_09/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_09/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_09/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:20:00Z",
+              "archivo": "medios/satelite/band_09/2020z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_09/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_09/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_09/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_09/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_09/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_09/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_09/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_09/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_09/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_09/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 3,
+          "lado": 5424,
+          "x0": 2256,
+          "y0": 1904,
+          "ancho": 989,
+          "alto": 1124
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_09",
+        "_procedencia": "Teselas de SLIDER a zoom 3 (2 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      },
+      {
+        "id": "band_10",
+        "nombre": "Vapor de agua, nivel bajo",
+        "canal": "Banda 10",
+        "longitudOnda": "7.3 µm",
+        "resolucion": "2 km",
+        "para": "Humedad de la troposfera baja y media, hacia 600–750 hPa: la capa en la que de verdad vuela un turbohélice a FL210.",
+        "leer": "Es la banda de vapor más próxima al nivel de crucero de este vuelo. Las lenguas oscuras son intrusiones de aire seco, que ahogan la convección; las claras son la humedad que la alimenta. Comparada con la banda 9 dice si la humedad está abajo o arriba, que es lo que decide si la célula crece. Funciona de día y de noche.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_10/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_10/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_10/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_10/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_10/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_10/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_10/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_10/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_10/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_10/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_10/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_10/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_10/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_10/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_10/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_10/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_10/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:20:00Z",
+              "archivo": "medios/satelite/band_10/2020z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_10/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_10/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_10/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_10/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_10/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_10/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_10/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_10/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_10/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_10/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 3,
+          "lado": 5424,
+          "x0": 2256,
+          "y0": 1904,
+          "ancho": 989,
+          "alto": 1124
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_10",
+        "_procedencia": "Teselas de SLIDER a zoom 3 (2 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      },
+      {
+        "id": "band_13",
+        "nombre": "Infrarrojo ventana limpia",
+        "canal": "Banda 13",
+        "longitudOnda": "10.3 µm",
+        "resolucion": "2 km",
+        "para": "Temperatura de brillo del tope de nube. Es la banda que cuantifica la severidad convectiva.",
+        "leer": "Topes por debajo de −60 °C indican convección profunda con probable granizo, turbulencia severa y actividad eléctrica. Funciona de día y de noche.",
+        "medio": {
+          "tipo": "secuencia",
+          "cuadros": [
+            {
+              "horaZ": "2026-09-07T17:30:00Z",
+              "archivo": "medios/satelite/band_13/1730z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:40:00Z",
+              "archivo": "medios/satelite/band_13/1740z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T17:50:00Z",
+              "archivo": "medios/satelite/band_13/1750z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:00:00Z",
+              "archivo": "medios/satelite/band_13/1800z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:10:00Z",
+              "archivo": "medios/satelite/band_13/1810z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:20:00Z",
+              "archivo": "medios/satelite/band_13/1820z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:30:00Z",
+              "archivo": "medios/satelite/band_13/1830z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:40:00Z",
+              "archivo": "medios/satelite/band_13/1840z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T18:50:00Z",
+              "archivo": "medios/satelite/band_13/1850z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:00:00Z",
+              "archivo": "medios/satelite/band_13/1900z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:10:00Z",
+              "archivo": "medios/satelite/band_13/1910z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:20:00Z",
+              "archivo": "medios/satelite/band_13/1920z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:30:00Z",
+              "archivo": "medios/satelite/band_13/1930z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:40:00Z",
+              "archivo": "medios/satelite/band_13/1940z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T19:50:00Z",
+              "archivo": "medios/satelite/band_13/1950z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:00:00Z",
+              "archivo": "medios/satelite/band_13/2000z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:10:00Z",
+              "archivo": "medios/satelite/band_13/2010z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:20:00Z",
+              "archivo": "medios/satelite/band_13/2020z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:30:00Z",
+              "archivo": "medios/satelite/band_13/2030z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:40:00Z",
+              "archivo": "medios/satelite/band_13/2040z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T20:50:00Z",
+              "archivo": "medios/satelite/band_13/2050z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:00:00Z",
+              "archivo": "medios/satelite/band_13/2100z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:10:00Z",
+              "archivo": "medios/satelite/band_13/2110z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:20:00Z",
+              "archivo": "medios/satelite/band_13/2120z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:30:00Z",
+              "archivo": "medios/satelite/band_13/2130z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:40:00Z",
+              "archivo": "medios/satelite/band_13/2140z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T21:50:00Z",
+              "archivo": "medios/satelite/band_13/2150z.jpg"
+            },
+            {
+              "horaZ": "2026-09-07T22:00:00Z",
+              "archivo": "medios/satelite/band_13/2200z.jpg"
+            }
+          ]
+        },
+        "geo": {
+          "zoom": 3,
+          "lado": 5424,
+          "x0": 2256,
+          "y0": 1904,
+          "ancho": 989,
+          "alto": 1124
+        },
+        "permalink": "https://rammb-slider.cira.colostate.edu/?sat=goes-19&sec=full_disk&p%5B0%5D=band_13",
+        "_procedencia": "Teselas de SLIDER a zoom 3 (2 km, resolución nativa), recompuestas y recortadas a la caja de la ruta."
+      }
+    ]
+  },
+  "alternos": {
+    "metodo": {
+      "distancia": "Puntuación = 10·(500 − d)/(500 − 150), acotada a 0–10. La escala se abrió a la realidad amazónica: en este corredor no existen alternos a 40 NM, y aplicar la escala de una ruta andina daría cero a todos y no distinguiría nada.",
+      "pista": "Puntuación = 10·(Lef − 900)/(1800 − 900), acotada a 0–10, con Lef = longitud publicada corregida por elevación (Lef = L/(1 + 0,07·elev/1000)). Escala de turbohélice regional.",
+      "ayudas": "Provisional: 10 si el VOR/DME de referencia está a ≤2 NM del ARP, 8 si ≤7 NM, 6 si ≤15 NM, 4 si más. Sustituir por el tipo de aproximación real al consultar AIP AD 2.19.",
+      "meteo": "No se almacena: lo recalcula el visor con la categoría de vuelo del METAR vigente a la hora de la barra de tiempo.",
+      "_excluido": "Horario y servicios (AD 2.3 / AD 2.4) siguen fuera de la matriz: el dato no está en la base y puntuarlo sería inventarlo."
+    },
+    "criterios": [
+      {
+        "id": "meteo",
+        "nombre": "Meteorología a la ETA",
+        "peso": 30,
+        "descripcion": "Categoría de vuelo del METAR vigente a la hora seleccionada."
+      },
+      {
+        "id": "distancia",
+        "nombre": "Distancia y combustible",
+        "peso": 25,
+        "descripcion": "Distancia ortodrómica desde SKLT, sobre coordenadas ARP del AIP. Escala amazónica."
+      },
+      {
+        "id": "pista",
+        "nombre": "Pista y performance",
+        "peso": 25,
+        "descripcion": "Longitud publicada corregida por elevación, en escala de turbohélice regional."
+      },
+      {
+        "id": "ayudas",
+        "nombre": "Radioayuda de referencia",
+        "peso": 20,
+        "descripcion": "Proximidad del VOR/DME de ENR 4.1 al ARP. Provisional hasta consultar AD 2.19."
+      }
+    ],
+    "evaluacion": {
+      "SKMU": {
+        "distancia": 4.9,
+        "pista": 8.8,
+        "ayudas": 10
+      },
+      "SKSJ": {
+        "distancia": 1.8,
+        "pista": 5.1,
+        "ayudas": 8
+      },
+      "SKPD": {
+        "distancia": 0,
+        "pista": 10,
+        "ayudas": 10
+      },
+      "SKFL": {
+        "distancia": 0.5,
+        "pista": 4.1,
+        "ayudas": 10
+      }
+    },
+    "_memoriaCalculo": {
+      "SKMU": {
+        "nm": 327.4,
+        "pistaM": 1754,
+        "efectivaM": 1688,
+        "vor": "MTU 0.7 NM"
+      },
+      "SKSJ": {
+        "nm": 437.6,
+        "pistaM": 1419,
+        "efectivaM": 1361,
+        "vor": "SJE 2.8 NM"
+      },
+      "SKPD": {
+        "nm": 498.3,
+        "pistaM": 1930,
+        "efectivaM": 1887,
+        "vor": "PDA 0.2 NM"
+      },
+      "SKFL": {
+        "nm": 484,
+        "pistaM": 1340,
+        "efectivaM": 1270,
+        "vor": "FLA 0.3 NM"
+      }
+    },
+    "_advertencia": "NINGÚN ALTERNO COLOMBIANO QUEDA CERCA DEL DESTINO. El más próximo a SKLT es SKMU, a 327.4 NM: más lejos que muchas rutas enteras. Esto no es un defecto de la selección sino la característica del corredor, y condiciona el combustible mucho más que cualquier otro criterio de la matriz.",
+    "descartados": [
+      {
+        "icao": "SBTT",
+        "motivo": "Tabatinga (Brasil) está pegado a Leticia y en la práctica es el alterno natural del destino, pero queda fuera del AIP Colombia: esta base no tiene su ficha AD 2 y no se inventa. Hay que sacarlo del AIP Brasil antes de meterlo en la matriz."
+      },
+      {
+        "icao": "SKBO",
+        "motivo": "El Dorado tiene TAF, pista y servicios, pero queda a más de 500 NM del destino: como alterno de SKLT obliga a un combustible que este avión no lleva."
+      },
+      {
+        "icao": "SKTQ",
+        "motivo": "Tres Esquinas está bien situada al occidente, pero no publica METAR en la API y además cae dentro de las zonas SKP28/SKR27: no es utilizable como alterno civil en este ejercicio."
+      }
+    ],
+    "seleccionado": "SKMU",
+    "justificacion": "Es el alterno más próximo al destino (327 NM) y está en VFR a la hora estimada de llegada. Los cuatro candidatos están en VFR a las 2100Z, así que el criterio meteorológico no discrimina y la decisión la fijan distancia, pista y ayudas. MATIZ QUE NO DA LA CATEGORÍA: SKMU es el único cuyo METAR declara FEW048TCU —torre en desarrollo al oeste del campo— y está además en el entorno de cb-09, la célula más grande y persistente del caso (3 045 NM², seguida de 1730Z a 2140Z). Sigue siendo operable y sigue siendo el más cercano, pero con menos margen del que sugiere su VFR. Segunda opción: SKSJ, con nubosidad más alta (BKN040) y fuera del entorno de cb-09."
+  },
+  "bitacora": {
+    "decision": "GO con desvío planificado",
+    "minimos": "PENDIENTE — los mínimos de aproximación (AD 2.19) no están en la base aeronáutica cargada y no se rellenan con un valor plausible.",
+    "combustibleAlterno": "45 min",
+    "riesgosPrincipales": [
+      "Tres células convectivas severas (cb-01, cb-02, cb-03), con percentil 5 de temperatura de brillo entre −71,2 y −73,9 °C, a menos de 20 NM de la aeronave entre las 2030Z y las 2040Z. La traza de la ruta atraviesa las tres.",
+      "El conflicto cae en el descenso y la aproximación a SKLT (millas 458 a 496), que es la fase con menos margen de maniobra.",
+      "A las 2030Z el 14 % de los puntos de la ruta tiene topes de nube calculados por encima de FL210, frente al 2 % a la hora de salida: el campo convectivo madura contra el reloj del vuelo.",
+      "Con topes de esa temperatura, el nivel de crucero no es una solución: no hay nivel asignable a un ATR 72-600 que los salve."
+    ],
+    "medidasMitigacion": [
+      "Desvío lateral de unas 9 NM en el tramo DADIL → TOD → ROKUL, suficiente para llevar la separación a 25 NM. Coste calculado por geometría sobre un tramo de 150 NM: unas 0,5 NM adicionales de recorrido.",
+      "Decidir el desvío 15 min antes del punto de máxima aproximación, no sobre el obstáculo.",
+      "Vigilar el TCU declarado por SKMU (FEW048TCU) si se recurre al alterno.",
+      "Reevaluar a las 2030Z: el análisis de la hora de salida declara la ruta casi limpia y no representa la situación de llegada."
+    ],
+    "firmadoPor": ""
+  },
+  "escenas": [
+    {
+      "id": "intro",
+      "titulo": "La ruta",
+      "texto": "SKVV → SKLT, 553 NM en línea casi recta hacia el sureste sobre la Amazonía: VVC, UBRID, DUBRA, ISORI, ASKAT, DADIL y ROKUL. Los siete puntos están publicados en el AIP; los designadores A301 y B689 no se pudieron contrastar contra esta base y están marcados como tales. Todos los tramos van entre 123° y 171° magnéticos, es decir en el semicírculo 000–179: la tabla de niveles obliga a IMPAR, y de ahí sale FL210. TOC a 55 NM, TOD a 487 NM.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "vor"
+      ],
+      "vista": {
+        "lat": 0,
+        "lon": -71.6,
+        "zoom": 6
+      },
+      "banda": null,
+      "horaZ": "2026-09-07T18:30:00Z"
+    },
+    {
+      "id": "espacio-aereo",
+      "titulo": "Salida de Villavicencio",
+      "texto": "SKR7 es zona restringida entre 9 000 y 19 000 ft sobre el propio aeródromo de salida: el ascenso hasta FL210 la atraviesa de lado a lado. Aquí es donde se decide el nivel: la derrota exige impar, y de los impares FL190 nivelaría justo en el techo de SKR7, así que se sube al siguiente, FL210. De UBRID en adelante el espacio aéreo está vacío y el problema pasa a ser otro: no hay dónde aterrizar.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "vor",
+        "zonas"
+      ],
+      "vista": {
+        "lat": 3.8,
+        "lon": -73.2,
+        "zoom": 8
+      },
+      "banda": null,
+      "horaZ": "2026-09-07T18:30:00Z"
+    },
+    {
+      "id": "convectivo",
+      "titulo": "Diagnóstico convectivo",
+      "texto": "La banda 13 mide la temperatura del tope: cuanto más frío, más alto llegó la corriente ascendente. La banda 2, a 0,5 km, enseña la textura de esa misma nube. Las dos cubren Colombia entera —no solo el corredor— así que se puede seguir de dónde entran los sistemas antes de que toquen la ruta. La cortina las enfrenta sobre el tramo DUBRA – ISORI, el corazón amazónico del trazado. Con FL210 de crucero, lo que no se puede sobrevolar hay que rodearlo.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "huella-satelite"
+      ],
+      "vista": {
+        "lat": 0,
+        "lon": -71.7,
+        "zoom": 5
+      },
+      "banda": "band_13",
+      "comparar": "band_02",
+      "horaZ": "2026-09-07T18:30:00Z"
+    },
+    {
+      "id": "engelamiento",
+      "titulo": "Fase del agua y engelamiento",
+      "texto": "La banda 5 invierte el visible: a 1,6 µm el hielo absorbe y sale oscuro, mientras la gota de agua sobreenfriada sale clara. Lo que aquí se ve claro y en la banda 13 sale frío es lo que engela. No es un riesgo teórico en este vuelo: la FIR Amazónica tiene publicado el SIGMET 41 de engelamiento SEVERO entre FL140 y FL230, válido hasta las 1930Z, y FL210 está dentro de esa banda. Para un turbohélice subiendo a FL210 esta es la banda que decide cuándo activar el antihielo.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "huella-satelite"
+      ],
+      "vista": {
+        "lat": 0,
+        "lon": -71.7,
+        "zoom": 5
+      },
+      "banda": "band_05",
+      "horaZ": "2026-09-07T19:10:00Z"
+    },
+    {
+      "id": "cirros",
+      "titulo": "Cirros: lo que el visible no distingue",
+      "texto": "A 1,37 µm el vapor de agua de los niveles bajos absorbe casi toda la luz solar: el suelo y la nube baja salen NEGROS y lo único que queda brillante es el hielo por encima de unos 6 km. Sobre ese fondo negro, el velo claro que se extiende delante de la ruta es el yunque de una célula que ya está descargando, y su borde dice hacia dónde se desplaza el sistema. La banda 2 lo confunde con nube cualquiera y la 13 apenas lo insinúa; esta lo aísla. La cortina las enfrenta.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "huella-satelite"
+      ],
+      "vista": {
+        "lat": 0,
+        "lon": -71.7,
+        "zoom": 5
+      },
+      "banda": "band_04",
+      "comparar": "band_02",
+      "horaZ": "2026-09-07T18:50:00Z"
+    },
+    {
+      "id": "vapor",
+      "titulo": "Vapor de agua: a qué altura está la humedad",
+      "texto": "Las bandas 9 y 10 no ven el suelo: ven la humedad de la troposfera media (400–500 hPa) y de la baja-media (600–750 hPa), y esta última es justo la capa por la que vuela el avión a FL210. La cortina las enfrenta. Si la 10 sale clara y la 9 oscura, la humedad está abajo y el aire seco de encima frena el crecimiento; si las dos salen claras, la columna está cargada y la célula sube sin freno. En la banda 9 lo que importa no son las manchas sino los bordes: un límite marcado entre claro y oscuro es un cortante de viento, y ahí aparece la turbulencia en aire claro.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "huella-satelite"
+      ],
+      "vista": {
+        "lat": 0,
+        "lon": -71.7,
+        "zoom": 5
+      },
+      "banda": "band_10",
+      "comparar": "band_09",
+      "horaZ": "2026-09-07T18:30:00Z"
+    },
+    {
+      "id": "sigmet",
+      "titulo": "SIGMET vigentes",
+      "texto": "Avisos consultados a la API barriendo la ventana entera del caso —1730Z a 2200Z del 07 SEP, cada hora— y no solo la hora de análisis: tres de los que cruzan la ruta se emitieron con el vuelo ya despegado. La FIR Lima (SPIM) mantiene tormenta embebida SOBRE EL TRAZADO durante todo el vuelo, en tres avisos encadenados sin hueco: A10 hasta las 1750Z con topes en FL400, A12 hasta las 2100Z con topes en FL450 e INTSF, y A13 hasta las 2330Z con topes en FL490, otra vez INTSF. Los tres cortan la ruta en el tramo final, sobre Leticia. Con FL210 de crucero no hay nada que sobrevolar: un tope en FL490 se rodea o se espera. Aparte, la FIR Amazónica avisa engelamiento SEVERO entre FL140 y FL230 (SIGMET 41, hasta las 1930Z) a 79 NM del trazado, una banda que contiene el nivel de crucero de este vuelo; y la FIR Bogotá tiene activa ceniza volcánica del Puracé de superficie a FL180 (SIGMET 3 y 4), a 200 NM de la ruta pero dentro del país.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "sigmet"
+      ],
+      "vista": {
+        "lat": -3,
+        "lon": -70.3,
+        "zoom": 6
+      },
+      "banda": null,
+      "horaZ": "2026-09-07T18:30:00Z"
+    },
+    {
+      "id": "meteorologia",
+      "titulo": "METAR y TAF",
+      "texto": "El panel detalla los seis aeródromos del caso; la capa de estaciones pinta las 52 que reportan METAR dentro de la caja de cobertura nacional, coloreadas por categoría de vuelo a la hora de la barra. A las 1830Z, 41 en VFR y 11 en MVFR: ningún aeródromo del país está bajo mínimos, y el problema de este vuelo no está en la superficie sino en ruta. De los seis del caso solo SKLT publica TAF —en toda la caja hay 28— así que ni el origen ni los cuatro alternos tienen pronóstico: la planificación se sostiene sobre observaciones de superficie y sobre lo que se infiera por teledetección.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "huella-satelite"
+      ],
+      "vista": {
+        "lat": 0,
+        "lon": -71.7,
+        "zoom": 5
+      },
+      "banda": "band_02",
+      "horaZ": "2026-09-07T18:30:00Z"
+    },
+    {
+      "id": "alterno",
+      "titulo": "Selección del alterno",
+      "texto": "El alterno colombiano más cercano a Leticia es Mitú, a 327.4 NM. Ninguno está cerca, así que la matriz no elige el mejor sino el menos malo, y la decisión real se juega en el combustible. Tabatinga, al otro lado del río, sería el alterno natural pero está fuera del AIP Colombia y no se puede documentar con esta base.",
+      "capas": [
+        "base-relieve",
+        "ruta",
+        "aerodromos",
+        "anillos"
+      ],
+      "vista": {
+        "lat": -1,
+        "lon": -70.5,
+        "zoom": 6
+      },
+      "banda": null,
+      "horaZ": "2026-09-07T20:55:00Z"
+    }
+  ]
+}

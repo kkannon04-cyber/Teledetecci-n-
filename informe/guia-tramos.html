@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Cómo funciona el análisis por tramos</title>
+<style>
+  @page { size: A4 landscape; margin: 14mm 15mm 12mm; }
+
+  :root {
+    --tinta: #16202b;
+    --tinta2: #4a5b6b;
+    --tenue: #8595a4;
+    --linea: #d7dfe6;
+    --acento: #1668c4;
+    --rojo: #c0392b;
+    --ambar: #a9761a;
+    --verde: #1e7a45;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: var(--tinta);
+    font-size: 10.2pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  code, .mono { font-family: "Cascadia Mono", Consolas, monospace; font-size: 0.92em; }
+
+  section { page-break-after: always; page-break-inside: avoid; }
+  section:last-child { page-break-after: auto; }
+
+  h1 { font-size: 30pt; line-height: 1.1; margin: 0 0 6mm; letter-spacing: -0.5pt; }
+  h2 {
+    font-size: 15pt;
+    margin: 0 0 1.5mm;
+    letter-spacing: -0.2pt;
+  }
+  h2 .num {
+    display: inline-block;
+    min-width: 8.5mm;
+    color: var(--acento);
+    font-family: "Cascadia Mono", Consolas, monospace;
+  }
+  .sub { color: var(--tenue); font-size: 9.6pt; margin: 0 0 4mm; }
+  p { margin: 0 0 2.6mm; }
+
+  figure { margin: 0 0 4mm; }
+  figure img { width: 100%; display: block; border: 1px solid var(--linea); }
+  figure img.media { width: 62%; margin: 0 auto; }
+  figure.ajustada img { width: 93%; margin: 0 auto; }
+  figcaption { font-size: 8.4pt; color: var(--tenue); margin-top: 1.6mm; }
+
+  .cols { column-count: 2; column-gap: 9mm; }
+  .cols p { break-inside: avoid; }
+
+  .clave {
+    border-left: 3px solid var(--acento);
+    background: #f2f7fd;
+    padding: 3mm 4mm;
+    margin: 0 0 3mm;
+    break-inside: avoid;
+  }
+  .clave b { color: var(--acento); }
+
+  .ojo {
+    border-left: 3px solid var(--ambar);
+    background: #fdf8ee;
+    padding: 3mm 4mm;
+    margin: 3mm 0 0;
+    break-inside: avoid;
+  }
+  .ojo b { color: var(--ambar); }
+
+  ol.pasos { margin: 0; padding-left: 5.5mm; }
+  ol.pasos li { margin-bottom: 2mm; break-inside: avoid; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.4pt; margin: 0 0 3mm; }
+  th, td { text-align: left; padding: 1.2mm 2.5mm; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  th { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; color: var(--tenue); font-weight: 600; }
+  td.n { font-family: "Cascadia Mono", Consolas, monospace; white-space: nowrap; }
+
+  .globo {
+    display: inline-block;
+    width: 5.2mm; height: 5.2mm;
+    border-radius: 50%;
+    background: #ffcc33;
+    color: #1b1200;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-weight: 700;
+    font-size: 8.4pt;
+    text-align: center;
+    line-height: 5.2mm;
+    margin-right: 1mm;
+  }
+
+  .muestra { display: inline-block; width: 4mm; height: 3mm; border: 1px solid #0003; vertical-align: -0.3mm; margin-right: 1mm; }
+
+  /* ---- Portada ---- */
+  .portada { display: flex; flex-direction: column; justify-content: center; height: 180mm; }
+  .portada .eti { font-family: "Cascadia Mono", Consolas, monospace; font-size: 9pt; letter-spacing: 3pt; color: var(--acento); text-transform: uppercase; margin-bottom: 5mm; }
+  .portada .ruta { font-family: "Cascadia Mono", Consolas, monospace; font-size: 17pt; color: var(--acento); font-weight: 700; margin-bottom: 3mm; }
+  .portada .meta { color: var(--tinta2); font-size: 10.5pt; max-width: 150mm; }
+  .portada .reparto { margin-top: 10mm; display: flex; gap: 12mm; font-size: 10.5pt; }
+  .portada .reparto div { border-left: 2px solid var(--acento); padding-left: 3mm; font-weight: 600; }
+  .idx { margin-top: 12mm; font-size: 9.6pt; color: var(--tinta2); column-count: 2; column-gap: 10mm; }
+  .idx div { margin-bottom: 1.4mm; }
+  .idx .n { font-family: "Cascadia Mono", Consolas, monospace; color: var(--acento); margin-right: 2mm; }
+  figure.alta img { width: auto; display: block; }
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<section class="portada">
+  <div class="eti">Teledetección · guía de lectura</div>
+  <h1>Cómo funciona el análisis<br>por tramos</h1>
+  <div class="ruta">SKVV → SKLT · 10 tramos · 07 SEP 2026</div>
+  <p class="meta">
+    La pestaña <b>Tramos</b> es la que convierte el análisis en un veredicto. Recorre la ruta
+    en el orden en que la vuela el avión y, tramo a tramo, cruza lo que dice el satélite con
+    lo que dicen las estaciones y con el nivel de crucero asignado. Esta guía explica cómo se
+    calcula cada fila, cuál es la regla que reparte LIBRE, PRECAUCIÓN y EVITAR, y qué se puede
+    afirmar —y qué no— con ella.
+  </p>
+  <div class="reparto">
+    <div>Cristian Arcila</div>
+    <div>Ángela Torres</div>
+    <div>Leonardo Rodríguez</div>
+  </div>
+
+  <div class="idx">
+    <div><span class="n">1</span>La idea en una frase</div>
+    <div><span class="n">2</span>Anatomía: los cinco elementos</div>
+    <div><span class="n">3</span>El veredicto de la ruta</div>
+    <div><span class="n">4</span>Las tres fases del vuelo</div>
+    <div><span class="n">5</span>La fila de un tramo</div>
+    <div><span class="n">6</span>El detalle: siete campos</div>
+    <div><span class="n">7</span>La regla de decisión</div>
+    <div><span class="n">8</span>Cómo se calcula cada tramo</div>
+    <div><span class="n">9</span>Qué decir en la sustentación</div>
+    <div><span class="n">10</span>Qué NO se puede afirmar</div>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>La idea en una frase</h2>
+  <p class="sub">Si solo se retiene una cosa de esta guía, que sea esta.</p>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>El resto del visor pone los datos uno al lado del otro y deja al espectador la tarea
+      de cruzarlos. La pestaña Tramos los cruza y se moja:</b> divide las 553 NM en los diez
+      tramos reales entre puntos publicados y le pone a cada uno una etiqueta —LIBRE,
+      PRECAUCIÓN o EVITAR— con el motivo escrito al lado.
+    </p>
+  </div>
+
+  <div class="cols">
+    <p>
+      Eso es lo que la hace defendible: el veredicto <b>no es una opinión</b>, es una regla
+      declarada aplicada a unos números. La regla está escrita al pie de la propia pestaña,
+      a la vista de quien escucha. Quien no esté de acuerdo puede discutir el criterio, que es
+      exactamente como se discute un análisis.
+    </p>
+    <p>
+      Y es la pieza que contesta la pregunta del trabajo con una frase corta: no «hay
+      convección en la Amazonía», sino <b>«el tramo DADIL → TOD hay que evitarlo, y este es el
+      número por el que lo digo»</b>.
+    </p>
+    <p>
+      Cada tramo se puede desplegar con un clic para ver sus cifras, y al hacerlo la barra de
+      tiempo salta a la hora estimada de paso por ese tramo: el visor entero se pone en el
+      momento del que se está hablando.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>Anatomía: los cinco elementos</h2>
+  <p class="sub">De arriba abajo: la conclusión primero, el criterio al final.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure class="alta" style="flex:0 0 58mm; margin:0">
+      <img src="figuras/tramos-anatomia.png" style="height:152mm" alt="La pestaña Tramos con sus cinco elementos numerados" />
+      <figcaption>La pestaña completa a 2030Z.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table>
+        <tr><th style="width:9mm"></th><th style="width:32mm">Elemento</th><th>Qué es</th></tr>
+        <tr>
+          <td><span class="globo">1</span></td><td><b>Veredicto de la ruta</b></td>
+          <td>La conclusión de toda la pestaña en una palabra, con la hora a la que se ha calculado y el tramo que la marca.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">2</span></td><td><b>Fases de vuelo</b></td>
+          <td>Los tramos agrupados en salida y ascenso, crucero, y descenso y llegada, con las millas de cada fase.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">3</span></td><td><b>Fila de tramo</b></td>
+          <td>Un tramo entre dos puntos publicados: distancia, hora estimada de paso y su veredicto.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">4</span></td><td><b>Barra roja</b></td>
+          <td>Qué porcentaje del tramo tiene topes de nube por encima del nivel de crucero. Es la medida, en forma de barra.</td>
+        </tr>
+        <tr>
+          <td><span class="globo">5</span></td><td><b>Regla de decisión</b></td>
+          <td>El criterio, escrito en la propia interfaz. No está en un anexo: está donde se ve.</td>
+        </tr>
+      </table>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>Que la regla esté impresa en la pantalla es una decisión de diseño, no un adorno.</b>
+          Un veredicto sin criterio visible es una opinión con tipografía bonita.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>El veredicto de la ruta</h2>
+  <p class="sub">Una palabra, y el tramo concreto que la provoca.</p>
+
+  <figure class="ajustada" style="width:80%; margin-left:auto; margin-right:auto">
+    <img src="figuras/tramos-veredicto.png" alt="Bloque de veredicto de la ruta" />
+    <figcaption>El veredicto a 2030Z. El color del borde y de la palabra son el mismo código que usan las filas de tramo.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <p>
+      <b>El veredicto de la ruta es el del peor tramo.</b> No es un promedio ni una votación:
+      una ruta con nueve tramos libres y uno que hay que evitar es una ruta que hay que
+      replantear, y un promedio escondería justo eso.
+    </p>
+    <p>
+      Debajo aparece <b>qué tramo lo marca y por qué</b>. En la captura: «Lo marca el tramo
+      ASKAT → DADIL: 20 % del tramo con topes por encima de FL210». Esa frase es la respuesta
+      completa a «¿por qué dices que hay que evitarla?».
+    </p>
+    <p>
+      La etiqueta de arriba recuerda <b>a qué hora</b> se ha calculado. Es importante decirlo
+      en voz alta: el veredicto es de un instante, y una parte de él cambia al mover la barra
+      de tiempo. El apartado 10 explica qué parte cambia y cuál no.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>Las tres fases del vuelo</h2>
+  <p class="sub">Por qué los tramos se agrupan así y qué significan los asteriscos.</p>
+
+  <div class="cols">
+    <p>
+      Los diez tramos se reparten en tres fases según <b>dónde cae su punto medio</b>: antes del
+      TOC es ascenso, después del TOD es descenso, y lo de en medio es crucero. Con esta ruta
+      salen <b>55 NM de ascenso, 432 de crucero y 66 de descenso</b>.
+    </p>
+    <p>
+      La fase importa porque cambia lo que significa un tope de nube. En crucero, a FL210, un
+      tope en FL195 se sobrevuela. En descenso, ese mismo tope está justo donde el avión va a
+      estar. El agrupamiento evita leer las tres fases con el mismo rasero.
+    </p>
+
+    <div class="ojo">
+      <p style="margin:0">
+        <b>El asterisco de <code>VVC → TOC*</code>:</b> marca un tramo cuyo extremo es un punto
+        <b>calculado</b>, no publicado en la carta. El TOC y el TOD no son waypoints
+        aeronáuticos: son el resultado de aplicar el perfil de ascenso y descenso del ATR a
+        esta ruta. Señalarlo es la diferencia entre citar una carta y presentar un cálculo
+        propio.
+      </p>
+    </div>
+
+    <p style="margin-top:3mm">
+      La cabecera de cada fase repite el dato que la define —el nivel en ascenso, el nivel y la
+      velocidad en crucero— para no tener que recordarlo de memoria mientras se expone.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>La fila de un tramo</h2>
+  <p class="sub">Cuatro datos y una barra, en una línea.</p>
+
+  <table>
+    <tr><th style="width:34mm">Elemento</th><th>Qué dice</th></tr>
+    <tr><td class="n"><b>SKVV → VVC</b></td><td>Los dos puntos publicados que lo delimitan. Con <code>*</code> si alguno es calculado (TOC o TOD).</td></tr>
+    <tr><td class="n"><b>15 NM</b></td><td>Longitud real del tramo, sobre las coordenadas de los waypoints.</td></tr>
+    <tr><td class="n"><b>1831Z</b></td><td><b>Hora estimada de paso</b> por el punto medio del tramo, repartiendo las 553 NM entre la salida (1830Z) y la ETA (2055Z).</td></tr>
+    <tr><td class="n"><b>LIBRE / PRECAUCIÓN / EVITAR</b></td><td>El veredicto del tramo, con su color.</td></tr>
+    <tr><td class="n"><b>Barra roja</b></td><td>Porcentaje del tramo con topes por encima del nivel de crucero. Vacía significa cero, no «sin datos».</td></tr>
+  </table>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>La hora de paso es la clave de toda la pestaña.</b> Es lo que permite decir que una
+      célula «está a 16 NM <i>cuando pasamos por aquí</i>» en vez de «está a 16 NM de la ruta».
+      Una célula que nace a las 2140Z sobre el tramo de salida no penaliza ese tramo: el avión
+      pasó por allí tres horas antes.
+    </p>
+  </div>
+
+  <p style="margin-top:3mm">
+    Al pulsar una fila se despliega su detalle <b>y la barra de tiempo salta a esa hora</b>,
+    de modo que el mapa, la imagen satelital y el EFB quedan en el mismo instante del que habla
+    la fila. Es la forma natural de encadenar la exposición.
+  </p>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>El detalle: siete campos</h2>
+  <p class="sub">Lo que hay debajo de cada fila cuando se despliega.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 88mm; margin:0">
+      <img src="figuras/tramos-detalle.png" alt="Detalle desplegado del tramo ASKAT a DADIL" />
+      <figcaption>El tramo ASKAT → DADIL desplegado a 2030Z: el que marca el veredicto de toda la ruta.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table>
+        <tr><th style="width:30mm">Campo</th><th>Qué es</th></tr>
+        <tr><td><b>Rumbo magnético</b></td><td>Del plan de vuelo, con el verdadero y la declinación al lado. Es lo que obliga a nivel impar y por tanto a FL210.</td></tr>
+        <tr><td><b>Tope de nube máximo</b></td><td>El tope más alto estimado dentro del tramo. Va rotulado <b>«calculado»</b>: sale de la temperatura, no de una medida de altura.</td></tr>
+        <tr><td><b>Tb mínima</b></td><td>La temperatura de brillo más baja del tramo. Si no hay nube, lo dice: «sin nube detectada».</td></tr>
+        <tr><td><b>Tramo sobre crucero</b></td><td>El porcentaje de la barra. Entre paréntesis, cuántos de los puntos muestreados tienen nube.</td></tr>
+        <tr><td><b>Estación más próxima</b></td><td>El aeródromo del caso más cercano al punto medio, su distancia y <b>su categoría a la hora de paso</b>.</td></tr>
+        <tr><td><b>Célula más próxima</b></td><td>La célula seguida cuyo encuentro con el vuelo cae en este tramo, con su distancia, severidad y percentil 5.</td></tr>
+        <tr><td><b>Lecturas ambiguas</b></td><td>Solo aparece si las hay: cuántos puntos del tramo no dieron lectura concluyente.</td></tr>
+      </table>
+
+      <div class="ojo">
+        <p style="margin:0">
+          <b>Cuidado con el paréntesis, que es donde más se tropieza:</b> en la captura, «20 %
+          (14/20 puntos con nube)» quiere decir que el tramo tiene <b>20 puntos muestreados</b>,
+          de los cuales 14 tienen nube, y que <b>el 20 % del tramo</b> —4 de esos 20 puntos—
+          tiene el tope por encima de FL210. El porcentaje y el paréntesis miden cosas distintas.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>La regla de decisión</h2>
+  <p class="sub">Tres niveles, dos criterios, y un matiz temporal que hay que saber defender.</p>
+
+  <figure class="ajustada" style="width:55%; margin-left:auto; margin-right:auto">
+    <img src="figuras/tramos-regla.png" alt="La regla de decisión, tal como aparece en el visor" />
+    <figcaption>La regla, tal cual aparece al pie de la pestaña.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <p>
+      Cada tramo se juzga con <b>dos criterios en paralelo</b>, y manda el peor de los dos:
+      cuánta parte del tramo tiene topes por encima del nivel, y a qué distancia pasa la célula
+      más próxima <i>en el momento de pasar</i>.
+    </p>
+    <p>
+      <b>El 20 % no es arbitrario</b>, pero sí es una decisión de este trabajo: por debajo de
+      esa proporción el tramo tiene topes altos aislados, que se rodean; a partir de ahí la
+      obstrucción es continua y rodearla ya no es un quiebro, es replantear el tramo.
+    </p>
+    <p>
+      <b>Los 25 y 50 NM</b> son los mismos umbrales que usa el EFB para sus alertas, a propósito:
+      un tramo marcado EVITAR por célula se corresponde con la alerta roja que la tripulación
+      vería en ese punto del vuelo. Las dos pantallas no se contradicen porque comparten criterio.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>El matiz que está escrito al pie y conviene decir en voz alta:</b> el criterio mira
+        <i>el momento en que la aeronave pasa por el tramo</i>, no la ventana entera. Una célula
+        que nace cuando el avión ya ha pasado no penaliza el tramo. Sin ese matiz, cualquier
+        ruta sobre la Amazonía en una tarde de septiembre saldría EVITAR de punta a punta, y el
+        análisis no distinguiría nada.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section>
+  <h2><span class="num">8</span>Cómo se calcula cada tramo</h2>
+  <p class="sub">El recorrido completo del dato, por si preguntan.</p>
+
+  <ol class="pasos">
+    <li>
+      <b>Se define la geometría.</b> Diez tramos entre los once puntos de la ruta, con su
+      distancia, su rumbo del plan de vuelo y su fase.
+    </li>
+    <li>
+      <b>Se muestrea el perfil una sola vez.</b> Para la hora cargada se pide un perfil de
+      <b>170 puntos</b> a lo largo de las 553 NM —uno cada 3,3 NM aproximadamente— sobre el
+      cuadro de la banda 13 de esa hora. Se hace una vez y se reparte entre los tramos: pedir un
+      perfil por tramo decodificaría el mismo JPEG diez veces.
+    </li>
+    <li>
+      <b>Cada tramo se queda con sus puntos.</b> Un tramo de 66 NM recibe unos 20; uno de 15 NM,
+      unos 5. De ahí salen la fracción sobre crucero, la Tb mínima, el tope máximo y el recuento
+      de lecturas ambiguas.
+    </li>
+    <li>
+      <b>Se le asignan las células.</b> Se busca, entre las células seguidas, aquellas cuyo
+      encuentro con el vuelo cae dentro del tramo (con un margen de 15 NM a cada lado), y se
+      guarda la más próxima.
+    </li>
+    <li>
+      <b>Se le asigna una estación.</b> El aeródromo del caso más cercano al punto medio del
+      tramo, con la categoría que tiene su METAR <b>a la hora estimada de paso</b>.
+    </li>
+    <li>
+      <b>Se aplica la regla</b> y se guarda no solo el nivel, sino <b>el motivo</b>, que es lo
+      que se enseña en pantalla.
+    </li>
+  </ol>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Por qué esto importa para la exposición:</b> cada paso es citable y cada número tiene
+      un origen. Si preguntan «¿cómo sabes que es el 20 %?», la respuesta no es «lo calcula el
+      programa», es «de los 20 puntos que el muestreo deja en ese tramo, 4 tienen el tope por
+      encima de FL210».
+    </p>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section>
+  <h2><span class="num">9</span>Qué decir en la sustentación</h2>
+  <p class="sub">Cinco frases, moviendo la barra entre 1830Z y 2030Z.</p>
+
+  <div style="display:flex; gap:6mm; align-items:flex-start">
+    <figure class="alta" style="flex:0 0 54mm; margin:0">
+      <img src="figuras/tramos-1830z.png" style="height:140mm" alt="La pestaña Tramos a 1830Z" />
+      <figcaption>1830Z, hora de salida.</figcaption>
+    </figure>
+    <figure class="alta" style="flex:0 0 54mm; margin:0">
+      <img src="figuras/tramos-2030z.png" style="height:140mm" alt="La pestaña Tramos a 2030Z" />
+      <figcaption>2030Z, dos horas después.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <ol class="pasos" style="font-size:10.2pt">
+        <li>
+          <b>Presenta la pestaña.</b> «Aquí la ruta está partida en los diez tramos reales entre
+          puntos publicados, en el orden en que se vuelan.»
+        </li>
+        <li>
+          <b>Enseña la regla primero, no después.</b> «El criterio está escrito abajo: un tramo
+          es EVITAR si el 20 % o más tiene topes por encima de FL210, o si una célula pasa a
+          menos de 25 NM en el momento en que estamos ahí.»
+        </li>
+        <li>
+          <b>Hora de salida.</b> «A las 1830Z la ruta ya sale EVITAR, y el motivo está escrito:
+          lo marca DADIL → TOD, con la célula cb-02 a 15,9 NM en el momento del paso. Lo sabemos
+          <i>antes de despegar</i>.»
+        </li>
+        <li>
+          <b>Mueve a 2030Z.</b> «Dos horas después lo que cambia es la obstrucción por topes:
+          ASKAT → DADIL pasa a tener el 20 % del tramo por encima del nivel, con topes de FL431.
+          Ya no es una célula puntual, es el tramo entero.»
+        </li>
+        <li>
+          <b>Cierra con el enlace al EFB.</b> «Y esos mismos 25 NM son los que disparan la alerta
+          roja en el panel de cabina: la pestaña Tramos es la planificación, el EFB es lo que la
+          tripulación ve cuando llega allí. Comparten criterio, así que no se contradicen.»
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section>
+  <h2><span class="num">10</span>Qué NO se puede afirmar</h2>
+  <p class="sub">Decir los límites antes de que los pregunten es lo que sostiene el resto.</p>
+
+  <div class="cols">
+    <p>
+      <b>1. No todo el veredicto cambia con la barra de tiempo.</b> La fracción de topes sobre
+      crucero se recalcula con el cuadro de la hora cargada, pero el criterio de células usa el
+      <b>encuentro calculado para todo el vuelo</b>, que no depende de la hora que se esté
+      mirando. Por eso a 1830Z la ruta ya aparece EVITAR. No es un error: es que el encuentro
+      con cb-02 está previsto pase lo que pase, y el análisis lo dice desde el principio.
+    </p>
+    <p>
+      <b>2. La «estación más próxima» puede estar muy lejos.</b> Se elige entre los seis
+      aeródromos del caso, no entre todas las estaciones del país. En el tramo ASKAT → DADIL la
+      más próxima es SKLT <b>a 146 NM</b>: su categoría describe Leticia, no el tramo. Es
+      contexto, no una observación del tramo.
+    </p>
+    <p>
+      <b>3. Los tramos cortos se miden con pocos puntos.</b> Con 170 muestras en 553 NM, un
+      tramo de 15 NM se juzga con unos 5 puntos: su porcentaje solo puede ser 0, 20, 40… No hay
+      más resolución que esa, y conviene no leer esos porcentajes como si fueran finos.
+    </p>
+    <p>
+      <b>4. El tope es calculado, no medido.</b> Igual que en el corte vertical: la altura sale
+      de la temperatura con un gradiente térmico tipo, sin radiosondeo que lo verifique ese día.
+      Por eso el campo lleva la palabra «calculado» impresa al lado.
+    </p>
+    <p>
+      <b>5. El veredicto no es una autorización.</b> LIBRE no significa «se puede volar»:
+      significa que <i>con estos dos criterios y estos datos</i> no se ha encontrado obstrucción.
+      No entra ni en performance, ni en combustible, ni en NOTAM, ni en el estado del aeródromo.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>La frase que cierra:</b> la pestaña Tramos no sustituye al despacho de vuelo. Aporta
+        lo que el despacho no tiene sobre la Amazonía: una evaluación continua de las 553 NM,
+        tramo a tramo y a la hora en que se va a pasar por cada uno, en un corredor donde las
+        estaciones de superficie están a más de cien millas unas de otras.
+      </p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>

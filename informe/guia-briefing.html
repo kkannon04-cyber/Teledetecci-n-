@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Briefing de sustentación</title>
+<style>
+  @page { size: A4 landscape; margin: 14mm 15mm 12mm; }
+
+  :root {
+    --tinta: #16202b;
+    --tinta2: #4a5b6b;
+    --tenue: #8595a4;
+    --linea: #d7dfe6;
+    --acento: #1668c4;
+    --rojo: #c0392b;
+    --ambar: #a9761a;
+    --verde: #1e7a45;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: var(--tinta);
+    font-size: 10.2pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  code, .mono { font-family: "Cascadia Mono", Consolas, monospace; font-size: 0.92em; }
+
+  section { page-break-after: always; page-break-inside: avoid; }
+  section:last-child { page-break-after: auto; }
+
+  h1 { font-size: 30pt; line-height: 1.1; margin: 0 0 6mm; letter-spacing: -0.5pt; }
+  h2 {
+    font-size: 15pt;
+    margin: 0 0 1.5mm;
+    letter-spacing: -0.2pt;
+  }
+  h2 .num {
+    display: inline-block;
+    min-width: 8.5mm;
+    color: var(--acento);
+    font-family: "Cascadia Mono", Consolas, monospace;
+  }
+  .sub { color: var(--tenue); font-size: 9.6pt; margin: 0 0 4mm; }
+  p { margin: 0 0 2.6mm; }
+
+  figure { margin: 0 0 4mm; }
+  figure img { width: 100%; display: block; border: 1px solid var(--linea); }
+  figure img.media { width: 62%; margin: 0 auto; }
+  figure.ajustada img { width: 93%; margin: 0 auto; }
+  figcaption { font-size: 8.4pt; color: var(--tenue); margin-top: 1.6mm; }
+
+  .cols { column-count: 2; column-gap: 9mm; }
+  .cols p { break-inside: avoid; }
+
+  .clave {
+    border-left: 3px solid var(--acento);
+    background: #f2f7fd;
+    padding: 3mm 4mm;
+    margin: 0 0 3mm;
+    break-inside: avoid;
+  }
+  .clave b { color: var(--acento); }
+
+  .ojo {
+    border-left: 3px solid var(--ambar);
+    background: #fdf8ee;
+    padding: 3mm 4mm;
+    margin: 3mm 0 0;
+    break-inside: avoid;
+  }
+  .ojo b { color: var(--ambar); }
+
+  ol.pasos { margin: 0; padding-left: 5.5mm; }
+  ol.pasos li { margin-bottom: 2mm; break-inside: avoid; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.4pt; margin: 0 0 3mm; }
+  th, td { text-align: left; padding: 1.2mm 2.5mm; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  th { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; color: var(--tenue); font-weight: 600; }
+  td.n { font-family: "Cascadia Mono", Consolas, monospace; white-space: nowrap; }
+
+  .globo {
+    display: inline-block;
+    width: 5.2mm; height: 5.2mm;
+    border-radius: 50%;
+    background: #ffcc33;
+    color: #1b1200;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-weight: 700;
+    font-size: 8.4pt;
+    text-align: center;
+    line-height: 5.2mm;
+    margin-right: 1mm;
+  }
+
+  .muestra { display: inline-block; width: 4mm; height: 3mm; border: 1px solid #0003; vertical-align: -0.3mm; margin-right: 1mm; }
+
+  /* ---- Portada ---- */
+  .portada { display: flex; flex-direction: column; justify-content: center; height: 180mm; }
+  .portada .eti { font-family: "Cascadia Mono", Consolas, monospace; font-size: 9pt; letter-spacing: 3pt; color: var(--acento); text-transform: uppercase; margin-bottom: 5mm; }
+  .portada .ruta { font-family: "Cascadia Mono", Consolas, monospace; font-size: 17pt; color: var(--acento); font-weight: 700; margin-bottom: 3mm; }
+  .portada .meta { color: var(--tinta2); font-size: 10.5pt; max-width: 150mm; }
+  .portada .reparto { margin-top: 10mm; display: flex; gap: 12mm; font-size: 10.5pt; }
+  .portada .reparto div { border-left: 2px solid var(--acento); padding-left: 3mm; font-weight: 600; }
+  .idx { margin-top: 12mm; font-size: 9.6pt; color: var(--tinta2); column-count: 2; column-gap: 10mm; }
+  .idx div { margin-bottom: 1.4mm; }
+  .idx .n { font-family: "Cascadia Mono", Consolas, monospace; color: var(--acento); margin-right: 2mm; }
+  figure.alta img { width: auto; display: block; }
+  .tenue { color: #8595a4; }
+  /* Tablas de muchas filas: mismo cuerpo, menos aire, para que quepan en una página. */
+  table.compacta th, table.compacta td { padding: 0.7mm 2mm; }
+  table.compacta { font-size: 8.1pt; }
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<section class="portada">
+  <div class="eti">Teledetección · briefing de sustentación</div>
+  <h1>Tres voces, un caso</h1>
+  <div class="ruta">SAT9721 · SKVV → SKLT · 07 SEP 2026 · FL210</div>
+  <p class="meta">
+    La exposición sigue el orden en que se entiende el problema: <b>primero el instrumento</b>
+    —qué es un satélite meteorológico y qué nos deja ver—, <b>después la atmósfera</b> —qué
+    canal revela qué nube y qué fenómeno— y <b>por último la operación</b> —qué significa todo
+    eso para este vuelo y qué se decide—. Un bloque por persona, en ese orden.
+  </p>
+  <div class="reparto">
+    <div>Cristian Arcila<br><span style="font-weight:400;color:#4a5b6b;font-size:9pt">A · el satélite</span></div>
+    <div>Ángela Torres<br><span style="font-weight:400;color:#4a5b6b;font-size:9pt">B · canales y fenómenos</span></div>
+    <div>Leonardo Rodríguez<br><span style="font-weight:400;color:#4a5b6b;font-size:9pt">C · ruta y decisión</span></div>
+  </div>
+
+  <div class="idx">
+    <div><span class="n">I</span><b>Preparación</b> — común · §1 tesis · §2 reparto · §3 guion con clics</div>
+    <div><span class="n">II</span><b>Bloque A · Cristian</b> — §4 guion · §5–8 el satélite y sus límites</div>
+    <div><span class="n">III</span><b>Bloque B · Ángela</b> — §9 guion · §10–13 los canales · §14–19 nubes y fenómenos</div>
+    <div><span class="n">IV</span><b>Bloque C · Leonardo</b> — §20 guion · §21–25 análisis y decisión</div>
+    <div><span class="n">V</span><b>El triple contraste</b> — común · §26–30</div>
+    <div><span class="n">VI</span><b>La defensa</b> — §31–33 preguntas por bloque · §34–36 límites, números, plan B</div>
+  </div>
+
+  <p class="meta" style="margin-top:8mm; font-size:9.4pt">
+    <b>Cómo usar esta guía.</b> Cada uno lee su parte entera y se aprende su guion. Las secciones
+    de respaldo de cada bloque <b>no se exponen</b>: son de donde salen las respuestas. Las partes
+    V y VI las leen los tres.
+  </p>
+</section>
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>La tesis y las tres frases que la sostienen</h2>
+  <p class="sub">Si la sala se queda con tres frases, que sean estas.</p>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>Tesis:</b> entre SKVV y SKLT hay 553 NM de Amazonía donde la observación de superficie
+      no llega. La teledetección satelital <b>no confirma lo que ya dice el METAR: cubre el hueco
+      que el METAR no puede cubrir</b>, y ese hueco es exactamente donde estaba el problema.
+    </p>
+  </div>
+
+  <div class="cols">
+    <p>
+      <b>Frase 1 — el hueco es real y se mide.</b> «Ninguna de las catorce células que seguimos
+      estaba sobre una estación. Entre SKVV y SKLT el METAR más próximo a la ruta llega a quedar
+      a más de 100 NM. Sin satélite, ese corredor es un vacío de observación.»
+    </p>
+    <p>
+      <b>Frase 2 — una sola imagen da la respuesta contraria.</b> «A la hora de salida, el 2 % de
+      la ruta tenía topes por encima de nuestro nivel. Dos horas después, el 14 %, y el tope
+      máximo pasó de FL236 a FL478. El caso no se decide con la foto de la planificación: se
+      decide con la evolución.»
+    </p>
+    <p>
+      <b>Frase 3 — el método vale más que el número.</b> «Cada cifra lleva escrito de dónde sale,
+      y donde no hay lectura concluyente el visor lo rotula en vez de rellenarlo. Un panel que
+      dice "18 puntos ambiguos" es más defendible que una curva continua y bonita sin origen.»
+    </p>
+
+    <div class="ojo">
+      <p style="margin:0">
+        <b>El cierre, en una línea:</b> la decisión no fue «no volar», fue <b>GO con desvío
+        planificado</b> — 9 NM de quiebro que cuestan 1,1 NM de recorrido, decididos quince
+        minutos antes y no encima del obstáculo.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>Reparto y minutado</h2>
+  <p class="sub">20 minutos de exposición, 10 de preguntas. El orden es instrumento → atmósfera → operación.</p>
+
+  <table>
+    <tr><th style="width:12mm">Min</th><th style="width:26mm">Quién</th><th style="width:56mm">Bloque</th><th>En pantalla</th></tr>
+    <tr><td class="n">0–1</td><td><b>Cristian</b></td><td>Portada y pregunta del trabajo</td><td>Portada del visor, a pantalla completa</td></tr>
+    <tr>
+      <td class="n">1–6</td><td><b>Cristian</b></td>
+      <td><b>A · El satélite y lo que nos deja ver</b><br>qué es GOES-19, la ventana, el zoom extendido, el patrón del día, cómo se mide y qué no se ve</td>
+      <td>Vista general a 1730Z · pestaña Bandas · Comparar bandas</td>
+    </tr>
+    <tr>
+      <td class="n">6–13</td><td><b>Ángela</b></td>
+      <td><b>B · Los canales, las nubes y los fenómenos</b><br>qué revela cada canal, qué nubes había y qué fenómenos se derivan</td>
+      <td>Banda 13 · 9 · 10 · 2 · 4 · 5 en secuencia, todas a 2030Z</td>
+    </tr>
+    <tr>
+      <td class="n">13–19</td><td><b>Leonardo</b></td>
+      <td><b>C · La ruta, el análisis y la decisión</b><br>el día contra el reloj del vuelo, perfil, tramos, EFB, alternos</td>
+      <td>Perfil 1830Z → 2030Z · Tramos · EFB · METAR/TAF · Alterno</td>
+    </tr>
+    <tr><td class="n">19–20</td><td><b>Cristian</b></td><td>Cierre: los límites y la frase final</td><td>Pestaña Fenómenos, una ficha abierta</td></tr>
+    <tr><td class="n">20–30</td><td><b>cada uno lo suyo</b></td><td>Preguntas · §31 Cristian · §32 Ángela · §33 Leonardo</td><td>Visor en 2030Z, EFB abierto, quieto</td></tr>
+  </table>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>Dos reglas de reparto.</b> La primera: <b>el que no habla maneja el visor</b>; quien
+      expone no toca el ratón. La segunda: <b>cada pregunta la contesta el dueño del bloque</b>,
+      aunque sepan los tres la respuesta. Un equipo que se pisa parece un equipo que no se
+      repartió el trabajo.
+    </p>
+  </div>
+
+  <p style="margin-top:3mm">
+    <b>Si el tiempo aprieta</b>, el que se recorta es el bloque A, no el B ni el C: el hallazgo
+    se entiende sin el instrumento, pero el instrumento sin el hallazgo no lleva a ninguna parte.
+    Cristian pasa entonces de cinco minutos a dos, con los puntos 1, 2 y 5 de su guion.
+  </p>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>El guion con los clics, minuto a minuto</h2>
+  <p class="sub">Para quien conduce el visor. Se ensaya una vez entero, cronómetro en mano.</p>
+
+  <table class="compacta">
+    <tr><th style="width:11mm">Min</th><th style="width:20mm">Bloque</th><th style="width:54mm">Clic exacto</th><th>Qué debe verse antes de que siga hablando</th></tr>
+    <tr><td class="n">0</td><td>A</td><td>Abrir <code>index.html</code> · portada a pantalla completa</td><td>Portada con la ruta y el reloj. <b>No entres todavía.</b></td></tr>
+    <tr><td class="n">1</td><td>A</td><td>Botón <b>Entrar al visor</b>, barra en <b>1730Z</b></td><td>Mapa de Colombia entero con la caja de cobertura: el «zoom extendido».</td></tr>
+    <tr><td class="n">2</td><td>A</td><td>Acercar a la ruta · Capas → encender <i>Zonas P/R/D</i></td><td>La etiqueta «1 sobre la ruta»: es SKR7, el argumento de FL190.</td></tr>
+    <tr><td class="n">4</td><td>A</td><td>Pestaña <b>Bandas</b> · después botón <b>Comparar bandas</b></td><td>Los ocho canales listados; luego la cortina. Diez segundos, no más.</td></tr>
+    <tr><td class="n">6</td><td>B</td><td>Banda <b>13</b>, arrastrar la barra de <b>1730Z</b> a <b>2030Z</b></td><td>Un núcleo al principio, campo lleno al final. Silencio mientras se mueve.</td></tr>
+    <tr><td class="n">8</td><td>B</td><td>Banda <b>9</b> → banda <b>10</b> (barra en 2030Z)</td><td>El corredor rojo = seco, con los núcleos húmedos encima.</td></tr>
+    <tr><td class="n">10</td><td>B</td><td>Banda <b>2</b> → banda <b>4</b></td><td>Torres granuladas; y el hielo alto solo en el último tercio.</td></tr>
+    <tr><td class="n">12</td><td>B</td><td>Banda <b>5</b></td><td>El canal de la fase, para hablar de engelamiento.</td></tr>
+    <tr><td class="n">13</td><td>C</td><td>Botón <b>Perfil</b>, barra en <b>1830Z</b> y luego a <b>2030Z</b></td><td>Las columnas subiendo por encima de la línea azul de FL210.</td></tr>
+    <tr><td class="n">15</td><td>C</td><td>Pestaña <b>Tramos</b> → desplegar <code>ASKAT → DADIL</code></td><td>20 %, FL431, −55,2 °C, y el veredicto EVITAR de la ruta arriba.</td></tr>
+    <tr><td class="n">16</td><td>C</td><td>Botón <b>EFB</b> (barra sigue en 2030Z)</td><td>Las alertas rojas y el punto de decisión abierto.</td></tr>
+    <tr><td class="n">18</td><td>C</td><td>Pestaña <b>METAR/TAF</b> → SKLT · pestaña <b>Alterno</b></td><td>La secuencia 1900Z RA → 2100Z VCSH 8000; y la matriz de alternos.</td></tr>
+    <tr><td class="n">19</td><td>A</td><td>Pestaña <b>Fenómenos</b> → ficha de <b>cb-02</b> abierta</td><td>Pantalla quieta para el cierre y las preguntas.</td></tr>
+  </table>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Dos errores que se cometen siempre:</b> mover la barra mientras se habla —nadie escucha
+      y nadie mira— y darle a <b>▶</b> para reproducir la animación. Úsala solo si sobra tiempo,
+      al final.
+    </p>
+  </div>
+</section>
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>Bloque A · Guion de Cristian <span style="font-size:11pt;color:#4a5b6b">— 5 min</span></h2>
+  <p class="sub">Objetivo: que la sala entienda <b>qué es esto que están viendo</b> antes de que nadie les enseñe una tormenta.</p>
+
+  <ol class="pasos">
+    <li>
+      <b>Sitúa el caso en una frase.</b> «ATR 72-600, Villavicencio a Leticia, 553 NM, FL210,
+      salida 1830Z, llegada prevista 2055Z. La pregunta del trabajo es simple: <i>¿se puede volar
+      esta ruta a este nivel?</i>»
+    </li>
+    <li>
+      <b>Di qué estamos mirando.</b> «Todo lo que verán sale de <b>GOES-19</b>, un satélite
+      geoestacionario que barre el disco completo cada diez minutos. Hemos congelado su ventana
+      entre las 1730Z y las 2200Z: <b>28 cuadros por canal, ocho canales, 223 imágenes</b>. Nada
+      se consulta en vivo.» <span class="tenue">(§5)</span>
+    </li>
+    <li>
+      <b>Abre como se abre un briefing de verdad.</b> «Se empieza con un <b>zoom extendido</b>,
+      mirando de lejos para ver el patrón general.» Enséñalo: la <b>ZCIT al norte del
+      territorio</b>, y ningún otro patrón sinóptico ese día. Luego baja al corredor.
+      <span class="tenue">(§6)</span>
+    </li>
+    <li>
+      <b>El nivel no se eligió a gusto.</b> «La derrota va entre 123° y 171° magnéticos:
+      semicírculo 000–179, nivel impar obligado. FL200 no es asignable en este sentido, y FL190
+      coincide con el techo de la zona restringida SKR7 sobre el propio aeródromo de salida.
+      Queda FL210.» <span class="tenue">Enciende Zonas P/R/D: «1 sobre la ruta».</span>
+    </li>
+    <li>
+      <b>El paso que sostiene todo lo demás.</b> «El satélite publica imágenes en color, no
+      números. Nosotros <b>invertimos la tabla de color</b> que publica SLIDER para volver de
+      color de píxel a temperatura de brillo, y de ahí a altura de tope. Donde el color es
+      ambiguo, el visor lo rotula en vez de adivinar.» <span class="tenue">(§7)</span>
+    </li>
+    <li>
+      <b>Y cierra diciendo lo que el satélite NO ve</b>, antes de pasar el turno. «Ve el tope de
+      la nube, no la nube. No ve la base, ni el granizo en superficie, ni un estrato bajo a
+      400 ft. Eso lo veremos en el METAR.» <span class="tenue">(§8)</span>
+    </li>
+  </ol>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>Cómo pasas el turno a Ángela:</b> «Eso es lo que el instrumento puede ver. Ahora, canal
+      por canal, qué nos dice cada uno del día que nos interesa.»
+    </p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>Qué estamos mirando: GOES-19, la ventana y el recorte</h2>
+  <p class="sub">Respaldo del bloque A. Lo básico que hay que poder decir sin dudar.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 118mm; margin:0">
+      <img src="figuras/vista-general-1730z.jpg" alt="El visor a 1730Z con la caja de cobertura" />
+      <figcaption>El visor abre así, a 1730Z: encuadrado en la <b>caja de cobertura</b> de las bandas y no en la ruta. Es deliberado — abrir en zoom sobre el corredor escondería que el trabajo cubre el país entero.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table style="font-size:9pt">
+        <tr><td style="width:26mm"><b>Plataforma</b></td><td>GOES-19, geoestacionario. Barre el disco completo cada 10 min, en punto</td></tr>
+        <tr><td><b>Instrumento</b></td><td>ABI — <i>Advanced Baseline Imager</i>, 16 canales. Usamos <b>8</b></td></tr>
+        <tr><td><b>Fuente</b></td><td>CIRA/RAMMB SLIDER, Colorado State University. Producto <b>renderizado</b>, no radiancias crudas</td></tr>
+        <tr><td><b>Ventana</b></td><td>1730Z–2200Z: una hora antes de la salida y una después de la ETA</td></tr>
+        <tr><td><b>Cadencia</b></td><td>10 min · <b>28 cuadros</b> por canal, sin huecos</td></tr>
+        <tr><td><b>Volumen</b></td><td><b>223 imágenes</b> congeladas en disco · 470 observaciones METAR · 225 SIGMET</td></tr>
+        <tr><td><b>Recorte</b></td><td>Colombia continental e insular más 1,5° de margen</td></tr>
+      </table>
+
+      <div class="ojo">
+        <p style="margin:0">
+          <b>Por qué la ventana se cierra en 2200Z y no en 2155Z:</b> porque el satélite barre en
+          punto cada diez minutos, y 2200Z es el primer cuadro posterior a ETA+1 h. Es el tipo de
+          detalle que conviene tener a mano: demuestra que la ventana se eligió, no se heredó.
+        </p>
+      </div>
+
+      <p style="margin-top:3mm; font-size:9.4pt">
+        <b>Y una advertencia honesta que va en este bloque:</b> lo que descargamos de SLIDER es la
+        imagen <b>ya coloreada</b>, con 192 escalones de tabla y compresión JPEG por medio. No son
+        las radiancias calibradas del instrumento. Todo lo que medimos arrastra ese error, y lo
+        decimos antes de que lo pregunten.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>Cómo se abre un briefing: del zoom extendido al corredor</h2>
+  <p class="sub">Respaldo del bloque A. El método es del meteorólogo de la oficina, grabado en la asesoría.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 72mm; margin:0">
+      <img src="figuras/sat-b13-1830z.jpg" alt="Banda 13 a 1830Z" />
+      <figcaption>Banda 13 a 1830Z, hora de salida. La ZCIT es la franja nubosa del norte; la Orinoquía y la Amazonía están mayormente despejadas, con núcleos sueltos al oriente.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <p>
+        <b>Primero de lejos.</b> «Normalmente empezamos con un zoom extendido, vemos la imagen
+        más desde lejos para ver en general qué está pasando.» Aplicado a este día: <b>una zona
+        de convergencia intertropical al norte del territorio que se extiende hacia el
+        Pacífico</b>, y <b>ningún otro patrón importante</b>.
+      </p>
+      <p>
+        <b>Después, Colombia.</b> A las 1800Z: Caribe, Andina y Pacífica con nubosidad baja en
+        buena parte; <b>Orinoquía y Amazonía mayormente despejadas</b>, con núcleos en Guainía,
+        hacia el centro del Vichada, y otros <b>acercándose por el oriente</b>.
+      </p>
+      <p>
+        <b>Y por último, los dos aeródromos.</b> En Villavicencio la nubosidad baja va
+        disminuyendo con la tarde porque la masa se desplaza hacia el oeste. En Leticia
+        <b>se forman núcleos convectivos hacia el norte de la ciudad</b>.
+      </p>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>«Hacia el norte de la ciudad» es un dato, no una figura retórica,</b> y nuestro motor
+          lo confirma sin habérselo propuesto: el centroide más cercano a SKLT de las catorce
+          células seguidas queda a <b>52 NM al norte</b>, y las tres que interceptan al vuelo lo
+          hacen entre las millas 458 y 496 de 553. <b>Ninguna está sobre el aeródromo.</b> Esto
+          corrige al nefoanálisis (§28).
+        </p>
+      </div>
+
+      <p style="margin-top:3mm">
+        <b>Causa del día, según la asesoría:</b> «aumento continuo de los núcleos que se
+        desarrollan debido a calentamiento superficial que produce esa convección». Convección
+        diurna pura, sin forzamiento sinóptico: coinciden las tres fuentes.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>De color de píxel a temperatura: el paso que lo sostiene todo</h2>
+  <p class="sub">Respaldo del bloque A. Si algo va a preguntar un jurado técnico, es esto.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <div style="flex:1">
+      <ol class="pasos" style="font-size:9.8pt">
+        <li>
+          <b>El problema.</b> SLIDER publica imágenes <b>ya coloreadas</b>. Un píxel naranja no
+          trae un número pegado: trae un color que salió de aplicar una tabla a una temperatura.
+        </li>
+        <li>
+          <b>La solución.</b> Congelamos la tabla de color publicada —<code>ircimss2</code> para
+          la banda 13— y la <b>invertimos</b>: de color a temperatura de brillo. La tabla está en
+          el proyecto, en <code>datos/barras-color.json</code>, no en nuestra cabeza.
+        </li>
+        <li>
+          <b>El problema del problema.</b> Esa tabla usa el <b>gris dos veces</b>: para la rampa
+          cálida (+40 a −30 °C) y para la cola fría (−80 a −90 °C). Un gris, dos temperaturas
+          posibles.
+        </li>
+        <li>
+          <b>Cómo se resuelve.</b> Por <b>conectividad</b>, no por color: el gris al que se llega
+          desde el borde de la imagen es suelo; el gris encerrado por color frío es la cima de un
+          núcleo. Lo que no se resuelve se rotula <b>«ambiguo»</b> — entre 7 y 18 de los 170
+          puntos del perfil, según la hora.
+        </li>
+        <li>
+          <b>De temperatura a altura.</b> <code>z = z_estación + (T_estación − Tb) / Γ</code>, con
+          Γ = 6,5 °C/km de la Atmósfera Tipo OACI, y <b>anclado en el METAR real</b> más cercano
+          al punto y a la hora. Por debajo de −75 °C el modelo deja de valer y esos topes salen
+          marcados, no cotizados en pies.
+        </li>
+      </ol>
+    </div>
+
+    <figure style="flex:0 0 72mm; margin:0">
+      <img src="figuras/comparar-bandas.jpg" alt="La cortina de comparación entre dos canales" />
+      <figcaption>La cortina de <b>Comparar bandas</b>, aquí con rojo visible contra azul visible. Enfrentar dos canales sobre el mismo instante es lo que permitió <b>verificar</b> la medida.</figcaption>
+    </figure>
+  </div>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>La anécdota que conviene contar, porque es la que demuestra el método:</b> una primera
+      versión del algoritmo daba topes de −88 °C que resultaron ser <b>artefactos de compresión
+      del JPEG</b> en el borde de los núcleos. Se detectó comparando la banda 13 con la 9, que
+      coinciden en 3–5 °C sobre topes altos. Por eso la severidad se clasifica hoy por
+      <b>percentil 5</b> y no por el mínimo: el mínimo es un píxel suelto y se puede fabricar.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 8 ============ -->
+<section>
+  <h2><span class="num">8</span>Lo que el satélite no puede ver</h2>
+  <p class="sub">Respaldo del bloque A. Decirlo uno mismo, y al principio, es lo que da credibilidad a lo demás.</p>
+
+  <div class="cols">
+    <p>
+      <b>1. Ve el tope, no la nube.</b> Bajo esa superficie no hay dato: ni base de nube, ni
+      cizalladura, ni granizo en superficie. Cuando decimos «célula a 16 NM» es a 16 NM de su
+      centroide <i>en el tope</i>, no de la lluvia que cae debajo.
+    </p>
+    <p>
+      <b>2. La altura es calculada, no medida.</b> Sale de la temperatura con un gradiente tipo,
+      anclado en un METAR. Sin radiosondeo ese día no se puede verificar, y el visor lleva la
+      palabra «calculado» impresa al lado del número.
+    </p>
+    <p>
+      <b>3. La escala satura.</b> La barra publicada no rotula por debajo de −90 °C. Un valor de
+      −90 es un <b>límite</b>, no una medida, y sale marcado como tal.
+    </p>
+    <p>
+      <b>4. Hay puntos ambiguos y se cuentan.</b> No se rellenan con algo plausible. Que el panel
+      diga «18 de 170 sin lectura concluyente» es una función, no un fallo.
+    </p>
+    <p>
+      <b>5. No ve la nube baja ni la niebla.</b> Ese mismo día, hacia el mediodía, Leticia tuvo
+      <code>OVC004</code> y <code>BKN008</code> con <code>BR</code>. En el infrarrojo no aparece:
+      un estrato a 400 ft emite casi a la misma temperatura que el suelo tropical. <b>Para techos
+      bajos, la observación de superficie no tiene sustituto.</b>
+    </p>
+    <p>
+      <b>6. Cuatro canales solo sirven de día.</b> El 1, el 2, el 4 y el 5 son reflectivos. En
+      este caso no estorba —el vuelo es diurno—, pero hay que saber decirlo.
+    </p>
+    <p>
+      <b>7. No hay descargas eléctricas ni radar.</b> No disponemos del producto GLM ni de
+      cobertura radar en ese corredor. Todo lo que digamos de rayos y granizo es
+      <b>inferencia por umbral</b>, no observación.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>La frase que cierra el bloque A y abre el de Ángela:</b> «El satélite cubre el hueco
+        <i>geográfico</i>: los 553 NM entre aeródromos donde no hay estaciones. La observación de
+        superficie cubre el hueco <i>vertical</i>: lo que pasa bajo el tope de nube. Ninguna de
+        las dos sobra, y por eso el trabajo usa las dos.»
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section>
+  <h2><span class="num">9</span>Bloque B · Guion de Ángela <span style="font-size:11pt;color:#4a5b6b">— 7 min</span></h2>
+  <p class="sub">Objetivo: que la sala vea <b>qué había en el aire ese día</b> y en qué canal se ve cada cosa.</p>
+
+  <ol class="pasos">
+    <li>
+      <b>Abre con la idea, no con el canal.</b> «Un satélite meteorológico no toma una foto: toma
+      ocho, cada una en una longitud de onda distinta, y <b>cada una contesta una pregunta
+      diferente</b>. Ninguna sirve sola.»
+    </li>
+    <li>
+      <b>Banda 13, la que mide.</b> Con la barra en 2030Z: «Esta es la temperatura del tope. El
+      rojo son topes por debajo de −60 °C, que es el umbral de convección profunda. Aquí está el
+      gran sistema del oriente, y aquí, sobre nuestro último tercio, los núcleos que nos
+      importan.» <span class="tenue">(§10)</span>
+    </li>
+    <li>
+      <b>Bandas 9 y 10, la humedad.</b> «Estas dos no ven el suelo: ven vapor de agua a dos
+      alturas. Y dicen algo importante: <b>el corredor está seco</b> en las dos capas, con la
+      humedad concentrada en los núcleos. El riesgo no está repartido por toda la ruta, está en
+      puntos concretos.» <span class="tenue">(§10)</span>
+    </li>
+    <li>
+      <b>Bandas 2 y 4, la estructura.</b> «La 2 es la de máxima resolución: se ven las torres con
+      textura granulada y las sombras de los yunques. La 4 solo deja ver el hielo alto: el suelo
+      sale negro. <b>Juntas fechan la fase madura</b> — a las 1930Z ya hay torre y yunque sobre
+      el corredor, hora y media antes de que lleguemos.» <span class="tenue">(§11)</span>
+    </li>
+    <li>
+      <b>Banda 5, la fase.</b> «Esta invierte el visible: el hielo sale oscuro y el agua
+      sobreenfriada sale clara. Es la banda del engelamiento.» <span class="tenue">(§12)</span>
+    </li>
+    <li>
+      <b>Ahora las nubes, con nombre.</b> «Con eso podemos decir qué había: estratos bajos en
+      Villavicencio que se disipan, cúmulos de buen tiempo en el corredor que pasan a torres entre
+      las 1800Z y las 1900Z, y <b>cumulonimbos con yunque</b> en el último tercio desde las
+      2000Z.» <span class="tenue">(§14)</span>
+    </li>
+    <li>
+      <b>Y los fenómenos, separando lo medido de lo inferido.</b> «Medimos topes de −71 a −74 °C.
+      De ahí <b>inferimos</b> granizo y actividad eléctrica probables, con el umbral estándar: no
+      los observamos. Lo que sí tenemos observado por dos instrumentos independientes es un
+      <b>frente de racha en el Guaviare</b>: la línea de cúmulos en el canal 2 y una racha de
+      21 kt en el METAR de San José.» <span class="tenue">(§15 y §18)</span>
+    </li>
+    <li>
+      <b>Cierra con el engelamiento, que es lo que enlaza con el vuelo.</b> «Y una precisión que
+      casi siempre se dice mal: el engelamiento no está en el tope frío. Está alrededor de la
+      <b>isocero</b>, que ese día calculamos en <b>FL150</b>.» <span class="tenue">(§17)</span>
+    </li>
+  </ol>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>Cómo pasas el turno a Leonardo:</b> «Eso es lo que había en el aire. Ahora, qué de todo
+      eso se cruza con nuestro vuelo — y a qué hora.»
+    </p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section>
+  <h2><span class="num">10</span>Atlas de canales I · Las que miden</h2>
+  <p class="sub">Respaldo del bloque B. Banda 13, 9 y 10, todas a 2030Z, el instante crítico. Aeronave en la milla 458.</p>
+
+  <div style="display:flex; gap:4mm; align-items:flex-start">
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b13-2030z.jpg" alt="Banda 13 a 2030Z" />
+      <figcaption><b>13 · IR ventana limpia</b> (10,3 µm). Mide la temperatura del tope. Rojo y naranja = topes por debajo de −60 °C. Se ven los núcleos sobre el último tercio de la ruta y el gran sistema del oriente, fuera del corredor.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b09-2030z.jpg" alt="Banda 9 a 2030Z" />
+      <figcaption><b>9 · Vapor, nivel medio</b> (6,9 µm, 400–500 hPa). El corredor sale <b>rojo oscuro = aire seco</b> en niveles medios, con los núcleos húmedos en verde/azul encima. Los <b>bordes</b> entre seco y húmedo son los candidatos a cizalladura.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b10-2030z.jpg" alt="Banda 10 a 2030Z" />
+      <figcaption><b>10 · Vapor, nivel bajo</b> (7,3 µm, 600–750 hPa). Aún más seco: rojo vivo en casi todo el corredor. Es la capa de <b>8 000–13 800 ft</b>, la del ascenso y el descenso.</figcaption>
+    </figure>
+  </div>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Cuidado con una frase heredada.</b> Nuestro propio rótulo —y el nefoanálisis que lo
+      copió— dice que la banda 10 es «la capa en la que vuela un turbohélice a FL210». <b>No lo
+      es:</b> FL210 ≈ 465 hPa, y la banda 10 pesa hacia 600–750 hPa. La que encuadra el nivel de
+      crucero es la <b>banda 9</b>. Lo que sí es cierto, y se ve en las dos imágenes, es que
+      <b>ambas capas están secas sobre el corredor</b>, con la humedad concentrada en los núcleos.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 11 ============ -->
+<section>
+  <h2><span class="num">11</span>Atlas de canales II · Las que muestran estructura</h2>
+  <p class="sub">Respaldo del bloque B. Banda 2 y banda 4. Aquí no se mide: se ve la forma de la nube, que es otra evidencia.</p>
+
+  <div style="display:flex; gap:5mm; align-items:flex-start">
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b02-2030z.jpg" alt="Banda 2 a 2030Z" />
+      <figcaption><b>2 · Rojo visible</b> (0,64 µm, 0,5 km). La resolución máxima del instrumento: torres con textura granulada, sombras de yunque, líneas de cúmulos.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b04-2030z.jpg" alt="Banda 4 a 2030Z" />
+      <figcaption><b>4 · Cirros</b> (1,37 µm). El vapor bajo absorbe todo: <b>suelo y nube baja salen negros</b>, solo el hielo por encima de ~6 km brilla. Es el detector de yunque.</figcaption>
+    </figure>
+
+    <div style="flex:0 0 78mm">
+      <p>
+        <b>Lo que la banda 2 enseña de este día</b>, siguiendo a la asesoría: la consolidación de
+        los núcleos durante la tarde y <b>una franja que se extiende horizontalmente sobre el
+        centro del Amazonas, como una línea de convergencia</b>. En la imagen se ve al sur de la
+        ruta, entre 1° y 3°S, orientada este-oeste.
+      </p>
+      <p>
+        <b>Lo que la banda 4 enseña</b>, y es un argumento fuerte: a las 2030Z el hielo alto
+        <b>no cubre el corredor entero</b>. Está en el último tercio, en el nororiente y en el
+        gran sistema del este. El corredor SKVV → SKSJ sale negro: no hay yunque encima.
+      </p>
+      <div class="clave">
+        <p style="margin:0">
+          <b>Las dos juntas fechan la fase madura.</b> A las 1930Z la banda 2 ya muestra torres
+          con textura granulada sobre el corredor central y la banda 4 muestra hielo brillante
+          en el mismo sitio. Torre + yunque de hielo = célula que ya descarga. Eso es una
+          <b>hora y media antes</b> de que el vuelo llegue allí.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 12 ============ -->
+<section>
+  <h2><span class="num">12</span>Atlas de canales III · Las de fase y las de apoyo</h2>
+  <p class="sub">Respaldo del bloque B. Banda 5, banda 7 y banda 1. Las que más se malinterpretan.</p>
+
+  <div style="display:flex; gap:5mm; align-items:flex-start">
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b05-2100z.jpg" alt="Banda 5 a 2100Z" />
+      <figcaption><b>5 · Nieve y hielo</b> (1,6 µm) a 2100Z. Invierte el visible: <b>el hielo absorbe y sale oscuro</b>, la gota de agua sobreenfriada sale clara.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b07-2030z.jpg" alt="Banda 7 a 2030Z" />
+      <figcaption><b>7 · Ventana de onda corta</b> (3,9 µm). Mezcla emisión térmica y reflexión solar: las nubes de gota pequeña salen brillantes. De noche es el canal de la niebla.</figcaption>
+    </figure>
+
+    <div style="flex:0 0 78mm">
+      <p>
+        <b>Banda 5, la regla y su límite.</b> La regla que trae la propia herramienta es «lo que
+        se ve claro aquí y frío en la banda 13 es lo que engela». Funciona, pero a la escala de
+        estas capturas <b>la discriminación es cualitativa</b>: se distingue el conjunto glaciado
+        del que no lo está, no el contorno exacto de la fase mixta. El nefoanálisis lo admite en
+        su propio apartado de limitaciones, y nosotros debemos decirlo igual.
+      </p>
+      <p>
+        <b>La aclaración que da la asesoría y que vale oro en preguntas:</b> «las nubes que están
+        por encima de la isocero, de unos 4 800 a 5 000 metros, son de hielo; allí es muy raro
+        encontrar agua líquida. <b>El engelamiento es agua líquida que está por debajo de cero
+        grados.</b>» Es decir: el riesgo no está en el tope frío, está en la capa alrededor de la
+        isocero. §17 lo desarrolla con nuestro número.
+      </p>
+      <p>
+        <b>Banda 1 (azul visible)</b> no se expone: su único papel aquí es descartar que el
+        blanco sea bruma o humo en vez de nube. Dicho en una frase y se pasa.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 13 ============ -->
+<section>
+  <h2><span class="num">13</span>Tabla maestra: qué revela cada canal y qué NO puede revelar</h2>
+  <p class="sub">Respaldo del bloque B. Esta es la tabla que hay que saberse. Responde media docena de preguntas de golpe.</p>
+
+  <table style="font-size:8.2pt">
+    <tr><th style="width:24mm">Canal</th><th style="width:44mm">Fenómeno que revela</th><th style="width:52mm">Cómo se lee</th><th>Lo que NO puede decir</th></tr>
+    <tr><td><b>13</b> · IR ventana limpia<br><span class="tenue">10,3 µm · 2 km</span></td><td>Convección profunda, severidad, tope de nube</td><td>Temperatura de brillo por color. Bajo −60 °C: granizo, turbulencia severa y actividad eléctrica probables</td><td>Nada bajo el tope: ni base, ni granizo en superficie, ni si la célula crece o se disipa</td></tr>
+    <tr><td><b>9</b> · Vapor medio<br><span class="tenue">6,9 µm · 400–500 hPa</span></td><td>Humedad y circulación en la capa del crucero; bordes de cizalladura</td><td>Los <b>bordes</b> entre claro y oscuro son cortantes de viento. Las manchas en sí importan menos</td><td>No ve el suelo. No mide viento: el cortante es inferencia del gradiente</td></tr>
+    <tr><td><b>10</b> · Vapor bajo<br><span class="tenue">7,3 µm · 600–750 hPa</span></td><td>Humedad de la capa de ascenso y descenso (8 000–13 800 ft)</td><td>Frente a la 9: si la 10 está húmeda y la 9 seca, el aire seco de arriba frena el crecimiento</td><td><b>No es la capa de FL210</b>, aunque nuestro rótulo lo diga</td></tr>
+    <tr><td><b>2</b> · Rojo visible<br><span class="tenue">0,64 µm · 0,5 km</span></td><td>Torres activas, sombras de yunque, líneas de cúmulos, frentes de racha</td><td>Blanco intenso con textura granulada = desarrollo vertical activo. La sombra dice hacia dónde crece</td><td>Solo de día. No da temperatura ni altura</td></tr>
+    <tr><td><b>4</b> · Cirros<br><span class="tenue">1,37 µm · 2 km</span></td><td>Yunque de hielo, glaciación de tope</td><td>Suelo y nube baja negros; solo brilla el hielo sobre ~6 km</td><td>Solo de día. No distingue yunque activo de cirro residual</td></tr>
+    <tr><td><b>5</b> · Nieve y hielo<br><span class="tenue">1,6 µm · 1 km</span></td><td>Fase de la nube: hielo contra agua sobreenfriada → engelamiento</td><td>Invertido: hielo oscuro, agua clara. Claro aquí + frío en la 13 = engela</td><td>Lectura <b>cualitativa</b>, sin valores publicados. No cuantifica agua líquida</td></tr>
+    <tr><td><b>7</b> · Onda corta<br><span class="tenue">3,9 µm · 2 km</span></td><td>Espesor y tamaño de gota; de noche, niebla y estratos bajos</td><td>De día mezcla emisión y reflexión: gota pequeña brillante</td><td>De día es ambigua; aquí solo corrobora</td></tr>
+    <tr><td><b>1</b> · Azul visible<br><span class="tenue">0,47 µm · 1 km</span></td><td>Aerosol, bruma y humo</td><td>Comparada con la 2, separa aerosol de nube</td><td>Solo de día. Aporta poco en este caso</td></tr>
+  </table>
+</section>
+
+<!-- ============ 14 ============ -->
+<section>
+  <h2><span class="num">14</span>Tipos de nube y altura</h2>
+  <p class="sub">Respaldo del bloque B. La clasificación del nefoanálisis, contrastada con nuestras medidas y con la isocero.</p>
+
+  <table style="font-size:9pt">
+    <tr><th style="width:40mm">Sector</th><th style="width:44mm">Fase temprana · 1730–1800Z</th><th style="width:44mm">Desarrollo · 1900–2000Z</th><th>Fase madura · 2100–2200Z</th></tr>
+    <tr><td><b>Villavicencio (SKVV)</b></td><td>St / Sc bajos, con componente orográfico del piedemonte</td><td>Sc en disipación · <span class="tenue">METAR: BKN050 a 1800Z, BKN040 a 1900Z</span></td><td>Cielo despejado · <span class="tenue">FEW060 a 2100Z, NSC a 2200Z</span></td></tr>
+    <tr><td><b>Ruta central</b><br><span class="tenue">Meta–Vichada–Guainía–Vaupés</span></td><td>Cu de buen tiempo, disperso</td><td>TCu en crecimiento activo · <span class="tenue">banda 2 granulada + banda 4 con hielo a 1930Z</span></td><td>Cb con yunque; Cs de origen convectivo</td></tr>
+    <tr><td><b>Último tercio y norte de Leticia</b></td><td>Sin nubosidad significativa</td><td>TCu incipiente desde 1900Z</td><td><b>Cb maduro con yunque.</b> Topes medidos: p05 −71 a −74 °C, máximo derivado FL478</td></tr>
+    <tr><td><b>Sistema oriental</b><br><span class="tenue">fuera del corredor</span></td><td>Cu aislado</td><td>Cb en desarrollo activo</td><td>Cb maduro, yunque muy extenso</td></tr>
+    <tr><td><b>Fondo del dominio</b></td><td>Ci disperso</td><td>Ci en aumento</td><td>Ci/Cs extenso</td></tr>
+  </table>
+
+  <div style="display:flex; gap:7mm; margin-top:3mm">
+    <div style="flex:1">
+      <table style="font-size:9pt">
+        <tr><th style="width:26mm">Nivel</th><th>En este caso</th></tr>
+        <tr><td><b>Baja</b><br><span class="tenue">&lt; 6 500 ft</span></td><td>St/Sc de SKVV: bases METAR entre 4 000 y 6 000 ft. <b>El satélite no las ve</b>: un estrato tropical emite casi a la temperatura del suelo</td></tr>
+        <tr><td><b>Media</b><br><span class="tenue">6 500 – 20 000 ft</span></td><td>TCu en crecimiento, aún sin glaciación de tope (sin señal en banda 4). Aquí dentro está la <b>isocero, FL150</b></td></tr>
+        <tr><td><b>Alta</b><br><span class="tenue">&gt; 20 000 ft</span></td><td>Yunques de Cb (banda 4 desde 1900Z) y topes bajo −60 °C. Nuestro nivel de crucero, FL210, está en la base de esta capa</td></tr>
+      </table>
+    </div>
+    <div style="flex:0 0 80mm">
+      <div class="ojo">
+        <p style="margin:0">
+          <b>La pregunta que engancha aquí:</b> «¿cómo clasifican la altura sin sondeo?». La
+          respuesta honesta: por método indirecto declarado — temperatura de brillo convertida con
+          un gradiente tipo de 6,5 °C/km <b>anclado en el METAR real</b>, umbral de ~6 km de la
+          banda 4 para el hielo, y bases METAR en pies para la capa baja. <b>No hay radiosondeo
+          ese día</b>, así que la altura es estimación declarada, no observación.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 15 ============ -->
+<section>
+  <h2><span class="num">15</span>Convección profunda, tormenta, granizo y rayo</h2>
+  <p class="sub">Respaldo del bloque B. El fenómeno principal del caso. Lo que se mide, lo que se infiere y lo que no se sabe.</p>
+
+  <table style="font-size:9pt">
+    <tr><th style="width:34mm">Qué</th><th style="width:22mm">Estatus</th><th>Base</th></tr>
+    <tr><td><b>Convección profunda</b></td><td><b>Observado</b></td><td>Percentil 5 del tope entre −71 y −74 °C en cb-01, cb-02 y cb-03; tope máximo derivado FL478 a 2030Z. Medido sobre banda 13 invirtiendo la tabla <code>ircimss2</code></td></tr>
+    <tr><td><b>Cumulonimbo maduro</b></td><td><b>Observado</b></td><td>Torre granulada en banda 2 + hielo brillante en banda 4, simultáneos sobre el corredor desde las 1930Z. Torre y yunque juntos = fase madura</td></tr>
+    <tr><td><b>Granizo en el núcleo</b></td><td><span style="color:#a9761a"><b>Inferido</b></span></td><td>Umbral estándar: topes bajo −60 °C son compatibles con granizo. <b>No es una observación de granizo</b>, y menos en superficie</td></tr>
+    <tr><td><b>Actividad eléctrica</b></td><td><span style="color:#a9761a"><b>Inferido</b></span></td><td>Mismo umbral. <b>No hay producto de descargas (GLM)</b> en este trabajo: no se puede cuantificar</td></tr>
+    <tr><td><b>Turbulencia convectiva</b></td><td><span style="color:#a9761a"><b>Inferido</b></span></td><td>Asociada a los núcleos y a los bordes de gradiente térmico abrupto. No medida</td></tr>
+    <tr><td><b>Tormenta declarada</b></td><td><b>Oficial, pero no en nuestra FIR</b></td><td>SIGMET <code>EMBD TS</code> de las FIR Amazónica y Lima, topes FL430–FL490, solapando la ventana del vuelo (§30)</td></tr>
+  </table>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>Cómo se dice esto sin pasarse:</b> «medimos un tope de −72,6 °C. De ahí <b>inferimos</b>,
+      con el umbral estándar, que hay granizo y actividad eléctrica probables. No los observamos:
+      para eso harían falta radar y detección de descargas, y los declaramos como pendientes.»
+      Esa frase, dicha antes de que la pregunten, vale más que cualquier dato.
+    </p>
+  </div>
+
+  <p style="margin-top:3mm">
+    <b>Y el matiz temporal que casi nadie dice:</b> la temperatura sola no distingue una célula
+    que crece de una que se disipa. Para eso está la serie de área y percentil cuadro a cuadro
+    que guarda cada ficha — y es lo que permite afirmar que cb-03 llevaba <b>dos horas
+    organizada</b> cuando el vuelo llegó a su altura.
+  </p>
+</section>
+
+<!-- ============ 16 ============ -->
+<section>
+  <h2><span class="num">16</span>Turbulencia en aire claro y cizalladura</h2>
+  <p class="sub">Respaldo del bloque B. El fenómeno más citado y el peor sostenido. Hay que ser especialmente cuidadosos.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 72mm; margin:0">
+      <img src="figuras/sat-b09-2030z.jpg" alt="Banda 9 a 2030Z" />
+      <figcaption>Banda 9 a 2030Z. Lo que importa no son las manchas verdes sino los <b>bordes</b> entre el rojo oscuro (seco) y el claro (húmedo): ahí es donde hay cortante.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <p>
+        <b>El razonamiento estándar</b>, y el que usa el nefoanálisis: un límite marcado entre
+        zona clara y zona oscura en vapor de agua indica un cortante de viento, y en los cortantes
+        aparece la turbulencia en aire claro. En el corredor esos bordes existen: se ven al
+        aproximarse a Amazonas y a Leticia.
+      </p>
+      <div class="ojo">
+        <p style="margin:0">
+          <b>Pero nosotros NO lo afirmamos, y hay que decirlo:</b> nuestro motor no calcula
+          cizalladura, no hay viento en altura en el conjunto de datos y no hay PIREP que lo
+          corrobore. Es una <b>hipótesis razonable de un experto</b> sobre una firma visual, no
+          una medida de este trabajo. Si preguntan, esa es la respuesta exacta.
+        </p>
+      </div>
+      <p style="margin-top:3mm">
+        <b>Lo que sí podemos sostener</b> es el hallazgo de la banda 10: la capa de 600–750 hPa
+        —la del ascenso y el descenso— <b>está seca en casi todo el corredor</b>, con la humedad
+        concentrada en los núcleos. Eso significa que el riesgo de cizalladura en esa capa
+        <b>se concentra en los bordes puntuales de las celdas y no en un deterioro homogéneo de
+        toda la ruta</b>, que es una conclusión operacional útil y medible en la imagen.
+      </p>
+      <p>
+        <b>Cizalladura de bajo nivel</b> es otra cosa y esa sí la tenemos observada: está en el
+        frente de racha de §18, y la firma la dio un METAR, no el satélite.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 17 ============ -->
+<section>
+  <h2><span class="num">17</span>Engelamiento: dónde está de verdad la capa crítica</h2>
+  <p class="sub">Respaldo del bloque B. Aquí las tres fuentes se cruzan y sale el hallazgo más redondo del trabajo.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <div style="flex:1">
+      <ol class="pasos" style="font-size:9.6pt">
+        <li>
+          <b>La regla física, de la asesoría.</b> «Las nubes por encima de la isocero, de unos
+          4 800 a 5 000 metros, son de hielo; allí es muy raro encontrar agua líquida. El
+          engelamiento es agua líquida que está por debajo de cero grados.» Es decir: <b>el
+          riesgo no está en el tope frío, está alrededor de la isocero.</b>
+        </li>
+        <li>
+          <b>Nuestro número, anclado en el METAR del día.</b> Con el mismo gradiente que usa el
+          visor (6,5 °C/km) y la temperatura real de superficie, la isocero del caso queda en
+          <b>14 900 ft en SKLT y 15 500 ft en SKVV</b> — en números redondos, <b>FL150</b>.
+        </li>
+        <li>
+          <b>El aviso oficial.</b> La FIR Amazónica publicó ese día el <b>SIGMET 41: engelamiento
+          SEVERO entre FL140 y FL230</b>, válido 1530–1930Z, con su contorno a 79 NM de la ruta.
+          Nuestra isocero calculada cae <b>dentro</b> de esa banda, en su parte baja.
+        </li>
+        <li>
+          <b>Y el cruce que lo cierra todo.</b> Nuestro perfil de descenso atraviesa los 15 000 ft
+          en la <b>milla 506, a las 2042Z</b>, entre TOD y ROKUL. Es decir: <b>el avión cruza la
+          capa de engelamiento justo en el tramo y en el minuto en que cb-02 está a 15,9 NM</b>.
+        </li>
+      </ol>
+      <div class="clave">
+        <p style="margin:0">
+          <b>La frase, y es de las mejores que tienen:</b> «El engelamiento no nos preocupa en
+          crucero: a FL210 estamos 6 000 ft por encima de la isocero, en régimen de hielo. Nos
+          preocupa <b>en el descenso</b>, porque cruzamos los 15 000 ft en la milla 506 a las
+          2042Z, dentro del tramo que nuestra propia regla marca como EVITAR, y dentro de la
+          banda de niveles que un SIGMET oficial declaró de engelamiento severo esa tarde.»
+        </p>
+      </div>
+    </div>
+
+    <figure class="alta" style="flex:0 0 50mm; margin:0">
+      <img src="figuras/sat-b05-2030z.jpg" alt="Banda 5 a 2030Z" style="height:118mm" />
+      <figcaption>Banda 5 a 2030Z: el canal de la fase. Oscuro = hielo; claro = agua sobreenfriada.</figcaption>
+    </figure>
+  </div>
+
+  <p style="margin-top:2mm; font-size:9.4pt">
+    <b>Honestidad sobre la fase mixta:</b> el nefoanálisis afirma haber confirmado fase mixta en
+    los flancos de las celdas cruzando banda 5 y banda 13. Es plausible y coherente con el SIGMET,
+    pero la lectura de la banda 5 es <b>cualitativa</b> —sin valores publicados— y él mismo lo
+    reconoce en sus limitaciones. Nosotros lo presentamos como <b>hipótesis bien fundada</b>, no
+    como medida.
+  </p>
+</section>
+
+<!-- ============ 18 ============ -->
+<section>
+  <h2><span class="num">18</span>El frente de racha del Guaviare</h2>
+  <p class="sub">Respaldo del bloque B. El fenómeno que no estaba en ningún informe escrito y que sí tenemos confirmado desde dos fuentes.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 72mm; margin:0">
+      <img src="figuras/sat-b02-2000z.jpg" alt="Banda 2 a 2000Z" />
+      <figcaption>Banda 2 a 2000Z, resolución de 0,5 km. La convección al oriente de SKSJ, con la línea de cúmulos bajos que delata la salida de aire frío.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <p>
+        <b>Lo que dice la asesoría</b>, mirando el canal 2: «se observan tormentas y se observa
+        salida de <b>microrreventones</b>, es decir, en niveles bajos se observa una corriente de
+        aire que está generando una <b>línea de cúmulos de bajo nivel</b>».
+      </p>
+      <p>
+        <b>Lo que dice el METAR, sin saber nada del satélite.</b> San José del Guaviare, 2000Z:
+      </p>
+      <p style="text-align:center; font-family:'Cascadia Mono',Consolas,monospace; font-size:10pt; margin:2mm 0">
+        <code>METAR SKSJ 072000Z <b>36011G21KT</b> 320V030 9999 BKN045 32/22 Q1010</code>
+      </p>
+      <p>
+        Viento de 11 kt <b>con racha de 21 kt</b> y capa fragmentada a 4 500 ft, cuando una hora
+        antes el viento era variable de 2 kt. Eso es la firma clásica de un <b>frente de racha</b>:
+        el aire frío que sale de la base de la tormenta y se extiende por superficie.
+      </p>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>Por qué esto vale tanto:</b> es el único fenómeno del caso <b>observado por dos
+          instrumentos independientes</b> —la estructura en el visible y la racha en la estación—
+          y ninguno de los dos informes escritos lo recogió. El nefoanálisis llega a proponer
+          SKSJ como uno de los dos alternos más seguros <b>sin mencionar la racha</b>; nuestro
+          informe tampoco la destacó. Decirlo nosotros, y decir que se nos había pasado, es
+          exactamente el tipo de rigor que se premia.
+        </p>
+      </div>
+
+      <p style="margin-top:3mm; font-size:9.4pt">
+        <b>Nota de trazabilidad:</b> el nombre del departamento en el audio queda confuso en la
+        grabación. Lo situamos en Guaviare porque es donde está SKSJ y porque es la estación que
+        registra la racha; si en la exposición hace falta, se dice así de claro.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 19 ============ -->
+<section>
+  <h2><span class="num">19</span>Visibilidad, precipitación y nubosidad baja</h2>
+  <p class="sub">Respaldo del bloque B. Lo que el satélite NO vio, y por qué eso también es un resultado.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 62mm; margin:0">
+      <img src="figuras/meteo-sklt.png" alt="Tarjeta METAR de SKLT en el visor" />
+      <figcaption>La tarjeta de SKLT en el visor, con la secuencia horaria y su categoría.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table style="font-size:9pt">
+        <tr><th style="width:16mm">Hora</th><th style="width:18mm">Categoría</th><th>Qué informa la estación</th></tr>
+        <tr><td class="n">1800Z</td><td>VFR</td><td><code>9999 SCT023</code> — sin fenómeno</td></tr>
+        <tr><td class="n">1900Z</td><td>VFR</td><td><code>9999 <b>2000E RA</b> SCT020</code> — <b>lluvia, con 2 000 m al este</b></td></tr>
+        <tr><td class="n">2000Z</td><td>VFR</td><td><code>9999 SCT037</code> — tregua</td></tr>
+        <tr><td class="n">2100Z</td><td><b>MVFR</b></td><td><code><b>8000 VCSH</b> SCT020</code> — chubascos en la vecindad</td></tr>
+        <tr><td class="n">2200Z</td><td>VFR</td><td><code>9999 SCT020</code> — recupera</td></tr>
+      </table>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>El grupo de las 1900Z es el mejor dato del contraste y el nefoanálisis se lo perdió.</b>
+          Dice que la precipitación se confirma a las 2100Z. Es dos horas antes, y coincide
+          <i>exactamente</i> con la hora en que las tres fuentes sitúan la primera señal convectiva
+          al norte de Leticia. Ese <code>RA</code> de las 1900Z es la confirmación en tierra de lo
+          que el infrarrojo estaba viendo desde arriba.
+        </p>
+      </div>
+
+      <p style="margin-top:3mm">
+        <b>Y lo que el satélite no vio.</b> Ese mismo día, hacia el mediodía, SKLT tuvo
+        <code>OVC004</code> y <code>BKN008</code> con <code>BR</code>. En el infrarrojo no aparece:
+        un estrato a 400 ft emite casi a la misma temperatura que el suelo tropical, y la máscara
+        de nube —que exige 10 °C de diferencia con el METAR de anclaje— no lo separa del terreno.
+        <b>Para techos bajos y niebla, la observación de superficie no tiene sustituto.</b>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 20 ============ -->
+<section>
+  <h2><span class="num">20</span>Bloque C · Guion de Leonardo <span style="font-size:11pt;color:#4a5b6b">— 6 min</span></h2>
+  <p class="sub">Objetivo: cerrar con una decisión defendible y con números, no con una impresión.</p>
+
+  <ol class="pasos">
+    <li>
+      <b>Pon el reloj del vuelo encima del día.</b> «Todo lo que acaban de ver ocurre mientras
+      nosotros volamos. Salimos a las 1830Z, cuando hay dos células. Llegamos a las 2055Z, cuando
+      hay trece. <b>El campo convectivo se organiza contra nuestro reloj.</b>»
+      <span class="tenue">(§21)</span>
+    </li>
+    <li>
+      <b>El corte vertical, dos veces.</b> Barra en 1830Z: «el 2 % de la ruta tiene topes por
+      encima de nuestro nivel; con esta imagen salimos tranquilos». Arrastra a 2030Z y calla:
+      «<b>14 %. Y el tope máximo pasa de FL236 a FL478.</b>» <span class="tenue">(§22)</span>
+    </li>
+    <li>
+      <b>Nombra el sitio.</b> «Lo que empeora no es la ruta entera: es el último tercio. Los
+      conflictos que coinciden con nuestra posición están todos más allá de la milla 450 —
+      descenso y aproximación a Leticia.»
+    </li>
+    <li>
+      <b>Tramos y la regla.</b> «El criterio está escrito en la pantalla: EVITAR si el 20 % del
+      tramo tiene topes sobre el nivel, o si una célula pasa a menos de 25 NM <i>en el momento en
+      que estamos ahí</i>.» Despliega <code>ASKAT → DADIL</code>: 20 %, FL431.
+      <span class="tenue">(§23)</span>
+    </li>
+    <li>
+      <b>El EFB y el punto de decisión.</b> «A las 2030Z llevamos 458 NM de 553, y hay dos alertas
+      rojas. Sobrevolar: <b>NO VIABLE</b>, y dice por qué. Desviarse 9 NM para separarse 25:
+      <b>1,1 NM</b> de coste.» <span class="tenue">(§24)</span>
+    </li>
+    <li>
+      <b>El dato que casi nadie ve.</b> «Y el descenso cruza la isocero —FL150— en la <b>milla
+      506, a las 2042Z</b>, entre TOD y ROKUL: atravesamos la capa de engelamiento justo donde y
+      cuando está la célula.» <span class="tenue">(§17)</span>
+    </li>
+    <li>
+      <b>Destino y alternos.</b> «En tierra Leticia nunca baja de MVFR: lo peor son 8 000 m con
+      VCSH a las 2100Z. Los cuatro alternos en VFR a la hora de llegada, así que decide la
+      distancia: SKMU, a 327 NM.» <span class="tenue">(§25)</span>
+    </li>
+    <li>
+      <b>La decisión.</b> «<b>GO con desvío planificado.</b> Lo que no es defendible es volar la
+      trayectoria publicada sin desvío entre las 2030Z y las 2040Z.»
+    </li>
+  </ol>
+</section>
+
+<!-- ============ 21 ============ -->
+<section>
+  <h2><span class="num">21</span>El día contra el reloj del vuelo</h2>
+  <p class="sub">Respaldo del bloque C. Banda 13 de punta a punta, con la hora del vuelo al lado.</p>
+
+  <div style="display:flex; gap:4mm; align-items:flex-start">
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b13-1730z.jpg" alt="Banda 13 a 1730Z" />
+      <figcaption><b>1730Z</b> · una hora antes de la salida.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b13-1930z.jpg" alt="Banda 13 a 1930Z" />
+      <figcaption><b>1930Z</b> · una hora de vuelo.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0">
+      <img src="figuras/sat-b13-2200z.jpg" alt="Banda 13 a 2200Z" />
+      <figcaption><b>2200Z</b> · una hora después de aterrizar.</figcaption>
+    </figure>
+
+    <div style="flex:0 0 74mm">
+      <table style="font-size:8pt">
+        <tr><th style="width:13mm">Hora</th><th>Qué está pasando</th></tr>
+        <tr><td class="n">1730Z</td><td><b>1 célula</b> seguida, p05 −65,9 °C, en Guainía a 74 NM de la ruta. Corredor despejado.</td></tr>
+        <tr><td class="n">1830Z</td><td><b>Salida.</b> 2 células. El 2 % de la ruta con topes sobre FL210; máximo FL236.</td></tr>
+        <tr><td class="n">1900Z</td><td><b>5 células.</b> Nace cb-03, la que luego cruzará la traza. Torres en banda 2 y yunque en banda 4 sobre el corredor central. En SKLT, METAR con <code>RA</code> y 2 000 m al este.</td></tr>
+        <tr><td class="n">1930Z</td><td>6 células. El 5 % de la ruta bloqueado; máximo FL327.</td></tr>
+        <tr><td class="n">2000Z</td><td>11 células. Racha de <b>21 kt</b> en SKSJ: frente de racha (§18).</td></tr>
+        <tr><td class="n">2020Z</td><td><b>Pico: 13 células vivas</b>, la más fría a −76,6 °C.</td></tr>
+        <tr><td class="n">2030Z</td><td><b>El momento.</b> 14 % de la ruta bloqueado, máximo FL478. cb-01 a 16,3 NM y cb-03 a 19,2 NM de la aeronave, en la milla 458.</td></tr>
+        <tr><td class="n">2040Z</td><td>cb-02 a 15,9 NM en la milla 496. El descenso cruza la isocero en la milla 506 (§17). <b>ETA 2055Z</b>, destino en VFR.</td></tr>
+        <tr><tr><td class="n">2100Z</td><td>SKLT en <b>MVFR</b>: 8 000 m y <code>VCSH</code>. SKMU con <code>FEW048TCU</code>.</td></tr>
+        <tr><td class="n">2200Z</td><td>SKLT vuelve a 9999. Pero el campo convectivo <b>sigue activo</b>: nuevo cúmulo grande al nororiente de SKSJ y el sistema oriental en su máximo.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 22 ============ -->
+<section>
+  <h2><span class="num">22</span>El corte vertical: 1830Z → 2030Z</h2>
+  <p class="sub">Respaldo del bloque C. La gráfica que contesta la pregunta del trabajo.</p>
+
+  <div style="display:flex; gap:6mm; align-items:flex-start">
+    <figure style="flex:1; margin:0">
+      <img src="figuras/perfil-1830z.png" alt="Corte vertical a 1830Z" />
+      <figcaption><b>1830Z</b>, hora de salida: columnas bajas, 2 % de la ruta por encima de la línea azul de FL210.</figcaption>
+    </figure>
+    <figure style="flex:1; margin:0">
+      <img src="figuras/perfil-2030z.png" alt="Corte vertical a 2030Z" />
+      <figcaption><b>2030Z</b>: 14 %, y columnas verdes y naranjas asomando muy por encima del nivel.</figcaption>
+    </figure>
+  </div>
+
+  <div style="display:flex; gap:7mm; margin-top:3mm">
+    <div style="flex:1">
+      <table style="font-size:9pt">
+        <tr><th>Hora</th><th>Puntos con nube</th><th>Sobre FL210</th><th>Tope máximo</th><th>Tb mínima</th></tr>
+        <tr><td class="n">1830Z</td><td class="n">93 de 170</td><td class="n">4 · <b>2 %</b></td><td class="n">FL236</td><td class="n">−86,0 °C</td></tr>
+        <tr><td class="n">1930Z</td><td class="n">110</td><td class="n">8 · <b>5 %</b></td><td class="n">FL327</td><td class="n">−83,3 °C</td></tr>
+        <tr><td class="n">2030Z</td><td class="n">76</td><td class="n">24 · <b>14 %</b></td><td class="n">FL478</td><td class="n">−83,3 °C</td></tr>
+      </table>
+    </div>
+    <div style="flex:1">
+      <div class="clave">
+        <p style="margin:0">
+          <b>La lectura, y es la conclusión central del trabajo:</b> la fracción de ruta bloqueada
+          al nivel de crucero <b>se multiplica por siete</b> entre la salida y el final del
+          trayecto. Un análisis hecho solo con la imagen de la hora de salida habría declarado la
+          ruta prácticamente limpia —2 %— y habría fallado justo donde importa.
+        </p>
+      </div>
+      <p style="margin-top:3mm; font-size:9.4pt">
+        <b>Ojo con una trampa de lectura:</b> a 2030Z hay <i>menos</i> puntos con nube que a 1930Z
+        (76 contra 110) y sin embargo hay el triple de ruta bloqueada. No es contradicción: la
+        nubosidad dispersa y baja se reorganiza en menos núcleos, pero mucho más altos. Si alguien
+        lo pregunta, esa es la respuesta.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 23 ============ -->
+<section>
+  <h2><span class="num">23</span>Tramos y la regla de decisión</h2>
+  <p class="sub">Respaldo del bloque C. Aquí el análisis deja de describir y se moja.</p>
+
+  <div style="display:flex; gap:6mm; align-items:flex-start">
+    <figure class="alta" style="flex:0 0 46mm; margin:0">
+      <img src="figuras/tramos-2030z.png" alt="La pestaña Tramos a 2030Z" style="height:140mm" />
+      <figcaption>La pestaña a 2030Z: veredicto de ruta, tres fases y diez tramos.</figcaption>
+    </figure>
+    <figure style="flex:0 0 76mm; margin:0">
+      <img src="figuras/tramos-detalle.png" alt="Detalle del tramo ASKAT a DADIL" />
+      <figcaption>El tramo que marca el veredicto, desplegado.</figcaption>
+      <img src="figuras/tramos-regla.png" alt="La regla de decisión" style="margin-top:3mm" />
+      <figcaption>La regla, impresa en la propia interfaz.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <p>
+        <b>La ruta se parte en sus diez tramos reales</b> entre puntos publicados, en el orden en
+        que se vuelan, y cada uno recibe una etiqueta con el motivo escrito al lado. El veredicto
+        de la ruta es <b>el del peor tramo</b>: una ruta con nueve tramos libres y uno que hay que
+        evitar es una ruta que hay que replantear.
+      </p>
+      <p>
+        <b>El matiz que hay que decir en voz alta</b>, porque está al pie de la regla: el criterio
+        mira <i>el momento en que la aeronave pasa por el tramo</i>, no la ventana entera. Una
+        célula que nace cuando el avión ya ha pasado no penaliza el tramo. Sin ese matiz,
+        cualquier ruta amazónica en una tarde de septiembre saldría EVITAR de punta a punta.
+      </p>
+      <div class="ojo">
+        <p style="margin:0">
+          <b>Y el paréntesis donde más se tropieza:</b> «20 % (14/20 puntos con nube)» quiere
+          decir que el tramo tiene <b>20 puntos muestreados</b>, de los cuales 14 tienen nube, y
+          que <b>el 20 % del tramo</b> —4 de esos 20— tiene el tope por encima de FL210. El
+          porcentaje y el paréntesis miden cosas distintas.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 24 ============ -->
+<section>
+  <h2><span class="num">24</span>El EFB y el punto de decisión</h2>
+  <p class="sub">Respaldo del bloque C. Lo que tendría delante la tripulación, con el coste de cada opción calculado.</p>
+
+  <div style="display:flex; gap:6mm; align-items:flex-start">
+    <figure class="alta" style="flex:0 0 40mm; margin:0">
+      <img src="figuras/efb-anatomia.png" alt="El panel EFB completo a 2030Z" style="height:140mm" />
+      <figcaption>El EFB a 2030Z, con sus seis bloques.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table style="font-size:9pt">
+        <tr><th style="width:34mm">Opción</th><th>La cuenta que trae</th></tr>
+        <tr><td><b>Mantener ruta y nivel</b></td><td>Paso a 15,9 NM del centro de cb-02 a las 2040Z. Sin coste en tiempo ni combustible</td></tr>
+        <tr><td><b>Desvío lateral de 9 NM</b></td><td>Separación resultante ≈ 25 NM. Coste <b>1,1 NM</b>, por la geometría de un quiebro simétrico sobre un tramo de 150 NM: <code>2·(√((150/2)² + d²) − 150/2)</code></td></tr>
+        <tr><td><b>Sobrevolar</b></td><td><b>NO VIABLE</b>, y dice por qué: el percentil 5 del tope es −71,2 °C, muy por encima de cualquier nivel disponible para un ATR 72-600</td></tr>
+        <tr><td><b>Desviar a SKMU</b></td><td>238 NM desde la posición actual, unos 57 min, y la categoría que tendría el alterno a la hora de llegar</td></tr>
+      </table>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>Cuándo aparece el panel, que es la mitad del argumento:</b> no es un guion. Se dispara
+          con el encuentro <b>calculado</b> con la célula más comprometida —la que pasará a menos
+          de 25 NM— y solo dentro de los <b>20 minutos previos</b> al punto de máxima
+          aproximación. Antes no hace falta decidir; después ya no sirve de nada.
+        </p>
+      </div>
+      <p style="margin-top:3mm; font-size:9.4pt">
+        <b>Y el detalle que distingue un panel serio de una animación:</b> la distancia a cada
+        célula se mide contra <i>el paso más cercano en el tiempo</i>, no contra su geometría de
+        máximo desarrollo. Una célula que a las 2030Z está a 18 NM pudo estar a 80 NM a las 1950Z.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 25 ============ -->
+<section>
+  <h2><span class="num">25</span>Destino, alternos y la bitácora</h2>
+  <p class="sub">Respaldo del bloque C. Dónde termina el análisis y empieza la decisión operacional.</p>
+
+  <div style="display:flex; gap:6mm; align-items:flex-start">
+    <figure class="alta" style="flex:0 0 44mm; margin:0">
+      <img src="figuras/alterno-panel.png" alt="La pestaña Alterno del visor" style="height:132mm" />
+      <figcaption>La matriz de alternos del visor, con su criterio ponderado.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table style="font-size:9pt">
+        <tr><th style="width:18mm">Alterno</th><th style="width:16mm">Categoría</th><th>METAR a 2100Z y lectura</th></tr>
+        <tr><td><b>SKMU</b></td><td>VFR</td><td><code>FEW048TCU</code> — operable, pero el <b>único con torre en desarrollo declarada</b>, y está en el entorno de cb-09</td></tr>
+        <tr><td><b>SKSJ</b></td><td>VFR</td><td><code>36005KT BKN040</code> — operable. Pero a las <b>2000Z dio racha de 21 kt</b>: el frente de racha de §18</td></tr>
+        <tr><td><b>SKPD</b></td><td>VFR</td><td><code>FEW030</code> — el más despejado</td></tr>
+        <tr><td><b>SKFL</b></td><td>VFR</td><td><code>FEW040</code> — mejora sostenida toda la tarde</td></tr>
+      </table>
+
+      <p style="margin-top:3mm">
+        <b>Los cuatro están en VFR a la hora de llegada</b>, así que el criterio meteorológico
+        <b>no discrimina</b>: la decisión la toman distancia, pista y ayudas. Y hay una restricción
+        que no depende del tiempo y que conviene decir: <b>ningún alterno colombiano queda cerca
+        de SKLT</b>. El más próximo, SKMU, está a 327 NM. Cualquier desvío desde el área de
+        Leticia es, por definición, un desvío largo.
+      </p>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>La decisión, tal como queda en la bitácora:</b> <b>GO con desvío planificado.</b> La
+          ruta es volable al nivel asignado durante los dos primeros tercios; el conflicto está
+          acotado en espacio y tiempo; el destino permanece operable —MVFR en su peor momento— y
+          hay cuatro alternos en VFR. <b>Lo que NO es defendible es volar la trayectoria publicada
+          sin desvío entre las 2030Z y las 2040Z.</b>
+        </p>
+      </div>
+      <p style="margin-top:3mm; font-size:9.2pt">
+        <b>Pendientes declarados:</b> los mínimos de aproximación (AD 2.19), el horario (AD 2.3) y
+        los servicios (AD 2.4) no están en la base aeronáutica cargada, igual que los designadores
+        de aerovía. <b>Ninguno se ha rellenado con un valor plausible.</b>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 26 ============ -->
+<section>
+  <h2><span class="num">26</span>Las tres fuentes: qué aporta cada una</h2>
+  <p class="sub">Saber qué tipo de evidencia es cada cosa es la mitad de la defensa.</p>
+
+  <table style="font-size:9pt">
+    <tr><th style="width:38mm">Fuente</th><th style="width:44mm">Qué es</th><th style="width:46mm">Qué aporta que las otras no</th><th>Su límite</th></tr>
+    <tr>
+      <td><b>Nefoanálisis del meteorólogo</b><br><span class="tenue">22 páginas, 8 bandas, 42 capturas horarias</span></td>
+      <td>Análisis cualitativo completo, banda a banda y sector a sector, con clasificación de nubosidad</td>
+      <td>El marco de interpretación: nomenclatura de géneros, deslinde entre observación e inferencia, y la lectura del sistema oriental que queda fuera de nuestro recorte</td>
+      <td>Sin cifras propias: no mide distancias, topes ni encuentros. Capturas horarias, no la secuencia de 10 min</td>
+    </tr>
+    <tr>
+      <td><b>Nuestro motor analítico</b><br><span class="tenue">223 cuadros, 8 bandas, 470 METAR</span></td>
+      <td>Medida reproducible: temperatura de brillo por inversión de la tabla de color, seguimiento de células, perfil de ruta, veredicto por tramo</td>
+      <td>Los números y el tiempo: 2 %→14 %, topes FL236→FL478, encuentros a 16–19 NM, hora y milla exactas</td>
+      <td>Solo 120 NM alrededor de la ruta, y solo las <b>14 células más relevantes para este vuelo</b>. No es un censo del campo convectivo</td>
+    </tr>
+    <tr>
+      <td><b>Asesoría grabada</b><br><span class="tenue">7 min 32 s, transcritos</span></td>
+      <td>Criterio experto sobre <b>cómo se hace</b> un briefing y qué mirar en cada canal</td>
+      <td>El método (zoom extendido primero), el marco sinóptico (ZCIT), la física del engelamiento y dos fenómenos que nadie había escrito: la línea de convergencia y el frente de racha</td>
+      <td>Es asesoría de método, no análisis del caso: no da cifras. Y la transcripción automática tiene ruido en algunos topónimos</td>
+    </tr>
+  </table>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Cómo presentarlo:</b> «Tenemos tres fuentes independientes: un análisis cualitativo
+      externo, nuestra propia medición sobre las imágenes, y la asesoría de un meteorólogo en
+      ejercicio. Coinciden en el qué, el dónde y el cuándo. Donde no coinciden, lo hemos medido
+      y les decimos cuál gana y por qué.» Eso es exactamente lo que sigue en §27, §28 y §29.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 27 ============ -->
+<section>
+  <h2><span class="num">27</span>Nefoanálisis: los ocho puntos que confirma</h2>
+  <p class="sub">Contrastado contra nuestros datos congelados. Esto se puede afirmar en sala.</p>
+
+  <table style="font-size:9pt">
+    <tr><th style="width:62mm">Lo que dice el informe del meteorólogo</th><th>Con qué de lo nuestro se sostiene</th></tr>
+    <tr><td>Convección diurna en agregación, intensificación durante la tarde</td><td><b>✓</b> Nuestro perfil de ruta: 2 % → 5 % → 14 % de puntos con tope sobre FL210 entre 1830Z y 2030Z</td></tr>
+    <tr><td>Ventana de transición sobre el corredor central entre 1800Z y 1900Z</td><td><b>✓</b> Pasamos de 1 célula viva a las 1820Z a 5 a las 1900Z. Y banda 2 + banda 4 muestran torre y yunque juntos a 1930Z</td></tr>
+    <tr><td>Máxima criticidad en aproximación y descenso a Leticia, junto al ETA</td><td><b>✓</b> Las tres células que interceptan al vuelo lo hacen a 16–19 NM entre 2030Z y 2040Z, más allá de la milla 450</td></tr>
+    <tr><td>Topes &lt; −60 °C compatibles con granizo, turbulencia severa y actividad eléctrica</td><td><b>✓</b> Percentil 5 de −71,2, −72,6 y −73,9 °C en cb-02, cb-01 y cb-03</td></tr>
+    <tr><td>El TAF no anticipó el desarrollo observado</td><td><b>✓ y más fuerte:</b> el TAF de SKLT (071655Z) es <code>17003KT 9999 SCT020</code>, <b>sin un solo TEMPO ni PROB</b>. No se quedó corto: no lo contempló</td></tr>
+    <tr><td>Precipitación y pérdida de visibilidad confirmadas por METAR en Leticia</td><td><b>✓</b> 2100Z: <code>8000 VCSH</code>, categoría MVFR. Literal — aunque empezó antes (§19)</td></tr>
+    <tr><td>Asimetría este-oeste en los alternos</td><td><b>✓</b> SKFL mejora sostenida; SKMU con <code>VCSH</code> a 1900Z y <code>FEW048TCU</code> a 2100Z</td></tr>
+    <tr><td>Sistema oriental de gran escala e intensidad severa, fuera de la ruta directa</td><td><b>✓</b> Se ve en nuestra propia banda 13 en el borde oriental del recorte, con núcleos rojos persistentes. Queda fuera de nuestro corredor de 120 NM, así que no lo medimos: su descripción es aporte suyo</td></tr>
+  </table>
+</section>
+
+<!-- ============ 28 ============ -->
+<section>
+  <h2><span class="num">28</span>Nefoanálisis: las seis correcciones</h2>
+  <p class="sub">Dos de ellas son errores nuestros. Llevarlas sabidas es lo que da autoridad.</p>
+
+  <table style="font-size:8.8pt">
+    <tr><th style="width:8mm"></th><th style="width:54mm">Afirmación</th><th>Lo que dice el dato</th></tr>
+    <tr>
+      <td class="n">1</td><td>«No se dispuso de SIGMET/AIRMET vigentes»</td>
+      <td><b>Falso.</b> Hay 225 SIGMET congelados de ese día y dos tocan el caso de lleno (§30). Es la corrección más importante y juega <i>a favor</i> de sus conclusiones</td>
+    </tr>
+    <tr>
+      <td class="n">2</td><td>«Núcleo convectivo local sobre el entorno inmediato de Leticia»</td>
+      <td><b>Al norte, no encima.</b> El centroide más cercano a SKLT de las catorce células queda a <b>52 NM</b>. La asesoría grabada dice lo mismo: «se están formando núcleos convectivos <b>hacia el norte de la ciudad</b>». Lo que llovió sobre el aeródromo fue de escala menor que nuestro umbral de 320 km²</td>
+    </tr>
+    <tr>
+      <td class="n">3</td><td>«Topes &lt; −60 °C desde ~2000Z»</td>
+      <td><b>Antes.</b> cb-09 ya tiene percentil 5 de <b>−65,9 °C en el primer cuadro, 1730Z</b>. Había convección profunda desde el inicio de la ventana, a 74 NM de la ruta</td>
+    </tr>
+    <tr>
+      <td class="n">4</td><td>«Banda 10 (600–750 hPa) es la capa en la que vuela el avión a FL210»</td>
+      <td><b>Error físico — y es nuestro:</b> lo copiaron de nuestro propio rótulo. FL210 ≈ 465 hPa; la banda 10 pesa hacia 600–750 hPa, o sea <b>8 000–13 800 ft</b>. La que encuadra FL210 es la <b>banda 9</b>. Su observación de fondo seco es correcta; la etiqueta de la capa, no</td>
+    </tr>
+    <tr>
+      <td class="n">5</td><td>«Precipitación en Leticia confirmada a las 2100Z»</td>
+      <td><b>Se les escapó lo mejor.</b> El METAR de las <b>1900Z</b> ya trae <code>9999 2000E RA</code>. Dos horas antes, y coincide con su propia «primera señal convectiva sobre SKLT a las 1900Z»</td>
+    </tr>
+    <tr>
+      <td class="n">6</td><td>«SKSJ estable/favorable» y «SKPD con BKN030 a 1900Z y TCU»</td>
+      <td><b>Dos fallos de alterno.</b> SKSJ a 2000Z da <code>36011G21KT BKN045</code>: racha de <b>21 kt</b>, el frente de racha de §18, y lo proponen como alterno seguro sin citarla — <b>nuestro informe tampoco la destacó</b>. De SKPD no hay METAR entre 1800Z y 2100Z: ese <code>BKN030</code> no está en el conjunto, y el TCU es de SKMU</td>
+    </tr>
+  </table>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Una corrección que nos hacemos a nosotros mismos, y hay que decirla si sale el tema:</b>
+      en una versión anterior de este contraste dijimos que la actividad <i>decaía</i> tras las
+      2020Z, apoyándonos en que nuestras células vivas bajan de 13 a 5. <b>Era una lectura
+      indebida:</b> nuestro catálogo tiene solo las 14 células más relevantes <i>para este vuelo</i>,
+      así que su decaimiento no describe el campo. La banda 13 a 2200Z muestra el campo bien
+      activo, con un cúmulo nuevo al nororiente de SKSJ. <b>La «intensificación sostenida» del
+      nefoanálisis se sostiene</b>; lo que decae son las células que nos amenazaban a nosotros.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 29 ============ -->
+<section>
+  <h2><span class="num">29</span>La asesoría grabada: lo que añade</h2>
+  <p class="sub">Siete minutos y medio de un meteorólogo en ejercicio: método y dos fenómenos nuevos.</p>
+
+  <table class="compacta">
+    <tr><th style="width:52mm">Lo que dice</th><th style="width:20mm">Estatus</th><th>Contraste con lo nuestro</th></tr>
+    <tr><td>Empezar el briefing por el canal 13 con <b>zoom extendido</b>, y solo después bajar al territorio</td><td><b>Método</b></td><td>Adoptado en el guion (§3 y §4). Es la forma correcta de abrir, y da autoridad citarlo</td></tr>
+    <tr><td><b>ZCIT</b> al norte del territorio extendiéndose hacia el Pacífico; ningún otro patrón importante ese día</td><td><b>Confirmado</b></td><td>Visible en nuestra banda 13 como la franja nubosa del norte: nos da el marco sinóptico que no teníamos escrito</td></tr>
+    <tr><td>A las 1800Z Orinoquía y Amazonía <b>mayormente despejadas</b>, con núcleos en Guainía y centro del Vichada</td><td><b>Confirmado</b></td><td>2 % de ruta bloqueada y una sola célula viva. cb-09, la mayor del caso, nace en Guainía a las 1730Z</td></tr>
+    <tr><td>En SKLT se forman núcleos <b>al norte de la ciudad</b></td><td><b>Confirmado</b></td><td>Coincide con nuestro dato (52 NM al norte) y corrige al nefoanálisis. §28, corrección 2</td></tr>
+    <tr><td><b>Línea de convergencia</b> sobre el centro del Amazonas, extendida horizontalmente</td><td><b>Nuevo</b></td><td>Visible en nuestra banda 2 al sur de la ruta, entre 1° y 3°S. No estaba en ningún informe</td></tr>
+    <tr><td><b>Microrreventones</b> y línea de cúmulos de bajo nivel en el Guaviare</td><td><b>Nuevo y confirmado</b></td><td>La racha de 21 kt de SKSJ a las 2000Z. Dos instrumentos independientes, un fenómeno. §18</td></tr>
+    <tr><td>El vuelo «podría encontrar hacia el final de la trayectoria nube de desarrollo vertical asociada a turbulencia, engelamiento y tormentas eléctricas», y «podría dar lugar a un SIGMET»</td><td><b>Premonitorio</b></td><td>Es lo que pasó y lo que dice nuestro análisis. El SIGMET se emitió — pero en las FIR vecinas, no en la nuestra (§30)</td></tr>
+    </table>
+
+  <p style="margin-top:2.5mm; font-size:9pt">
+    <b>Otras tres cosas que dice, ya tratadas en otro sitio.</b> Que en SKVV la nubosidad baja se
+    disipa con la tarde: cierto, con el matiz de la capa fragmentada de 1800–1900Z (§28). Que la
+    isocero está en 4 800–5 000 m: con el METAR del día nos sale algo más baja, FL150 (§17). Y que
+    conviene mirar el producto <b>GeoColor / fase de nubes</b> de SLIDER —agua blanca, hielo
+    azul— para afinar el engelamiento: no está en nuestro conjunto congelado, y es la ampliación
+    natural del trabajo.
+  </p>
+</section>
+
+<!-- ============ 30 ============ -->
+<section>
+  <h2><span class="num">30</span>Los SIGMET: el argumento más fuerte del caso</h2>
+  <p class="sub">El nefoanálisis los dio por inexistentes. Están, y cambian el peso de la conclusión.</p>
+
+  <div style="display:flex; gap:6mm; align-items:flex-start">
+    <figure style="flex:0 0 68mm; margin:0">
+      <img src="figuras/sigmet-ficha.png" alt="Ficha de un SIGMET en el visor" />
+      <figcaption>La ficha de un SIGMET en el visor: validez, <b>relación calculada con la ruta</b> —«el polígono publicado corta el trazado»— y el texto íntegro del aviso.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <table style="font-size:9pt">
+        <tr><th style="width:26mm">Aviso</th><th>Qué dice</th></tr>
+        <tr><td><b>SKED</b><br><span class="tenue">FIR Bogotá — la nuestra</span></td><td>Ese día emitió <b>dos SIGMET, los dos de ceniza volcánica</b> del Puracé. <b>Ninguno de tormenta.</b></td></tr>
+        <tr><td><b>SBAZ 51</b><br><span class="tenue">FIR Amazónica</span></td><td><code>EMBD TS</code>, tope <b>FL460</b>, válido <b>1930–2330Z</b>. Su contorno pasa a <b>31 NM de Leticia</b>: cubre la ventana exacta de nuestra aproximación</td></tr>
+        <tr><td><b>SBAZ 41</b><br><span class="tenue">FIR Amazónica</span></td><td><code>SEV ICE</code> <b>FL140/230</b>, válido 1530–1930Z, a <b>79 NM</b> de la ruta. Caducó antes de nuestro paso, pero documenta la capa de engelamiento de esa tarde — y nuestra isocero calculada cae dentro (§17)</td></tr>
+        <tr><td><b>SPIM A10/A12</b><br><span class="tenue">FIR Lima</span></td><td><code>EMBD TS</code> con topes FL400 y FL450, solapando la ventana del vuelo. El visor calcula que el polígono de A10 <b>corta el trazado</b> y que sus niveles se solapan con el perfil</td></tr>
+      </table>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>Dilo así, y es probablemente la frase más fuerte de toda la sustentación:</b>
+          «La FIR que nos corresponde no emitió ni un solo SIGMET de tormenta ese día. Las dos FIR
+          vecinas sí: tormenta embebida con topes de FL460 a 31 millas de nuestro destino, en la
+          hora exacta de la aproximación. El aviso oficial para nuestro espacio aéreo estuvo mudo;
+          el satélite no. Y el meteorólogo que nos asesoró, viendo solo las imágenes, ya había
+          dicho que ese día podía dar lugar a un SIGMET.»
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 31 ============ -->
+<section>
+  <h2><span class="num">31</span>Preguntas · el instrumento y el método <span style="font-size:11pt;color:#4a5b6b">— las contesta Cristian</span></h2>
+  <p class="sub">La respuesta correcta a casi todas empieza reconociendo el límite.</p>
+
+  <table style="font-size:9pt">
+    <tr><th style="width:58mm">Pregunta</th><th>Respuesta</th></tr>
+    <tr><td><b>¿De dónde sacan la temperatura si trabajan con JPEG?</b></td><td>De invertir la tabla de color publicada por SLIDER, <code>ircimss2</code>, congelada en el proyecto. No son radiancias calibradas del ABI y lo decimos: es el producto renderizado, con 192 escalones y compresión de por medio</td></tr>
+    <tr><td><b>¿Y si el color es ambiguo?</b></td><td>Lo es: esa tabla usa el gris dos veces, para lo muy cálido y para lo muy frío. Se resuelve por conectividad —el gris alcanzable desde el borde es suelo— y lo que queda sin resolver se rotula «ambiguo». Entre 7 y 18 de los 170 puntos del perfil, según la hora</td></tr>
+    <tr><td><b>La altura del tope, ¿está medida?</b></td><td>No. Es un cálculo desde la temperatura con un gradiente tipo de 6,5 °C/km, <b>anclado en el METAR real</b> más cercano. Lleva la palabra «calculado» impresa al lado en el visor. Sin radiosondeo ese día no se puede verificar</td></tr>
+    <tr><td><b>¿Por qué clasifican por percentil 5 y no por el mínimo?</b></td><td>Porque el mínimo es un solo píxel y el anillo de compresión del JPEG en el borde del núcleo puede fabricarlo. Nos pasó: una primera versión daba topes de −88 °C a partir de artefactos</td></tr>
+    <tr><td><b>¿Cómo sé que su medida es correcta?</b></td><td>Por contraste entre canales. La 13 y la 9 coinciden en 3–5 °C sobre los núcleos, que es la convergencia esperable en topes altos. Con un solo canal no habríamos detectado el error anterior</td></tr>
+    <tr><td><b>¿Por qué 25 NM y no otra cifra?</b></td><td>Es criterio declarado de este trabajo, escrito en el código y visible en la interfaz, no una norma citada. Quien no esté de acuerdo puede discutir el umbral: eso es discutir un análisis</td></tr>
+    <tr><td><b>¿Por qué no usaron radar meteorológico?</b></td><td>Porque no hay cobertura radar en ese corredor, y el de a bordo alcanza decenas de millas y solo ve hacia delante. El satélite ve las 553 NM a la vez y con dos horas de antelación: eso permite <i>planificar</i> el desvío</td></tr>
+  </table>
+</section>
+
+<!-- ============ 32 ============ -->
+<section>
+  <h2><span class="num">32</span>Preguntas · los fenómenos <span style="font-size:11pt;color:#4a5b6b">— las contesta Ángela</span></h2>
+  <p class="sub">Las que salen cuando el jurado es meteorólogo. Aquí es donde sirve la parte III.</p>
+
+  <table style="font-size:9pt">
+    <tr><th style="width:58mm">Pregunta</th><th>Respuesta</th></tr>
+    <tr><td><b>¿Observaron granizo y rayos, o los dedujeron?</b></td><td>Los dedujimos, con el umbral estándar de −60 °C, y lo decimos antes de que lo pregunten. Para observarlos harían falta radar y detección de descargas (GLM), y los dos están declarados como pendientes</td></tr>
+    <tr><td><b>¿En qué se basan para hablar de cizalladura?</b></td><td>En la firma de bordes de la banda 9, que es el razonamiento estándar. Pero <b>nosotros no la afirmamos como hallazgo</b>: no calculamos cizalladura ni tenemos viento en altura. Es hipótesis de experto sobre una firma visual</td></tr>
+    <tr><td><b>¿Dónde está exactamente el riesgo de engelamiento?</b></td><td>Alrededor de la isocero, que en este caso calculamos en <b>FL150</b> con el METAR del día. No en el tope frío: por encima de la isocero casi todo es hielo. Nuestro descenso cruza esa capa en la milla 506 a las 2042Z, y hay un SIGMET oficial de engelamiento severo FL140/230 esa tarde</td></tr>
+    <tr><td><b>¿No es contradictorio que a FL210 no les preocupe el engelamiento y el SIGMET llegue a FL230?</b></td><td>No: en corrientes ascendentes intensas el agua sobreenfriada sube bastante por encima de la isocero, y eso es justamente la fase mixta. La regla general dice hielo; el SIGMET cubre el caso convectivo. Por eso el riesgo se concentra en los <b>flancos</b> de las celdas</td></tr>
+    <tr><td><b>¿Qué tipo de nubes había exactamente?</b></td><td>St/Sc bajos en Villavicencio con componente orográfico del piedemonte; Cu de buen tiempo que pasan a TCu en el corredor entre 1800Z y 1900Z; Cb con yunque en el último tercio desde las 2000Z; Ci/Cs de fondo. La tabla completa está en §14</td></tr>
+    <tr><td><b>¿Y el sistema del oriente, que era el más fuerte?</b></td><td>Se ve en nuestra banda 13, pero queda fuera de nuestro corredor de 120 NM y por eso no lo medimos. Su descripción se la debemos al nefoanálisis. No condiciona esta navegación dentro de la ventana analizada</td></tr>
+    <tr><td><b>¿Había algún fenómeno de bajo nivel?</b></td><td>Sí, y es de lo mejor que tenemos: un frente de racha en el Guaviare, visto como línea de cúmulos en el canal 2 y confirmado por la racha de 21 kt del METAR de SKSJ a las 2000Z. §18</td></tr>
+  </table>
+</section>
+
+<!-- ============ 33 ============ -->
+<section>
+  <h2><span class="num">33</span>Preguntas · la operación <span style="font-size:11pt;color:#4a5b6b">— las contesta Leonardo</span></h2>
+  <p class="sub">Aquí es donde se gana o se pierde la defensa.</p>
+
+  <table style="font-size:9pt">
+    <tr><th style="width:58mm">Pregunta</th><th>Respuesta</th></tr>
+    <tr><td><b>Si el METAR de destino nunca bajó de MVFR, ¿dónde está el problema?</b></td><td>En los 100 NM anteriores, por donde hay que pasar para llegar y donde no hay ninguna estación. El METAR describe el cilindro sobre la pista; nosotros el corredor. No se contradicen: se complementan</td></tr>
+    <tr><td><b>¿Por qué no suben para pasar por encima?</b></td><td>Porque los topes llegan a FL478 y el percentil 5 de las células está entre −71 y −74 °C. No hay nivel disponible para un ATR 72-600 que salve eso. Ante convección profunda la solución es lateral o temporal, nunca vertical</td></tr>
+    <tr><td><b>¿La posición del avión es real?</b></td><td>No, y conviene decirlo antes: es el plan de vuelo recorrido a velocidad constante entre salida y ETA. Lo medido es todo lo que decimos <i>sobre</i> esa posición</td></tr>
+    <tr><td><b>¿Por qué eligieron SKMU si tiene TCU?</b></td><td>Porque los cuatro alternos están en VFR a la hora de llegada, así que el criterio meteorológico no discrimina y decide la distancia. SKMU es el más próximo, aun así a 327 NM. El TCU no cambia la elección, pero reduce el margen</td></tr>
+    <tr><td><b>¿Y SKSJ, que ustedes mismos dicen que tuvo racha de 21 kt?</b></td><td>Buena pregunta, y la respuesta es que <b>lo corregimos</b>: a 2000Z SKSJ no era el alterno tranquilo que parecía. A la hora de llegada ya había amainado (36005KT), pero el margen fue menor del que sugiere su categoría VFR. Es exactamente el tipo de matiz que una categoría sola no da</td></tr>
+    <tr><td><b>¿Qué habrían hecho distinto con más datos?</b></td><td>Con descargas eléctricas (GLM) cuantificaríamos la actividad; con radiosondeo verificaríamos la altura de tope y la isocero; con el producto de fase de nubes afinaríamos el engelamiento. Los tres están declarados como pendientes. Ninguno cambia la decisión</td></tr>
+    <tr><td><b>¿La decisión habría sido distinta a otra hora?</b></td><td>Sí, y es la conclusión del trabajo: saliendo a las 1830Z la ruta estaba al 2 %. El problema no era la ruta, era <b>la hora de llegada</b>. Adelantar la salida una hora habría sido tan válido como el desvío lateral</td></tr>
+  </table>
+</section>
+
+<!-- ============ 34 ============ -->
+<section>
+  <h2><span class="num">34</span>Qué NO se puede afirmar</h2>
+  <p class="sub">Cristian ya abre con los límites del instrumento en §8. Esta es la lista completa, para preguntas: las tres voces dicen lo mismo.</p>
+
+  <div class="cols">
+    <p><b>1. El satélite mide el tope, no la nube.</b> Bajo esa superficie no hay dato: ni base, ni cizalladura, ni granizo en superficie. «Célula a 16 NM» es a 16 NM de su centroide <i>en el tope</i>.</p>
+    <p><b>2. La altura es calculada.</b> Gradiente tipo anclado en METAR, sin radiosondeo que lo verifique ese día.</p>
+    <p><b>3. La escala satura.</b> La barra no rotula por debajo de −90 °C: un −90 es un límite, no una medida.</p>
+    <p><b>4. Hay puntos ambiguos y se cuentan.</b> No se rellenan con algo plausible.</p>
+    <p><b>5. Nube baja y niebla no se ven.</b> El <code>OVC004</code> con <code>BR</code> del mediodía en SKLT no aparece en el infrarrojo.</p>
+    <p><b>6. Granizo, rayo y turbulencia son inferencias.</b> Sostenidas por un umbral estándar, no observadas. Sin GLM ni radar no hay manera.</p>
+    <p><b>7. La turbulencia en aire claro es hipótesis ajena.</b> La deduce el nefoanálisis de los bordes de vapor de agua. Es razonable, pero <b>nosotros no la medimos y no la afirmamos</b>.</p>
+    <p><b>8. Nuestro catálogo de células no es un censo.</b> Son las <b>14 más relevantes para este vuelo</b>, elegidas por su encuentro con la aeronave. No sirven para describir el campo convectivo regional.</p>
+    <p><b>9. El veredicto no es una autorización.</b> LIBRE significa que con estos dos criterios y estos datos no se encontró obstrucción. No entra en performance, combustible, NOTAM ni estado del aeródromo.</p>
+    <p><b>10. Quedan datos pendientes y se dicen.</b> Mínimos de aproximación (AD 2.19), horarios (AD 2.3), servicios (AD 2.4) y los designadores de aerovía no están en la base cargada. <b>Ninguno se rellenó con un valor plausible.</b></p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>La conclusión que cierra la exposición:</b> la teledetección cubre el hueco
+        <i>geográfico</i> —los 553 NM entre aeródromos— y la observación de superficie cubre el
+        hueco <i>vertical</i> —lo que pasa bajo el tope de nube—. Ninguna de las dos sobra.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 35 ============ -->
+<section>
+  <h2><span class="num">35</span>Chuleta de números</h2>
+  <p class="sub">Imprimir esta página. Si en preguntas hace falta una cifra, se lee de aquí.</p>
+
+  <div style="display:flex; gap:6mm">
+    <div style="flex:1">
+      <table class="compacta">
+        <tr><th colspan="2">Vuelo</th></tr>
+        <tr><td>Ruta / distancia</td><td class="n">SKVV → SKLT · 553 NM · 10 tramos</td></tr>
+        <tr><td>Aeronave / nivel</td><td class="n">ATR 72-600 · FL210 · 250 kt</td></tr>
+        <tr><td>Salida / ETA</td><td class="n">1830Z / 2055Z (145 min)</td></tr>
+        <tr><td>Ventana / cuadros</td><td class="n">1730–2200Z · 28 por banda · 8 bandas · 223 en total</td></tr>
+        <tr><td>Observaciones METAR</td><td class="n">470 · SIGMET del día: 225</td></tr>
+        <tr><th colspan="2">Evolución del perfil</th></tr>
+        <tr><td>1830Z</td><td class="n">2 % sobre FL210 · tope FL236</td></tr>
+        <tr><td>1930Z</td><td class="n">5 % · tope FL327</td></tr>
+        <tr><td>2030Z</td><td class="n">14 % · tope FL478</td></tr>
+        <tr><th colspan="2">Capas y niveles</th></tr>
+        <tr><td>Isocero calculada</td><td class="n">FL150 (14 900 ft SKLT · 15 500 ft SKVV)</td></tr>
+        <tr><td>Cruce en descenso</td><td class="n">milla 506 · 2042Z · entre TOD y ROKUL</td></tr>
+        <tr><td>Banda 9 / banda 10</td><td class="n">400–500 hPa / 600–750 hPa (8 000–13 800 ft)</td></tr>
+      </table>
+    </div>
+    <div style="flex:1">
+      <table class="compacta">
+        <tr><th colspan="2">Las tres células que interceptan</th></tr>
+        <tr><td>cb-03</td><td class="n">19,2 NM a 2030Z · p05 −73,9 °C · la traza la atraviesa</td></tr>
+        <tr><td>cb-01</td><td class="n">16,3 NM a 2030Z · p05 −72,6 °C</td></tr>
+        <tr><td>cb-02</td><td class="n">15,9 NM a 2040Z · p05 −71,2 °C</td></tr>
+        <tr><th colspan="2">Campo convectivo (catálogo de 14)</th></tr>
+        <tr><td>Vivas</td><td class="n">1 a las 1730Z · 5 a las 1900Z · <b>13 a las 2020Z</b> · 5 a las 2200Z</td></tr>
+        <tr><td>La mayor</td><td class="n">cb-09 · 3 045 NM² · 1730–2140Z · a 74 NM de la ruta</td></tr>
+        <tr><td>Más cercana a SKLT</td><td class="n">52 NM (cb-02, 2110Z) — <b>ninguna sobre el aeródromo</b></td></tr>
+        <tr><th colspan="2">Superficie y avisos</th></tr>
+        <tr><td>SKLT peor momento</td><td class="n">2100Z · 8000 VCSH · MVFR</td></tr>
+        <tr><td>SKLT primera lluvia</td><td class="n">1900Z · <code>9999 2000E RA</code></td></tr>
+        <tr><td>SKSJ racha</td><td class="n">2000Z · 36011<b>G21</b>KT BKN045</td></tr>
+        <tr><td>SIGMET más próximo</td><td class="n">SBAZ 51 · EMBD TS · FL460 · 31 NM de SKLT</td></tr>
+        <tr><th colspan="2">Decisión</th></tr>
+        <tr><td>Desvío</td><td class="n">9 NM para separarse 25 · cuesta <b>1,1 NM</b></td></tr>
+        <tr><td>Alterno</td><td class="n">SKMU (327 NM del destino) · 2.ª opción SKSJ</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Ojo con una cifra:</b> el desvío cuesta <b>1,1 NM</b> (ida y vuelta; 0,55 por rama), que
+      es lo que calcula el EFB. El informe escrito dice «unas 0,5 NM» en dos sitios y <b>está
+      mal</b>: se quedó con una sola rama. La cifra buena es 1,1.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 36 ============ -->
+<section>
+  <h2><span class="num">36</span>Plan B y checklist previo</h2>
+  <p class="sub">Diez minutos antes, en orden, sin improvisar.</p>
+
+  <div style="display:flex; gap:7mm">
+    <div style="flex:1">
+      <p style="font-weight:600;margin-bottom:2mm">Checklist de los diez minutos previos</p>
+      <ol class="pasos" style="font-size:9.6pt">
+        <li>Abrir el visor y <b>esperar a que cargue entero</b> antes de que entre nadie.</li>
+        <li>Barra de tiempo en <b>1730Z</b>, portada abierta, EFB cerrado, banda 13 activa.</li>
+        <li>Comprobar que la <b>pestaña Fenómenos</b> lista las 14 células y que el bloque SIGMET ha respondido.</li>
+        <li>Probar <b>una vez</b> el arrastre de la barra de 1730Z a 2030Z y volver.</li>
+        <li>Brillo de pantalla al máximo: el visor es oscuro y en proyector se pierde.</li>
+        <li>Tener abiertos los otros <b>tres PDF</b> de guía y la transcripción de la asesoría, por si piden detalle.</li>
+        <li>Esta guía impresa, y la §35 a la vista del que no expone.</li>
+      </ol>
+    </div>
+    <div style="flex:1">
+      <p style="font-weight:600;margin-bottom:2mm">Si algo falla</p>
+      <table style="font-size:9pt">
+        <tr><td style="width:34mm"><b>No carga el visor</b></td><td>Se expone con los PDF de guía: llevan las mismas capturas y los mismos números</td></tr>
+        <tr><td><b>El bloque SIGMET no responde</b></td><td>Es el único que consulta en vivo. Se dice tal cual —«esa parte consulta la API y no ha respondido»— y se citan los avisos de la §30, que están congelados en el proyecto</td></tr>
+        <tr><td><b>Se va el tiempo</b></td><td>Se sacrifica el bloque A —canales y método— y se va directo al perfil 1830Z → 2030Z. El hallazgo se entiende sin el método; el método sin el hallazgo, no</td></tr>
+        <tr><td><b>Preguntan algo que no sabemos</b></td><td>«No lo tenemos medido», y se explica qué haría falta para medirlo. Es la respuesta que mejor encaja con todo lo demás: nunca hemos rellenado un hueco con algo plausible</td></tr>
+      </table>
+      <div class="clave" style="margin-top:3mm">
+        <p style="margin:0">
+          <b>Lo último que hay que recordar:</b> la sala no va a comprobar los cálculos. Va a
+          comprobar si <b>sabemos dónde están los límites de lo que afirmamos</b>. Por eso la §34
+          no es el apartado débil de la exposición: es el que la sostiene.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
+
+</body>
+</html>

@@ -1,0 +1,9 @@
+Teselas del mapa base guardadas para que el visor funcione sin internet.
+
+Origen: https://a.tile.opentopomap.org
+Atribución: © OpenTopoMap (CC-BY-SA) · datos © OpenStreetMap contributors (ODbL)
+Zoom 4–8, caja lat -7.73…16.90 lon -85.25…-63.35.
+Generado el 2026-09-08T22:56:29.015Z por herramientas/capturar-mapa-base.mjs.
+
+El visor las usa primero y solo sale a internet para los niveles de zoom que
+no estén aquí. Fuera de esta caja o por encima del zoom 8 hace falta red.

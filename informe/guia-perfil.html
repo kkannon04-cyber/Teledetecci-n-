@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>Cómo se lee el corte vertical</title>
+<style>
+  @page { size: A4 landscape; margin: 14mm 15mm 12mm; }
+
+  :root {
+    --tinta: #16202b;
+    --tinta2: #4a5b6b;
+    --tenue: #8595a4;
+    --linea: #d7dfe6;
+    --acento: #1668c4;
+    --rojo: #c0392b;
+    --ambar: #a9761a;
+    --verde: #1e7a45;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    color: var(--tinta);
+    font-size: 10.2pt;
+    line-height: 1.55;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  code, .mono { font-family: "Cascadia Mono", Consolas, monospace; font-size: 0.92em; }
+
+  section { page-break-after: always; page-break-inside: avoid; }
+  section:last-child { page-break-after: auto; }
+
+  h1 { font-size: 30pt; line-height: 1.1; margin: 0 0 6mm; letter-spacing: -0.5pt; }
+  h2 {
+    font-size: 15pt;
+    margin: 0 0 1.5mm;
+    letter-spacing: -0.2pt;
+  }
+  h2 .num {
+    display: inline-block;
+    min-width: 8.5mm;
+    color: var(--acento);
+    font-family: "Cascadia Mono", Consolas, monospace;
+  }
+  .sub { color: var(--tenue); font-size: 9.6pt; margin: 0 0 4mm; }
+  p { margin: 0 0 2.6mm; }
+
+  figure { margin: 0 0 4mm; }
+  figure img { width: 100%; display: block; border: 1px solid var(--linea); }
+  figure img.media { width: 62%; margin: 0 auto; }
+  figure.ajustada img { width: 93%; margin: 0 auto; }
+  figcaption { font-size: 8.4pt; color: var(--tenue); margin-top: 1.6mm; }
+
+  .cols { column-count: 2; column-gap: 9mm; }
+  .cols p { break-inside: avoid; }
+
+  .clave {
+    border-left: 3px solid var(--acento);
+    background: #f2f7fd;
+    padding: 3mm 4mm;
+    margin: 0 0 3mm;
+    break-inside: avoid;
+  }
+  .clave b { color: var(--acento); }
+
+  .ojo {
+    border-left: 3px solid var(--ambar);
+    background: #fdf8ee;
+    padding: 3mm 4mm;
+    margin: 3mm 0 0;
+    break-inside: avoid;
+  }
+  .ojo b { color: var(--ambar); }
+
+  ol.pasos { margin: 0; padding-left: 5.5mm; }
+  ol.pasos li { margin-bottom: 2mm; break-inside: avoid; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 9.4pt; margin: 0 0 3mm; }
+  th, td { text-align: left; padding: 1.2mm 2.5mm; border-bottom: 1px solid var(--linea); vertical-align: top; }
+  th { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.5pt; color: var(--tenue); font-weight: 600; }
+  td.n { font-family: "Cascadia Mono", Consolas, monospace; white-space: nowrap; }
+
+  .globo {
+    display: inline-block;
+    width: 5.2mm; height: 5.2mm;
+    border-radius: 50%;
+    background: #ffcc33;
+    color: #1b1200;
+    font-family: "Cascadia Mono", Consolas, monospace;
+    font-weight: 700;
+    font-size: 8.4pt;
+    text-align: center;
+    line-height: 5.2mm;
+    margin-right: 1mm;
+  }
+
+  .muestra { display: inline-block; width: 4mm; height: 3mm; border: 1px solid #0003; vertical-align: -0.3mm; margin-right: 1mm; }
+
+  /* ---- Portada ---- */
+  .portada { display: flex; flex-direction: column; justify-content: center; height: 180mm; }
+  .portada .eti { font-family: "Cascadia Mono", Consolas, monospace; font-size: 9pt; letter-spacing: 3pt; color: var(--acento); text-transform: uppercase; margin-bottom: 5mm; }
+  .portada .ruta { font-family: "Cascadia Mono", Consolas, monospace; font-size: 17pt; color: var(--acento); font-weight: 700; margin-bottom: 3mm; }
+  .portada .meta { color: var(--tinta2); font-size: 10.5pt; max-width: 150mm; }
+  .portada .reparto { margin-top: 10mm; display: flex; gap: 12mm; font-size: 10.5pt; }
+  .portada .reparto div { border-left: 2px solid var(--acento); padding-left: 3mm; font-weight: 600; }
+  .idx { margin-top: 12mm; font-size: 9.6pt; color: var(--tinta2); column-count: 2; column-gap: 10mm; }
+  .idx div { margin-bottom: 1.4mm; }
+  .idx .n { font-family: "Cascadia Mono", Consolas, monospace; color: var(--acento); margin-right: 2mm; }
+</style>
+</head>
+<body>
+
+<!-- ============ PORTADA ============ -->
+<section class="portada">
+  <div class="eti">Teledetección · guía de lectura</div>
+  <h1>Cómo se lee el corte vertical<br>de la ruta</h1>
+  <div class="ruta">SKVV → SKLT · 07 SEP 2026</div>
+  <p class="meta">
+    El corte vertical es la gráfica que contesta la pregunta central del trabajo:
+    <b>¿se puede volar esta ruta a FL210?</b> Esta guía explica, paso a paso y sobre
+    capturas reales del visor, qué significa cada elemento de la pantalla y qué se
+    puede afirmar —y qué no— a partir de ella.
+  </p>
+  <div class="reparto">
+    <div>Cristian Arcila</div>
+    <div>Ángela Torres</div>
+    <div>Leonardo Rodríguez</div>
+  </div>
+
+  <div class="idx">
+    <div><span class="n">1</span>La idea en una frase</div>
+    <div><span class="n">2</span>Anatomía: los cinco elementos fijos</div>
+    <div><span class="n">3</span>Las columnas: nubes con su temperatura</div>
+    <div><span class="n">4</span>La línea azul: el nivel de crucero</div>
+    <div><span class="n">5</span>Rojo, células y aeronave</div>
+    <div><span class="n">6</span>La cabecera: de dónde sale cada número</div>
+    <div><span class="n">7</span>El cursor: interrogar un punto</div>
+    <div><span class="n">8</span>Mover el tiempo: el hallazgo del caso</div>
+    <div><span class="n">&nbsp;</span>1830Z · 2030Z</div>
+    <div><span class="n">9</span>Qué decir en la sustentación</div>
+    <div><span class="n">10</span>Qué NO se puede afirmar</div>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section>
+  <h2><span class="num">1</span>La idea en una frase</h2>
+  <p class="sub">Si solo se retiene una cosa de esta guía, que sea esta.</p>
+
+  <div class="clave">
+    <p style="margin:0">
+      <b>El mapa enseña la tormenta vista desde arriba y no dice si se puede pasar por
+      encima. El corte vertical la enseña de perfil, y ahí la respuesta se ve sola:</b>
+      donde la nube sube por encima de la línea azul del nivel de crucero, no se pasa.
+    </p>
+  </div>
+
+  <figure>
+    <img src="figuras/perfil-2030z.png" alt="Corte vertical a las 2030Z" />
+    <figcaption>El corte vertical a las 2030Z. Eje horizontal: las 553 NM de ruta, de SKVV (izquierda) a SKLT (derecha). Eje vertical: altitud en niveles de vuelo.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <p>
+      Es una gráfica de <b>distancia contra altitud</b>. Se recorre de izquierda a
+      derecha igual que se vuela: SKVV a la izquierda, SKLT a la derecha, y en medio
+      los puntos publicados de la ruta.
+    </p>
+    <p>
+      Lo que se dibuja de gris y de colores <b>no es terreno</b>: son las nubes. Cada
+      columna es un punto de la ruta donde el satélite detectó nube, y la altura de
+      la columna es la altura estimada de su tope.
+    </p>
+    <p>
+      La línea azul de trazos es <b>FL210</b>, el nivel asignado al vuelo. Todo lo que
+      asome por encima de esa línea es un problema; todo lo que quede por debajo, se
+      sobrevuela.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section>
+  <h2><span class="num">2</span>Anatomía: los cinco elementos fijos</h2>
+  <p class="sub">Estos cinco están siempre, cambie la hora que cambie.</p>
+
+  <figure class="ajustada">
+    <img src="figuras/perfil-anatomia.png" alt="Corte vertical con los cinco elementos señalados" />
+  </figure>
+
+  <table>
+    <tr>
+      <th style="width:9mm"></th><th style="width:40mm">Elemento</th><th>Qué es y cómo se lee</th>
+    </tr>
+    <tr>
+      <td><span class="globo">1</span></td>
+      <td><b>Eje de niveles</b></td>
+      <td>Altitud en niveles de vuelo: FL100 son 10 000 ft, FL500 son 50 000 ft. La escala llega siempre hasta FL500 <b>a propósito</b>, aunque sobre sitio: si se ajustara al máximo de cada momento, la línea de crucero saltaría de sitio al mover el tiempo y no se podrían comparar dos horas.</td>
+    </tr>
+    <tr>
+      <td><span class="globo">2</span></td>
+      <td><b>Línea azul FL210</b></td>
+      <td>El nivel de crucero asignado. Es la línea de decisión de toda la gráfica.</td>
+    </tr>
+    <tr>
+      <td><span class="globo">3</span></td>
+      <td><b>Senda blanca</b></td>
+      <td>El perfil vertical del vuelo: sube desde SKVV hasta el TOC, se mantiene en FL210, y baja desde el TOD hasta SKLT. Es la trayectoria prevista, no una medida.</td>
+    </tr>
+    <tr>
+      <td><span class="globo">4</span></td>
+      <td><b>Columnas</b></td>
+      <td>Las nubes. Una columna por cada punto muestreado de la ruta (son 170 en total). Su altura es el tope estimado; su color, la temperatura de brillo.</td>
+    </tr>
+    <tr>
+      <td><span class="globo">5</span></td>
+      <td><b>Puntos de la ruta</b></td>
+      <td>SKVV, VVC, TOC, UBRID, DUBRA, ISORI, ASKAT, DADIL, TOD, ROKUL y SKLT, en su distancia real. Sirven para decir <i>dónde</i> está el problema con un nombre que el evaluador reconoce.</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============ 3 ============ -->
+<section>
+  <h2><span class="num">3</span>Las columnas: nubes con su temperatura</h2>
+  <p class="sub">El color no es decorativo. Es la escala del propio satélite.</p>
+
+  <div class="cols">
+    <p>
+      Cada columna se pinta con <b>la misma tabla de color con la que el satélite
+      publica la banda 13</b>. Eso significa que el color de la gráfica y el color de
+      la imagen satelital que se ve al lado <b>significan exactamente lo mismo</b>: no
+      hay que traducir entre una y otra.
+    </p>
+    <p>
+      Esa tabla —se llama <code>ircimss2</code>— funciona así:
+    </p>
+    <p style="margin-bottom:1mm">
+      <span class="muestra" style="background:#8a8a8a"></span><b>Gris</b> — de +40 °C a
+      −30 °C. Suelo, mar y nube baja o media. Columnas bajas.
+    </p>
+    <p style="margin-bottom:1mm">
+      <span class="muestra" style="background:#00c8e6"></span><b>Cian y azul</b> — de
+      −30 a −45 °C. Aquí empieza el color, y no es casualidad: es el corte a partir
+      del cual la nube ya es alta.
+    </p>
+    <p style="margin-bottom:1mm">
+      <span class="muestra" style="background:#4ce600"></span><b>Verde</b> — hacia
+      −50 °C. Convección desarrollada.
+    </p>
+    <p style="margin-bottom:1mm">
+      <span class="muestra" style="background:#f0c800"></span><b>Amarillo</b> — hacia
+      −60 °C.
+    </p>
+    <p>
+      <span class="muestra" style="background:#e6431e"></span><b>Naranja y rojo</b> —
+      de −65 a −75 °C. Tope en la alta troposfera: cumulonimbo maduro.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>La regla práctica:</b> mientras las columnas sean grises y bajas, la ruta
+        está despejada al nivel de vuelo. En cuanto aparecen columnas <b>verdes,
+        amarillas o naranjas</b>, hay convección profunda y hay que mirar la línea azul.
+      </p>
+    </div>
+
+    <p>
+      La altura de cada columna no la mide el satélite: <b>se calcula</b> a partir de
+      la temperatura, con la fórmula que aparece escrita en la propia cabecera de la
+      gráfica. El apartado 6 explica de dónde sale.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section>
+  <h2><span class="num">4</span>La línea azul: el nivel de crucero</h2>
+  <p class="sub">Por qué FL210 y no otro, y por qué no basta con subir.</p>
+
+  <div class="cols">
+    <p>
+      <b>FL210 no se eligió por comodidad.</b> Todos los tramos de la ruta van entre
+      123° y 171° magnéticos, o sea dentro del semicírculo 000–179, donde la tabla de
+      niveles de crucero obliga a <b>niveles impares</b>. FL200 —que es lo primero que
+      uno escribiría para un ATR— corresponde al sentido contrario y no es asignable.
+    </p>
+    <p>
+      De los impares, FL190 queda descartado porque 19 000 ft es exactamente el techo
+      de la zona restringida <b>SKR7</b>, que cubre el propio aeródromo de salida.
+      Queda FL210.
+    </p>
+
+    <div class="ojo">
+      <p style="margin:0">
+        <b>La pregunta que suele hacer el evaluador:</b> «¿y por qué no suben para
+        pasar por encima?». La respuesta está en la gráfica: los topes llegan a
+        <b>FL424</b> y más. No hay nivel disponible para un ATR 72-600 que salve eso.
+        <b>Ante convección profunda la solución es lateral o temporal, nunca vertical.</b>
+      </p>
+    </div>
+
+    <p style="margin-top:3mm">
+      Por eso la línea azul es el eje del análisis: separa lo que se sobrevuela de lo
+      que hay que rodear.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section>
+  <h2><span class="num">5</span>Rojo, células y aeronave</h2>
+  <p class="sub">Los tres elementos que solo aparecen cuando hay conflicto.</p>
+
+  <div style="display:flex; gap:7mm; align-items:flex-start">
+    <figure style="flex:0 0 105mm; margin:0">
+      <img src="figuras/perfil-conflicto.png" alt="Zoom al último tercio de la ruta" />
+      <figcaption>Último tercio de la ruta a las 2030Z: entre DADIL y ROKUL.</figcaption>
+    </figure>
+
+    <div style="flex:1">
+      <p>
+        <span class="globo">6</span><b>Banda roja vertical.</b> Marca los tramos donde
+        el tope de nube <b>supera el nivel de crucero</b>. Es el resultado de comparar
+        cada columna con la línea azul, hecho automáticamente. Si hay bandas rojas, ahí
+        está el problema.
+      </p>
+      <p>
+        <span class="globo">7</span><b>Línea de trazos con etiqueta.</b> Una célula
+        convectiva seguida por el análisis, con su identificador. Aquí se ven
+        <code>cb-01</code>, <code>cb-03</code> y <code>cb-05</code> apiladas: las tres
+        coinciden con la aeronave en la misma milla, por eso sus rótulos van
+        escalonados. <code>cb-02</code> aparece más adelante.
+      </p>
+      <p>
+        <span class="globo">8</span><b>Rombo blanco.</b> La aeronave, en la posición
+        que le corresponde a la hora seleccionada. Se pone <b>rojo</b> cuando tiene
+        nube por encima del nivel de crucero justo en su vertical.
+      </p>
+
+      <div class="clave">
+        <p style="margin:0">
+          Lo que esta figura demuestra: a las 2030Z el avión está en la milla 458, y
+          justo ahí hay columnas verdes y naranjas que pasan de FL400 con tres células
+          severas encima. <b>Ese es el momento crítico del vuelo.</b>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section>
+  <h2><span class="num">6</span>La cabecera: de dónde sale cada número</h2>
+  <p class="sub">La franja de arriba es lo que hace defendible a la gráfica.</p>
+
+  <figure>
+    <img src="figuras/perfil-pie.png" alt="Cabecera del corte vertical" />
+  </figure>
+
+  <div class="cols">
+    <p><b>2030Z</b> — la hora que marca la barra de tiempo. La gráfica entera corresponde a ese instante.</p>
+    <p><b>Infrarrojo ventana limpia</b> — la banda 13 (10,3 µm), que es la que mide temperatura de tope y funciona de día y de noche.</p>
+    <p><b>76/170 puntos con nube</b> — de los 170 puntos muestreados a lo largo de la ruta, en 76 se detectó nube. En el resto, cielo despejado.</p>
+    <p><b>24 por encima de FL210</b> — el número que resume el conflicto. En rojo porque es el dato operacional.</p>
+    <p><b>18 ambiguos</b> — puntos donde el color del píxel <b>no permite una lectura concluyente</b>. No se rellenan con un valor plausible: se cuentan y se dicen.</p>
+
+    <div class="clave">
+      <p style="margin:0 0 2mm"><b>La fórmula, que conviene saber explicar:</b></p>
+      <p class="mono" style="margin:0 0 2mm">z_tope = z_estación + (T_estación − Tb) / Γ</p>
+      <p style="margin:0">
+        Γ = 6,5 °C/km es el gradiente térmico de la troposfera de la Atmósfera Tipo
+        OACI. <b>T_estación y z_estación no son de atmósfera tipo: son de un METAR
+        real</b>, el de la estación más cercana a ese punto y a esa hora. Aquí, SKVV
+        con 28 °C. Anclar en el dato observado es lo que separa esto de un número
+        inventado.
+      </p>
+    </div>
+
+    <div class="ojo">
+      <p style="margin:0">
+        <b>Di siempre «altura CALCULADA».</b> Está escrito en la propia gráfica. El
+        satélite mide temperatura; la altura es una consecuencia del modelo, con su
+        incertidumbre.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section>
+  <h2><span class="num">7</span>El cursor: interrogar un punto</h2>
+  <p class="sub">Pasar el ratón por la gráfica devuelve la ficha completa de ese punto.</p>
+
+  <div style="display:flex; gap:8mm; align-items:flex-start">
+    <figure style="flex:0 0 130mm; margin:0">
+      <img src="figuras/perfil-globo.png" alt="Globo de lectura al pasar el cursor" />
+    </figure>
+
+    <div style="flex:1">
+      <p>Cada línea del globo responde a una pregunta distinta:</p>
+      <table>
+        <tr><td class="n">475 NM</td><td>Distancia desde SKVV, y el tramo en que cae: DADIL → TOD.</td></tr>
+        <tr><td class="n">−53,9 °C</td><td>Temperatura de brillo <b>medida</b> en ese píxel.</td></tr>
+        <tr><td class="n">Nube: sí</td><td>La máscara de nube lo confirma: está más de 10 °C por debajo del METAR de anclaje.</td></tr>
+        <tr><td class="n">FL424</td><td>Tope estimado. <b>Calculado</b> con la fórmula del apartado 6.</td></tr>
+        <tr><td class="n" style="color:var(--rojo)">Por encima de FL210</td><td>El veredicto de ese punto.</td></tr>
+        <tr><td class="n">SKLT · 30 °C · 85 NM</td><td>La estación que ancló el cálculo y a qué distancia estaba.</td></tr>
+      </table>
+
+      <div class="clave">
+        <p style="margin:0">
+          <b>Úsalo en vivo durante la sustentación.</b> Si alguien pregunta «¿y ahí
+          cuánto hay?», pasas el cursor y sale el número con su procedencia. Eso
+          demuestra que la gráfica no es un dibujo: es consultable punto a punto.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 8a ============ -->
+<section>
+  <h2><span class="num">8</span>Mover el tiempo · 1830Z, la hora de salida</h2>
+  <p class="sub">Lo que se vería si el análisis se hiciera solo en el momento de despegar.</p>
+
+  <figure>
+    <img src="figuras/perfil-1830z.png" alt="Corte vertical a las 1830Z" />
+    <figcaption>Corte vertical a las 1830Z, hora de despegue.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <p>
+      <b>93 de los 170 puntos tienen nube</b>, así que la ruta no está despejada: hay
+      nubosidad casi todo el trayecto. Pero eso no es lo que decide.
+    </p>
+    <p>
+      Lo que decide es que solo <b>4 puntos superan FL210</b>, un 2 % de la ruta, y el
+      tope máximo estimado llega a <b>FL236</b>: apenas 2 600 ft por encima del nivel
+      de crucero, en un punto aislado.
+    </p>
+    <p>
+      Casi todas las columnas son grises y se quedan por debajo de la línea azul. Con
+      esta imagen sobre la mesa, <b>la ruta se declara practicable</b> y el vuelo sale.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 8b ============ -->
+<section>
+  <h2><span class="num">8</span>Mover el tiempo · 2030Z, dos horas después</h2>
+  <p class="sub">La misma ruta, el mismo nivel, el mismo procedimiento. Otro resultado.</p>
+
+  <figure>
+    <img src="figuras/perfil-2030z.png" alt="Corte vertical a las 2030Z" />
+    <figcaption>Corte vertical a las 2030Z, con el vuelo ya en el último tercio del trayecto.</figcaption>
+  </figure>
+
+  <div class="cols">
+    <p>
+      Ahora hay <b>menos</b> puntos con nube —76 frente a 93— y sin embargo la
+      situación es mucho peor: <b>24 puntos por encima de FL210</b>, un 14 %, y un tope
+      máximo de <b>FL478</b>. Aparecen las columnas verdes y naranjas, las bandas rojas
+      y tres células severas.
+    </p>
+    <p>
+      No es que haya más nube: es que <b>la nube que hay ha crecido</b>. Es el ciclo
+      diurno de la convección amazónica, y el vuelo la encuentra en su fase madura.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>La frase que vale el trabajo entero:</b> la fracción de ruta bloqueada al
+        nivel de crucero <b>se multiplica por siete</b> entre la salida y la llegada, y
+        el conflicto cae justo en el descenso a SKLT. <b>Un análisis hecho solo con la
+        imagen de la hora de salida habría declarado la ruta limpia y habría fallado
+        exactamente donde importa.</b>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section>
+  <h2><span class="num">9</span>Qué decir en la sustentación</h2>
+  <p class="sub">Un guion de cinco frases, en orden, mientras se mueve la barra de tiempo.</p>
+
+  <ol class="pasos" style="font-size:10.6pt">
+    <li>
+      <b>Sitúa la gráfica.</b> «Esto es la ruta de perfil: 553 NM de SKVV a SKLT en el
+      eje horizontal, altitud en el vertical. La línea azul es nuestro nivel asignado,
+      FL210.»
+    </li>
+    <li>
+      <b>Explica las columnas.</b> «Las columnas son nubes. La altura es el tope
+      estimado y el color es la temperatura de brillo, con la misma escala que publica
+      el satélite: gris es nube baja, verde y naranja son topes de −50 a −75 °C.»
+    </li>
+    <li>
+      <b>Enseña la hora de salida.</b> «A las 1830Z, hora de despegue, solo el 2 % de
+      la ruta tiene topes por encima del nivel de crucero. Sobre el papel, salimos con
+      la ruta despejada.»
+    </li>
+    <li>
+      <b>Mueve la barra a 2030Z.</b> «Dos horas después es el 14 %, el tope máximo pasa
+      de FL236 a FL478, y aparecen tres células severas a menos de 20 NM de nuestra
+      posición, justo en la aproximación a Leticia.»
+    </li>
+    <li>
+      <b>Cierra con la decisión.</b> «Con topes de −74 °C el nivel de crucero no salva
+      nada: no hay altitud disponible para un ATR que pase por encima. La respuesta es
+      un desvío lateral de unas 9 NM, que cuesta medio minuto de vuelo, decidido
+      quince minutos antes y no encima del obstáculo.»
+    </li>
+  </ol>
+
+  <div class="ojo">
+    <p style="margin:0">
+      <b>Si te preguntan por qué no usaste el radar meteorológico:</b> porque el del
+      avión alcanza unas decenas de millas y solo ve lo que tiene delante. El satélite
+      ve las 553 NM a la vez y con dos horas de antelación, que es lo que permite
+      <i>planificar</i> el desvío en vez de improvisarlo.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 10 ============ -->
+<section>
+  <h2><span class="num">10</span>Qué NO se puede afirmar</h2>
+  <p class="sub">Decir los límites antes de que los pregunten es lo que sostiene el resto.</p>
+
+  <div class="cols">
+    <p>
+      <b>1. El satélite mide el tope, no la nube.</b> Bajo esa superficie no hay dato:
+      ni base de nube, ni cizalladura, ni granizo en superficie. Por eso la columna se
+      dibuja desde el tope hacia abajo sin afirmar dónde empieza la nube.
+    </p>
+    <p>
+      <b>2. La altura es un cálculo, no una observación.</b> Usa un gradiente térmico
+      tipo (6,5 °C/km) que no se ha podido verificar para la Amazonía ese día, porque
+      no hay radiosondeo. Es una estimación declarada.
+    </p>
+    <p>
+      <b>3. La escala satura.</b> La barra publicada no rotula por debajo de −90 °C.
+      Un valor de −90 es un <b>límite</b>, no una medida. Por eso la severidad de las
+      células se clasifica por el percentil 5 y no por el mínimo.
+    </p>
+    <p>
+      <b>4. Hay puntos ambiguos y se dicen.</b> A las 2030Z, 18 de los 170 puntos no
+      dan lectura concluyente. La gráfica los cuenta en su cabecera en vez de
+      rellenarlos con algo plausible.
+    </p>
+    <p>
+      <b>5. Nube baja y niebla no se ven.</b> Un estrato a 400 ft tiene casi la misma
+      temperatura que el suelo tropical, así que la máscara no lo separa del terreno.
+      Para techos bajos, el METAR es insustituible.
+    </p>
+
+    <div class="clave">
+      <p style="margin:0">
+        <b>La conclusión que cierra la exposición:</b> la teledetección cubre el hueco
+        <i>geográfico</i> —los 553 NM entre aeródromos, donde no hay estaciones—, y la
+        observación de superficie cubre el hueco <i>vertical</i> —lo que pasa por
+        debajo del tope de nube—. Ninguna de las dos sobra.
+      </p>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
